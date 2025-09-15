@@ -1,0 +1,186 @@
+<section class="m-6">
+
+    <div class="flex justify-content-between m-3">
+        <div>
+            <div class="text-3xl">Budget Tracker</div>
+        </div>
+        <div>
+            <p-radioButton name="schedule" value="1" [(ngModel)]="typeView"></p-radioButton>
+            <label for="ingredient1" class="ml-2 mr-5">Schedule</label>
+
+            <p-radioButton name="summary" value="2" [(ngModel)]="typeView"></p-radioButton>
+            <label for="ingredient2" class="ml-2 mr-5">Payments summary</label>
+        </div>
+    </div>
+
+    <div *ngIf="typeView == 1">
+        <div class="flex justify-content-between">
+            <div class="p-1 border-round font-bold m-1">
+                <span class="p-float-label">
+                    <p-calendar [(ngModel)]="yearSelected" (ngModelChange)="getSummaryActivitiesByProject($event)" view="year" dateFormat="yy" [showIcon]="true"></p-calendar>
+                    <label>Period</label>
+                </span>
+            </div>
+            <div class="p-1 border-round font-bold m-1">
+                <p>Start Date - End Date<br>{{periodSelected?.Reporting_period_start | date: 'mediumDate'}} - {{periodSelected?.Reporting_period_end | date: 'mediumDate'}}</p>
+            </div>
+            <div class="p-1 border-round font-bold m-1">
+                <p>Capex planned in this RP: <br>
+                   Signed: $12,345 <br>
+                   Planned: $12,345 <br>
+                   Paid: $12,345</p>
+            </div>
+            <div class="p-1 border-round font-bold m-1">
+                <p>Opex planned in this RP: <br>
+                   Signed: $12,345 <br>
+                   Planned: $12,345 <br>
+                   Paid: $12,345</p>
+            </div>
+            <div class="p-1 border-round font-bold m-1">
+                <p>Total Kind of Property: <br>
+                   PSTS: $12,345 <br>
+                   Canopia: $12,345 <br>
+                   Verifiers: $12,345</p>
+            </div>
+        </div>
+
+        <p-table [value]="summaryActivities" [loading]="loading" [paginator]="true" [rows]="10" scrollHeight="400px" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Activity</th>
+                <th>Target</th>
+                <th>Advance</th>
+                <th *ngFor="let mes of mesesDelAno">{{mes.mes}}</th>
+                <!-- <th *ngFor="let mes of mesesDelAno">{{mes.mes}} Y2</th> -->
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+            <tr>
+                <td>{{ customer.projectsactivities }}</td>
+                <td>{{ customer.quantityobjetive }}</td>
+                <td>{{ customer.quantityadvance }}</td>
+                <td *ngFor="let mes of mesesDelAno;" [ngStyle]="{'background-color': getMonthBackgroundCell(customer.begindate, customer.enddate, mes.id, mes.year, customer),'color':'#FFFFFF'}"></td>
+                <!-- <td *ngFor="let mes of mesesDelAno;" [ngStyle]="{'background-color': getMonthBackgroundCell(customer.Reporting_period_start, customer.Reporting_period_end, mes.id, customer),'color':'#FFFFFF'}"></td> -->
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <p>Without Activities</p>
+        </ng-template>
+    </p-table>
+    </div>
+    
+    <div class="card" *ngIf="typeView == 2">
+        <div class="flex justify-content-between">
+            <div>
+                <div>
+                    <span class="p-float-label">
+                        <p-dropdown [options]="cities" placeholder="Select RP" optionLabel="name"></p-dropdown>
+                        <label for="">Select RP</label>
+                    </span>
+                </div>
+            </div>
+            <div>
+                <p-button icon="pi pi-file-excel" label="Download File" ></p-button>
+            </div>
+        </div>
+        <p-table dataKey="id" [value]="customers" [paginator]="true" [rows]="5" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th></th>
+                    <th>Activity</th>
+                    <th>Capex Approved</th>
+                    <th>Capex Planned</th>
+                    <th>Capex Executed</th>
+                    <th>Opex Approved</th>
+                    <th>Opex Planned</th>
+                    <th>Opex Executed</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-yourRowVaraible let-expanded="expanded" >
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="yourRowVaraible" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td>
+                        {{yourRowVaraible.name}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.description}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.price | currency}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.price | currency}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.price | currency}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.price | currency}}
+                    </td>
+                    <td>
+                        {{yourRowVaraible.price | currency}}
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-product>
+                <tr>
+                    <td colspan="8">
+                        <div class="p-0">
+                            <p-table [value]="product.orders" dataKey="id">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th></th>
+                                        <th>Capex Approved</th>
+                                        <th>Capex Planned</th>
+                                        <th>Capex Executed</th>
+                                        <th>Opex Approved</th>
+                                        <th>Opex Planned</th>
+                                        <th>Opex Executed</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-order>
+                                    <tr>
+                                        <td style="width: 200px;"></td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>
+                                            
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="footer">
+                                    <tr>
+                                        <th>Total: </th>
+                                        <th>$10,000</th>
+                                        <th>$10,000</th>
+                                        <th>$10,000</th>
+                                        <th>$10,000</th>
+                                        <th>$10,000</th>
+                                        <th>$10,000</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6">There are no summary in this activity.</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4">There are no budget</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</section>

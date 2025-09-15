@@ -1,0 +1,43 @@
+<section class="" *ngIf="(selectedProject$ | async)?.idprojects">
+  <div class="grid border-bottom-1 border-green-50">
+    <div class="col-12 md:col-6">
+      <div class="flex justify-content-start">
+        <div>
+          <p class="m-0 font-semibold">ID PROJECT: {{ (selectedProject$ | async)?.idprojects }} | ID CAR: {{ (selectedProject$ | async)?.Id_ProyectoCAR }}</p>
+          <h5>{{ (selectedProject$ | async)?.ProjectName }}</h5>
+        </div>
+        <div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-6">
+      <div class="flex justify-content-center">
+        <div class="p-2 text-center">
+          <small>STATE</small>
+          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Estado }}</p>
+        </div>
+        <div class="p-2 text-center">
+          <small>AGGREGATION</small>
+          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Aggregation }}</p>
+        </div>
+        <div class="p-2 text-center">
+          <small>MUNICIPALITY</small>
+          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Municipio }}</p>
+        </div>
+        <div class="p-2 text-center">
+          <small>CORE</small>
+          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.NucleoAgrario }}</p>
+        </div>
+        <div class="p-2 text-center">
+          <small>KIND OF PROPERTY</small>
+          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.TipoPropiedad }}</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="py-2">
+    <p-menubar [model]="items"></p-menubar>
+  </div>
+</section>

@@ -1,0 +1,214 @@
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Reporting Periods</h3>
+    <p>
+        If you make a new RP, please write all data in "Reporting Period Initial Data", after click in "Save changes". <br>
+        If you want edit a some RP, you can write all fields in the section selected, after click in "Save changes". <br>
+    </p>
+</p-sidebar>
+<section class="m-5">
+    <div class="flex justify-content-between">
+        <div>
+            <h1>Reporting Periods - Form</h1>
+        </div>
+        <div class="flex justify-content-between">
+            <div class="flex justify-content-between mt-1">
+                <p class="mr-2" *ngIf="RPSelected"><strong>Registration programme:</strong> {{RPSelected.description_programme}}</p>
+                <p class="mr-2" *ngIf="RPSelected"><strong>Registration route:</strong> {{RPSelected.Description_Registration}}</p>
+            </div>
+            <div>
+                <p-button type="button" styleClass="p-button-success ml-2" pTooltip="Info" (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+            </div>
+        </div>
+    </div>
+    <div [formGroup]="RPForm">
+        <div class="grid">
+            <div class="col-12 md:12">
+                <p-fieldset styleClass="mt-5" [toggleable]="true">
+                    <ng-template pTemplate="header">
+                        <div class="flex align-items-center">
+                            <span class="pi pi-file-import mr-2"></span>
+                            <span class="text-lg">Reporting Period Initial Data</span>
+                        </div>
+                    </ng-template>                
+                    <div class="grid">
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-dropdown [options]="rpnumbers" appendTo="body" formControlName="RP_ID" [showClear]="true" placeholder="Reporting period number" optionLabel="RP_Number" optionValue="idrpnumber"></p-dropdown>
+                                <label for="float-label">Reporting period number</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText type="number" formControlName="Calculated_Volume" />
+                                <label htmlFor="username">Calculated Volume</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" appendTo="body" formControlName="Reporting_period_start" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Reporting Period Start</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="RP_st_status" readonly/>
+                                <label htmlFor="username">RP Start Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" appendTo="body" formControlName="RPEnd" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Reporting Period End</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="RP_end_status" readonly/>
+                                <label htmlFor="username">RP End Status</label>
+                            </span>
+                        </div>
+                    </div>
+                </p-fieldset>
+                <p-fieldset *ngIf="editEnable" styleClass="mt-5" [toggleable]="true" [collapsed]="true">
+                    <ng-template pTemplate="header">
+                        <div class="flex align-items-center">
+                            <span class="pi pi-desktop mr-2"></span>
+                            <span class="text-lg">Monitoring</span>
+                        </div>
+                    </ng-template>
+                    <div class="grid">
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Monitoring_Start" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Monitoring Start</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Monitoring_St_Status" readonly/>
+                                <label htmlFor="username">Monitoring Start Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Monitoring_End" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Monitoring End</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Monitorin_End_Status" readonly/>
+                                <label htmlFor="username">Monitoring End Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <span class="p-float-label">
+                                <input pInputText type="number" formControlName="CMW_Monitoring_Vol" />
+                                <label htmlFor="username">CMW Monitoring Volume</label>
+                            </span>
+                        </div>
+                    </div>
+                </p-fieldset>
+                <p-fieldset *ngIf="editEnable" styleClass="mt-5" [toggleable]="true" [collapsed]="true">
+                    <ng-template pTemplate="header">
+                        <div class="flex align-items-center">
+                            <span class="pi pi-file-edit mr-2"></span>
+                            <span class="text-lg">Verification</span>
+                        </div>
+                    </ng-template>
+                    <div class="grid">
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Ve_St" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Verification Start</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Verification_Start_Status" readonly/>
+                                <label htmlFor="username">Verification Start Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Verification_End" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Verification End</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Verification_End_Status" readonly/>
+                                <label htmlFor="username">Verification End Status</label>
+                            </span>
+                        </div>
+
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input pInputText type="number" formControlName="VerificationVol" />
+                                <label htmlFor="username">Verification Volume</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="id_Type_Registration_Route"/>
+                                <label htmlFor="username">Verification Type</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <p-dropdown [options]="verifiers" formControlName="Verifier" placeholder="Select Verifier" optionLabel="ShortDescription" optionValue="Idverifier" inputId="float-label"></p-dropdown>
+                                <label for="float-label">Select Verifier</label>
+                            </span>
+                        </div>
+                    </div>
+                </p-fieldset>
+                <p-fieldset *ngIf="editEnable" styleClass="mt-5" [toggleable]="true" [collapsed]="true">
+                    <ng-template pTemplate="header">
+                        <div class="flex align-items-center">
+                            <span class="pi pi-verified mr-2"></span>
+                            <span class="text-lg">Issuance</span>
+                        </div>
+                    </ng-template>
+                    <div class="grid">
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Issuance_Start" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Issuance Start</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Issuance_Start_Status" readonly/>
+                                <label htmlFor="username">Issuance Status Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar [style]="{'width':'100%'}" [minDate]="minDate" formControlName="Issuance_End" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                                <label htmlFor="username">Issuance End</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText formControlName="Issuance_End_tatus" readonly/>
+                                <label htmlFor="username">Issuance End Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <input pInputText type="number" formControlName="Issuance_Vol"/>
+                                <label htmlFor="username">Net Issuance Volume</label>
+                            </span>
+                        </div>
+                    </div>
+                </p-fieldset>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="flex justify-content-end">
+                <p-button label="Cancel" styleClass="p-button-outlined mr-1" icon="pi pi-times" routerLink="/Reporting-periods"></p-button>
+                <p-button label="Save changes" (onClick)="saveRP()"></p-button>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,137 @@
+<section class="m-5">
+    <div class="grid">
+        <div class="col-12 md:col-5">
+            <p-card>
+                <div class="flex justify-content-start mt-3 mb-3">
+                    <div>
+                        <p-dropdown [options]="rpnumbers" [(ngModel)]="rpSelected" (ngModelChange)="getActivitiesByRPmark($event)" placeholder="RP" optionLabel="RP_Number" optionValue="idrpnumber" [showClear]="true"></p-dropdown>
+                    </div>
+                </div>
+                <p-table [value]="activities" [(selection)]="selectedProducts" dataKey="IdActividaddata" [rows]="10" [paginator]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                         [rowsPerPageOptions]="[10, 25, 50]" (onRowSelect)="catchActivity($event.data)">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 2rem"></th>
+                            <th>ID</th>
+                            <th>Activity Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-activity>
+                        <tr>
+                            <td>
+                                <p-tableRadioButton [value]="activity"></p-tableRadioButton>
+                            </td>
+                            <td>{{ activity.IdActividaddata }}</td>
+                            <td>{{ activity.Actividad }}</td>
+                            <td>
+                                <span *ngIf="activity.IdstatusReporteoActividades == 1" class="status-pending"><strong>No Started</strong></span>
+                                <span *ngIf="activity.IdstatusReporteoActividades == 2" class="status-evaluation"><strong>In Progress</strong></span>
+                                <span *ngIf="activity.IdstatusReporteoActividades == 3" class="status-finished"><strong>Done</strong></span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="2">No activities found, please, select RP.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-content-center">
+                        <p-button *ngIf="rpSelected" label="Import" (onClick)="importReporting()" icon="pi pi-file-import"></p-button>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-7">
+            <div class="grid">
+                <div class="col-12 md:col-12">                    
+                    <div class="flex justify-content-between">
+                        <div>
+                            <div *ngIf="activitySelected" class="text-3xl">
+                                {{activitySelected.Actividad}}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="underline">
+                                {{activitySelected?.CategoriaMarketing}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-content-center">
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.kpi}}</p>
+                                <small class="uppercase">KPI</small>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.estimado}}</p>
+                                <small class="uppercase">Quantity Goal</small>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.AvanceCuantitativo}}</p>
+                                <small class="uppercase">Quantity to date</small>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.participatingW}}</p>
+                                <small class="uppercase">Part. Woman</small>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.participatingM}}</p>
+                                <small class="uppercase">Part. Man</small>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="m-5 text-center status-one">
+                                <p class="font-bold m-0">{{totalReportingByActivity.SumaTotalJornales}}</p>
+                                <small class="uppercase">Jobs benefit</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="col-12 md:col-12">
+                    <p-table [value]="activityReporting" [rows]="5" [paginator]="true" >
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Indicator</th>
+                                <th>KPI</th>
+                                <th>Quantity Goal</th>
+                                <th>Quantity to date</th>
+                                <th>Progress</th>
+                                <th>Part Woman</th>
+                                <th>Part Man</th>
+                                <th>Jobs Benefits</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-reporting>
+                            <tr>
+                                <td>{{reporting.Cuantitativos}}</td>
+                                <td>{{reporting.Metrica}}</td>
+                                <td>{{reporting.estimado}}</td>
+                                <td>{{reporting.AvanceCuantitativo}}</td>
+                                <td>{{reporting.calculatedprogress}}%</td>
+                                <td>{{reporting.participatingW}}</td>
+                                <td>{{reporting.participatingM}}</td>
+                                <td>{{reporting.NumJornales}}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="8">Please select Activity to see monitoring</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+</section>

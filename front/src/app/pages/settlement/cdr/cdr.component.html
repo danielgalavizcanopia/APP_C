@@ -1,0 +1,420 @@
+<p-confirmPopup></p-confirmPopup>
+
+<div>
+    <h4>Settlement Planning</h4>
+    <div class="flex justify-content-between flex-wrap">
+        <div>
+            <span class="p-float-label">
+                <p-dropdown appendTo="body" [options]="rpnumbers" [(ngModel)]="RPselected"
+                    (ngModelChange)="getSettlement($event)" placeholder="Select RP" optionValue="idrpnumber"
+                    optionLabel="RP_Number" [showClear]="true" inputId="float-label"></p-dropdown>
+                <label for="float-label">RP</label>
+            </span>
+        </div>
+        <div>
+            <p-button label="Download Settlement" (onClick)="downloadSettlementReport()" styleClass="p-button-outlined mr-3"></p-button>
+            <p-button label="New Settlement" styleClass="p-button-success" (click)="showDialog()"></p-button>
+        </div>
+    </div>
+
+    <div>
+        <p-table paginatorDropdownAppendTo="body" [value]="settlements" styleClass="p-datatable-sm"
+            [globalFilterFields]="['folio','DateCreate','idrpnumber','typeofcurrency']" [rows]="10" [paginator]="true"
+            [rowsPerPageOptions]="[10, 25, 50]">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="text-sm" pSortableColumn="folio" style="width:8%">Folio <p-sortIcon
+                            field="folio"></p-sortIcon></th>
+                    <th class="text-sm" pSortableColumn="DateCreate" style="width:8%">Registry <br> Date <p-sortIcon
+                            field="DateCreate"></p-sortIcon></th>
+                    <th class="text-sm" pSortableColumn="idrpnumber" style="width:8%">RP <p-sortIcon
+                            field="idrpnumber"></p-sortIcon></th>
+                    <th class="text-sm" pSortableColumn="typeofcurrency" style="width:8%">Settle <br> Curry <p-sortIcon
+                            field="typeofcurrency"></p-sortIcon></th>
+                    <th class="text-sm text-center" style="width:8%">Volume</th>
+                    <th class="text-sm text-center" style="width:8%">Vintage</th>
+                    <th class="text-sm text-center" style="width:8%">Price <br> Canopia</th>
+                    <th class="text-sm text-center" style="width:8%">Project Gross Income</th>
+                    <th class="text-sm text-center" style="width:8%">Final CAPEX Approved by Assembly</th>
+                    <th class="text-sm text-center" style="width:8%">Final Annual Cost Deduction</th>
+                    <th class="text-sm text-center" style="width:8%">Project Net Income</th>
+                    <th class="text-sm text-center" style="width:4%">Status</th>
+                    <th class="text-sm text-center" style="width:4%"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-settlement>
+                <tr>
+                    <td>{{settlement.folio}}</td>
+                    <td>{{settlement.DateCreate | date: 'dd/MM/yyyy HH:mm': 'UTC' }}</td>
+                    <td>RP{{settlement.idrpnumber}}</td>
+                    <td>{{settlement.typeofcurrency}}</td>
+                    <td>{{settlement.settlement_volume}}</td>
+                    <td>{{settlement.vintage_range}}</td>
+                    <td>{{settlement.pricecanopia | currency}}</td>
+                    <td>{{settlement.project_gross_income | currency}}</td>
+                    <td>{{settlement.Approved | currency}}</td>
+                    <td>{{settlement.ACD | currency}}</td>
+                    <td>{{settlement.Project_Net_Income | currency}}</td>
+                    <td>
+                        <!-- PENDING -->
+                        <span class="status-pending"
+                            *ngIf="settlement.status == 1 && settlement.statusdirection == 1">Pending</span>
+                        <!-- APPROVED 1 OF 2 -->
+                        <span class="status-approved"
+                            *ngIf="settlement.status == 2 && settlement.statusdirection == 1">Approved 1 of 2</span>
+                        <span class="status-approved"
+                            *ngIf="settlement.status == 1 && settlement.statusdirection == 2">Approved 1 of 2</span>
+                        <!-- APPROVED 2 OF 2 -->
+                        <span class="status-double-approved"
+                            *ngIf="settlement.status == 2 && settlement.statusdirection == 2">Approved 2 of 2</span>
+                        <!-- DENIED 1 OF 2 -->
+                        <span class="status-denied"
+                            *ngIf="settlement.status == 3 && settlement.statusdirection != 3">Denied 1 of 2</span>
+                        <span class="status-denied"
+                            *ngIf="settlement.status != 3 && settlement.statusdirection == 3">Denied 1 of 2</span>
+                        <!-- DENIED 2 OF 2 -->
+                        <span class="status-double-denied"
+                            *ngIf="settlement.status == 3 && settlement.statusdirection == 3">Denied 2 of 2</span>
+                    </td>
+                    <td>
+                        <p-button *ngIf="settlement.status != 2 || settlement.statusdirection != 2 " icon="pi pi-pencil"
+                            styleClass="p-button-rounded"
+                            (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
+                        <!-- <p-button icon="pi pi-cloud-download" styleClass="p-button-rounded"></p-button> -->
+                        <p-button *ngIf="settlement.status == 2 && settlement.statusdirection == 2" icon="pi pi-eye"
+                            styleClass="p-button-rounded"
+                            (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="13">
+                        There are no settlement rows
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!--INICIA MODAL-->
+
+<p-dialog header="Settlement" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
+    [resizable]="false" (onHide)="onHide()" [style]="{width: '100vw', height: '100vh'}"
+    [contentStyle]="{'height':'calc(100vh - 3.5rem)'}">
+    <ng-template pTemplate="content" [formGroup]="settlementForm">
+        <div class="flex justify-content-between flex-wrap pt-2">
+            <div class="col-2">
+                <span class="p-float-label">
+                    <p-dropdown formControlName="idrpnumber_main" (ngModelChange)="getTotalApprovedByAssembly($event)"
+                        [options]="rpnumbers" placeholder="Select RP" optionValue="idrpnumber" optionLabel="RP_Number"
+                        inputId="float-label"></p-dropdown>
+                    <label for="float-label">RP</label>
+                </span>
+                <div *ngIf="settlementForm.get('idrpnumber_main')?.invalid && formV">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="flex inline-flex">
+                <div class="pr-2" *ngIf="!settlementApproved">
+                    <span class="p-float-label"
+                        *ngIf="settlementSelected && position.includes('Direction') || settlementSelected && position.includes('Operations')">
+                        <p-dropdown [options]="statusSettlement" [(ngModel)]="statusSelected"
+                            placeholder="Select Status" optionLabel="status"
+                            optionValue="IdstatusSettlement" [ngModelOptions]="{standalone: true}"></p-dropdown>
+                        <label for="float-label">Status</label>
+                    </span>
+                </div>
+                <div class="flex inline-flex" *ngIf="settlementSelected">
+                    <div class="status-info mr-2">
+                        <p class="m-0 text-center font-bold">{{getCatchStatus(settlementSelected.status)}}</p>
+                        <small>Status Operations</small>
+                    </div>
+                    <div class="status-info">
+                        <p class="m-0 text-center font-bold">{{getCatchStatus(settlementSelected.statusdirection)}}</p>
+                        <small>Status Direction</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="mt-2 plus-card p-2">
+            <div class="pb-4 pl-2">
+                <small class="font-bold">Settlement Details</small>
+            </div>
+            <div class="grid" formGroupName="newDetail" *ngIf="!settlementApproved">
+                <div class="col-3">
+                    <span class="p-float-label">
+                        <p-inputNumber formControlName="settlement_volume" placeholder="" class="w-full" mode="decimal"
+                            [maxFractionDigits]="2" [minFractionDigits]="2" [useGrouping]="false"></p-inputNumber>
+                        <label htmlFor="username">Settlement Volume</label>
+                    </span>
+                    <div *ngIf="newDetail.get('settlement_volume')?.invalid && detailsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <span class="p-float-label">
+                        <p-calendar [style]="{'width':'100%'}" formControlName="selectedDate"
+                            (onSelect)="onDateSelect($event)" [showIcon]="true" view="year" dateFormat="yy"
+                            inputId="yearpicker"></p-calendar>
+                        <label htmlFor="username">Vintage</label>
+                    </span>
+                    <div *ngIf="newDetail.get('selectedDate')?.invalid && detailsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="Idprepayment" [options]="paymentType" placeholder="Payment Type"
+                            optionLabel="Descripprepayment" optionValue="Idprepayment"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">Payment Type</label>
+                    </span>
+                    <div *ngIf="newDetail.get('Idprepayment')?.invalid && detailsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <span class="p-float-label">
+                        <p-inputNumber formControlName="markert_price" class="w-full" mode="decimal"
+                            [maxFractionDigits]="2" [minFractionDigits]="2"></p-inputNumber>
+                        <label htmlFor="username">Market Price (USD)</label>
+                    </span>
+                    <div *ngIf="newDetail.get('markert_price')?.invalid && detailsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <p-button label="Add" (onClick)="addDetail()" styleClass="p-button-success"></p-button>
+                </div>
+            </div>
+            <div>
+                <p-table [value]="details.value" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="text-sm">Settlement Volume</th>
+                            <th class="text-sm">Vintage</th>
+                            <th class="text-sm">Payment Type</th>
+                            <th class="text-sm">Mtk Price USD</th>
+                            <th class="text-sm">Mtk price %</th>
+                            <th class="text-sm">Price Canopia</th>
+                            <th class="text-sm">Total</th>
+                            <th class="text-sm"></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-detail let-i="rowIndex">
+                        <tr>
+                            <td>{{detail.settlement_volume}}</td>
+                            <td>{{detail.vintage }}</td>
+                            <td>{{getPaymentName(detail.Idprepayment)}}</td>
+                            <td>{{detail.markert_price | currency}}</td>
+                            <td>{{settlementSelected ? settlementSelected.PercentageMktPrice_avg :
+                                percentageMktByProject.PercentageMktPrice}}%</td>
+                            <td>{{getPriceCanopia(detail.markert_price) | currency}}</td>
+                            <td class="text-right">{{getTotalHorizontal(detail.settlement_volume, i) | currency}}</td>
+                            <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDetail(i)"
+                                    styleClass="p-button-text" pTooltip="Delete row"></p-button></td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td colspan="6" class="text-right font-bold">Project Gross Income</td>
+                            <td class="text-right font-bold">{{getGrossIncome() | currency}}</td>
+                            <td></td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+        <div class="mt-2 plus-card p-2">
+            <div class="pb-2 pl-2">
+                <small class="font-bold">Deductions Details</small>
+            </div>
+            <div class="grid" formGroupName="newDeduction" *ngIf="!settlementApproved">
+                <div class="col-4">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="Idtypededuction" [options]="deductionType"
+                            (onChange)="typeAccountSelected($event.value)" placeholder="Select RP"
+                            optionLabel="typeDeduction" optionValue="IdtypeDeduction"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">Type Deduction</label>
+                    </span>
+                    <div *ngIf="newDeduction.get('Idtypededuction')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 1">
+                        <p-dropdown formControlName="idcapexsubaccount" [options]="CuentasCapex" placeholder="Select RP"
+                            optionLabel="concepto" optionValue="idcapexsubaccount" inputId="float-label"></p-dropdown>
+                        <label for="float-label">Account</label>
+                    </span>
+                    <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 2">
+                        <p-dropdown formControlName="idopexsubaccount" [options]="CuentasOpex" placeholder="Select RP"
+                            optionLabel="concepto" optionValue="idopexsubaccount" inputId="float-label"></p-dropdown>
+                        <label for="float-label">Account</label>
+                    </span>
+                    <div
+                        *ngIf="newDeduction.get('idcapexsubaccount')?.invalid && deductionsV || newDeduction.get('idopexsubaccount')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <span class="p-float-label">
+                        <p-inputNumber formControlName="cost" class="w-full" inputId="minmaxfraction" mode="decimal"
+                            [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
+                        <label htmlFor="username">Cost (USD)</label>
+                    </span>
+                    <div *ngIf="newDeduction.get('cost')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <p-button label="Add" (onClick)="addDeduction()" styleClass="p-button-success"></p-button>
+                </div>
+            </div>
+            <div>
+                <p-table [value]="deductions.value" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="text-sm">Type Deduction</th>
+                            <th class="text-sm">Account</th>
+                            <th class="text-right text-sm">Cost USD</th>
+                            <th class="text-sm"></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-deduction let-i="rowIndex">
+                        <tr>
+                            <td>{{getNameDeduction(deduction.Idtypededuction)}}</td>
+                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount,
+                                deduction.Idtypededuction)}}</td>
+                            <td class="text-right">{{deduction.cost | currency}}</td>
+                            <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDeduction(i)"
+                                    styleClass="p-button-text"></p-button></td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td class="text-right font-bold">Final capex approved by assembly</td>
+                            <td></td>
+                            <td class="text-right font-bold">{{getTotalCapex() | currency}}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="text-right font-bold">Final annual cost deduction</td>
+                            <td></td>
+                            <td class="text-right">
+                                <p [ngClass]="getCompareTotal(getTotalOpex())">{{getTotalOpex() | currency}}</p>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+        <div class="mt-2">
+            <p-divider type="dashed"> <span class="p-tag">Resume</span></p-divider>
+            <div class="grid">
+                <div class="col-4">
+                    <p-table>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th class="text-sm">Result</th>
+                                <th class="text-sm">Total (USD)</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <tr>
+                                <td>Project Gross Income</td>
+                                <td>{{getGrossIncome() | currency}}</td>
+                            </tr>
+                            <tr>
+                                <td>Final CAPEX Approved by assembly</td>
+                                <td>{{getTotalCapex() | currency}}</td>
+                            </tr>
+                            <tr>
+                                <td>ERPA Recoup Capex Period</td>
+                                <td>{{settlementSelected ? settlementSelected.rp_count : rpCountByproject.rp_count}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Final Upfront Deduction</td>
+                                <td>{{getFinalUpfrontDeduction() | currency}}</td>
+                            </tr>
+                            <tr>
+                                <td>Final Annual Cost Deduction</td>
+                                <td>{{getTotalOpex() | currency}}</td>
+                            </tr>
+                            <tr>
+                                <td>Project Net Income</td>
+                                <td>{{getTotalProjectNetIncome() | currency}}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <div class="col-4">
+                    <p-table [value]="deductions.value">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th class="text-sm">Account Capex</th>
+                                <th class="text-sm">Cost (USD)</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-deduction let-i="rowIndex">
+                            <tr *ngIf="deduction.Idtypededuction == 1">
+                                <td>{{getNameAccount(deduction.idcapexsubaccount, deduction.Idtypededuction)}}</td>
+                                <td class="text-right">{{deduction.cost | currency}}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <tr>
+                                <td class="text-right font-bold">Total</td>
+                                <td class="text-right font-bold">{{getTotalCapex() | currency}}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <div class="col-4">
+                    <p-table [value]="deductions.value">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th class="text-sm">Account Opex</th>
+                                <th class="text-sm">Cost (USD)</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-deduction let-i="rowIndex">
+                            <tr *ngIf="deduction.Idtypededuction == 2">
+                                <td>{{getNameAccount(deduction.idopexsubaccount, deduction.Idtypededuction)}}</td>
+                                <td class="text-right">{{deduction.cost | currency}}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <tr>
+                                <td class="text-right font-bold">Total</td>
+                                <td class="text-right font-bold">{{getTotalOpex() | currency}}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between flex-wrap">
+            <div *ngIf="!settlementApproved">
+                <p-button *ngIf="settlementSelected && !validateDeleteBtn"
+                    (onClick)="confirm($event, settlementSelected.Idsettlement)" label="Delete"
+                    styleClass="p-button-danger"></p-button>
+            </div>
+            <div class="inline-flex" *ngIf="!settlementApproved">
+
+                <div class="pl-5">
+                    <p-button (click)="onHide()" label="Cancel" styleClass="p-button-outlined"></p-button>
+                    <p-button (click)="save()" label="Save"></p-button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>

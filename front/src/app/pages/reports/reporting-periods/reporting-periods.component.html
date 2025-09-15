@@ -1,0 +1,133 @@
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Reporting Periods</h3>
+    <p>
+        This view have a 3 sections <br>
+        <li>Reporting Periods</li>
+        <li>Dashboard</li>
+        <li>Years</li>
+
+        If you want make a new Reporting Period, please Click in "New Report". <br>
+        The maximum Reports By Project is 10 <br>
+        If you have a 10 Reporting Periods, the New Report button is disable. <br>
+        You can edit some Reporting Periods, Click in the Pencil button in the RP to edit.
+    </p>
+</p-sidebar>
+<section class="m-5">
+    <p-toast></p-toast>
+
+<div class="flex justify-content-between m-5">
+    <div>
+        <div class="text-3xl text-900">Reporting Periods</div>
+    </div>
+    <div>
+        <button pButton pRipple label="Download XLSX file" icon="pi pi-file-excel" (click)="exportToExcel()" class="p-button-outlined"></button>
+        <button [disabled]="reports.length >= 10" pButton pRipple label="New Report" icon="pi pi-plus" class="p-button-success ml-2" routerLink="/Reporting-periods-create"></button>
+        <p-button type="button" styleClass="p-button-success ml-2" pTooltip="Info" (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+    </div>
+</div>
+
+<div class="grid">
+    <p-tabView>
+        <p-tabPanel header="Reporting Periods">
+            <p-table  #dt [value]="reports" [rows]="10" [paginator]="true" [loading]="loading" [globalFilterFields]="['idrpnumber', 'Component_ProjectName', 'RP_st_status', 'Monitoring_Start', 'RP_total']"
+                [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 2rem">
+                        </th>
+                        <th pSortableColumn="idrpnumber">RP_Number <p-sortIcon field="idrpnumber"></p-sortIcon></th>
+                        <th>Component ProjectName</th>
+                        <th>RP start</th>
+                        <th>RP status start</th>
+                        <th>RP end</th>
+                        <th>RP status end</th>
+                        <th>Status</th>
+                        <th>Monitoring Start</th>
+                        <th>Monitoring End</th>
+                        <th pSortableColumn="RP_total">RP total <p-sortIcon field="RP_total"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-reportp>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>{{ reportp.idrpnumber }}</td>
+                        <td>{{ reportp.Component_ProjectName }}</td>
+                        <td>{{ reportp.Reporting_period_start | date: 'dd/MM/yyyy': 'UTC'  }}</td>
+                        <td>{{ reportp.RP_st_status }}</td>
+                        <td>{{ reportp.Reporting_period_end | date: 'dd/MM/yyyy': 'UTC' }}</td>
+                        <td>{{ reportp.RP_end_status }}</td>
+                        <td>{{ reportp.RP_st_status }}</td>
+                        <td>{{ reportp.Monitoring_Start | date: 'dd/MM/yyyy': 'UTC'  }}</td>
+                        <td>{{ reportp.Monitoring_End | date: 'dd/MM/yyyy': 'UTC'  }}</td>
+                        <td>{{ reportp.RP_total }}</td>
+                        <td>
+                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" [routerLink]="['/Reporting-periods-edit',reportp.idreporting_period]"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <div class="flex align-items-center justify-content-between">In total there are {{ reports ? reports.length : 0 }} reports.</div>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+        <p-tabPanel header="Dashboard">
+            <div class="grid">
+                <div class="col-12 md:col-2">
+                    <div class="card hover:surface-100">
+                        <small>Cosechas</small>
+                        <p>{{reportSummary?.total_RP_total}}</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-2">
+                    <div class="card hover:surface-100">
+                        <small>No. actual</small>
+                        <p>{{reportSummary?.total_Actual}}</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-2">
+                    <div class="card hover:surface-100">
+                        <small>No. Forecast</small>
+                        <p>{{reportSummary?.total_Forecast}}</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-2">
+                    <div class="card hover:surface-100">
+                        <small>CAR</small>
+                        <p>{{reportSummary?.CAR}}</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-2">
+                    <div class="card hover:surface-100">
+                        <small>Others</small>
+                        <p>{{reportSummary?.otracosaquenoesCAR}}</p>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
+                </div>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Years">
+            <p-table [value]="reportsVolume" [tableStyle]="{ 'min-width': '50rem' }" [rowHover]="true" dataKey="id" 
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th> RP Number</th>
+                    <th *ngFor="let year of years">{{year}}</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData>
+                <tr>
+                    <td>{{rowData.idrpnumber}}</td>
+                    <td *ngFor="let year of years">
+                        {{ matchYears(year, rowData) }}
+                    </td>
+                </tr>
+                </ng-template>
+                </p-table>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+</section>

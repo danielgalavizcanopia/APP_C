@@ -1,0 +1,20 @@
+<section class="m-5">
+    <div class="flex justify-content-center m-5">
+        <div class="text-2xl text-900">Financial Monitoring</div>
+    </div>
+
+    <p-tabView>
+        <p-tabPanel header="By accounts">
+            <app-financial-tracker></app-financial-tracker>
+        </p-tabPanel>
+        <p-tabPanel header="By Activities">
+            <app-budget-tracker></app-budget-tracker>
+        </p-tabPanel>
+        <p-tabPanel header="By Benefit Distribution">
+            <app-supplier-tracker></app-supplier-tracker>
+        </p-tabPanel>
+        <p-tabPanel header="By Transaction">
+          <app-by-transaction></app-by-transaction>
+        </p-tabPanel>
+    </p-tabView>
+</section>

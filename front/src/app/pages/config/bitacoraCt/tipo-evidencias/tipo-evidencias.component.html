@@ -1,0 +1,67 @@
+<section class="m-5">
+    <p-confirmPopup></p-confirmPopup>
+    <p-table #dt1 [value]="evidencias" [rows]="10" [paginator]="true" styleClass="p-datatable-gridlines"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 30]">
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-between">
+                <h3><strong>Log Type of Evidence</strong></h3>
+                <div class="flex justify-content-end">
+                    <button pButton label="Create" icon="pi pi-plus" (click)="showDialog()"></button>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th><strong>Short Description</strong></th>
+                <th><strong>Large Description</strong></th>
+                <th style="width: 10%;"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData>
+            <tr>
+                <td>{{rowData.ShortDescription}}</td>
+                <td>{{rowData.LargeDescription}}</td>
+                <td>
+                    <div class="flex justify-content-end">
+                        <p-button icon="pi pi-pencil" label="Edit" (click)="onRowSelected(rowData)"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3">No entries found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</section>
+
+<p-dialog header="Type of Evidence Form" [(visible)]="visible" [style]="{width: '50vw'}" (onHide)="hideDialog()">
+    <ng-template pTemplate="content">
+        <div class="grid" [formGroup]="tipoEvidenciaForm">
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <input pInputText id="username" formControlName="ShortDescription"/>
+                    <label htmlFor="username">Short Description</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <input pInputText id="username" formControlName="LargeDescription"/>
+                    <label htmlFor="username">Large Description</label>
+                </span>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between">
+            <div>
+                <p-button *ngIf="evidenciaSelected" icon="pi pi-trash" label="Delete" (onClick)="confirm($event)"></p-button>
+            </div>
+            <div>
+                <p-button icon="pi pi-times" label="Cancel" (onClick)="hideDialog()"></p-button>
+                <p-button icon="pi pi-save" label="Save" (onClick)="saveevidencia()"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>

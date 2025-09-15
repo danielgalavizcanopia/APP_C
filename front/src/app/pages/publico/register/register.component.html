@@ -1,0 +1,61 @@
+<div class="login-body">
+    <div class="grid">
+        <div class="col-12 md:col-6">
+            <div class="login-logo flex align-content-center justify-content-center  flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <img class="img-fluid" src="../../../../assets/layout/images/logo-vertical.png" alt="">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-6 login flex align-content-center flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <div>
+                        <div>
+                            <h1>welcome</h1>
+                            <h3>Canopia Carbon</h3>
+                            <p class="pt-5">Please, write all fields to register in Canopia Carbon System.</p>
+                            <p-toast></p-toast>
+                        </div>
+                        <form class="flex flex-column">
+                            <div class="grid">
+                                <div class="col-12">
+                                    <span class="p-float-label">
+                                        <input class="w-full p-inputtext-lg" pInputText id="usuario_nombre"
+                                            [(ngModel)]="usuario_nombre" name="usuarioNombre" #nameEmail="ngModel" pattern="^[a-zA-ZÀ-ÿ\u00f1\u00d1]+( [a-zA-ZÀ-ÿ\u00f1\u00d1]+)*$" required="true"/>
+                                        <label htmlFor="usuario_nombre">First name</label>
+                                    </span>
+                                </div>
+                                <div class="col-12">
+                                    <span class="p-float-label">
+                                        <input class="w-full p-inputtext-lg" pInputText id="usuario_email"
+                                            [(ngModel)]="usuario_email" (keydown.space)="$event.preventDefault();" name="usuarioEmail" email #emailModel="ngModel" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required="true"/>
+                                        <label htmlFor="usuario_email">Email</label>
+                                    </span>
+                                </div>
+                                <div class="col-12">
+                                    <span class="p-float-label">
+                                        <p-password styleClass="p-inputtext-lg" [(ngModel)]="usuario_pw" [toggleMask]="true" name="usuarioPw"(keydown.space)="$event.preventDefault();" required="true"></p-password>
+                                        <label for="usuario_pw">Password</label>
+                                    </span>
+                                </div>
+                                <div class="col-12">
+                                    <span class="p-float-label">
+                                        <p-password styleClass="p-inputtext-lg" [(ngModel)]="usuario_confirm_pw" [feedback]="false" [toggleMask]="true" name="usuarioConfirmPw" (keydown.space)="$event.preventDefault();" required="true"></p-password>
+                                        <label for="usuario_pw">Confirm Password</label>
+                                    </span>
+                                </div>
+                                <div class="col-12 px-5">
+                                    <p-button label="Register" styleClass="p-button-rounded w-full" (onClick)="register()"></p-button>
+                                </div>
+                                <div class="col-12 px-5">
+                                    <p>You have account:</p>
+                                    <p-button label="Login" routerLink="" styleClass="p-button-outlined p-button-rounded w-full"></p-button> <!--routerLink="/home"-->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<p-dialog [modal]="true" [(visible)]="openModalNewP"  [style]="{width: '50vw', height: '30vw'}">
+    <form [formGroup]="recoInfo" (ngSubmit)="addNewProject()">
+        <p-fieldset legend="New project">
+            <div class="flex justify-content-end m-3">
+                <p><span class="pi pi-info-circle mr-2" pTooltip="If you want make a new project, please write all fields, is required to create it, after to click Create,you can see in Projects your new Project" tooltipPosition="left"></span>Information</p>
+            </div>
+             
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <input class="p-inputtext-lg" formControlName="ProjectName" id="ProjectName" type="text" pInputText>
+                        <label for="ProjectName">Project Name *</label>
+                        <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Insert Project Name</small>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="agregation" formControlName="idaggregation" id="idaggregation" placeholder="select a Aggregation" optionLabel="descripcion" optionValue="idaggregation" inputId="float-label"></p-dropdown>
+                        <label for="idaggregation">idaggregation *</label>
+                        <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Select Aggregation</small>
+                    </span>
+                </div>
+                <div class="field col-12">
+                    <span class="p-float-label">
+                        <input class="p-inputtext-lg" formControlName="Counterpart" id="Counterpart" type="text"
+                            pInputText>
+                        <label for="Counterpart">Counterpart *</label>
+                        <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Insert Project Counterpart</small>
+                    </span>
+                </div> 
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="catalogoEstados" 
+                            id="idEstado" placeholder="Select a State" optionLabel="nomEstado" optionValue="idEstado" (onChange)="selectEstado($event.value)"
+                            inputId="float-label"></p-dropdown>
+                        <label for="idEstado">State</label>
+                        <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Select State</small>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="municipios" placeholder="Select a Municipality" optionLabel="nameMunicipality" optionValue="idmunicipio" [showClear]="true"
+                            (onChange)="selectMunicipality($event.value)" [disabled]="municipios.length==0"></p-dropdown>
+                        <label for="nameMunicipality">{{txtConsultaMunicipio}}</label>
+                        <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Select Municipality</small>
+                    </span>
+             
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-dropdown styleClass="p-inputtext-lg" [options]="nucleoAgrario"
+                        formControlName="idnucleoAgrario" id="idnucleoAgrario" (onChange)="nucleoAgrarioFilter($event.value)"  placeholder="select Nucleo Agrario"
+                        optionLabel="NameNuc" optionValue="idnucleoAgrario" inputId="float-label"> </p-dropdown>
+                    <label for="NameNuc">Nucleo Agrario</label>
+                    <small class="p-error" *ngIf="recoInfo.touched && recoInfo.invalid">Select Nucleo Agrario</small>
+                </span>
+            </div>
+            
+            <div class="field col-12 md:col-6">
+                <h5>Kind of property: {{datoAgrario}}</h5>
+            </div>
+            </div>
+        </p-fieldset>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-times" (click)="closeModalFromComponent()" label="Cancel" styleClass="p-button-outlined p-button-success"></p-button>
+        <p-button (click)="addNewProject()" label="Create" styleClass="p-button-success"></p-button>
+    </ng-template>
+
+</p-dialog>
+    <p-toast position="top-right"></p-toast>
+    <app-alerta></app-alerta>
+
+    
+

@@ -1,0 +1,13 @@
+<div class="layout-container" [ngClass]="containerClass">
+    <div class="layout-content-wrapper">
+        <app-topbar class="grid" style="padding: 8px 50px; background-color: #E3F0EA; border-bottom: 1px solid #fff"></app-topbar>
+        <app-nav-bar></app-nav-bar>
+        <app-breadcrumb class="content-breadcrumb"></app-breadcrumb>
+        <div class="layout-content">
+            <router-outlet></router-outlet>
+        </div>
+        <div class="layout-mask"></div>
+
+    </div>
+
+</div>

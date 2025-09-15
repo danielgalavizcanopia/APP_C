@@ -1,0 +1,155 @@
+
+    <div class="flex justify-content-between mb-5">
+        <div>
+            <div>
+                <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
+                    optionValue="idrpnumber" (onChange)="changeRP()"></p-selectButton>
+            </div>
+        </div>
+        <div>
+            <p-button label="Download by benefit distribution" (onClick)="exportBDTToExcel()"
+                styleClass="p-button-outlined" class="m-1" icon="pi pi-file-excel"></p-button>
+        </div>
+    </div>
+    <p-table [loading]="loading" [value]="BenefitTrackerData" dataKey="id" [paginator]="true"
+        [tableStyle]="{ 'min-width': '60rem' }" [rows]="5" [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th width="52.5%">Account Type</th>
+                <th width="12.5%" class="text-right">Approved</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual</th>
+                <th width="10%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product let-expanded="expanded">
+            <tr>
+                <td><strong>{{ product.Name }}</strong></td>
+                <td class="text-right"><strong>{{ product.Approved | currency}} USD</strong></td>
+                <td class="text-right"><strong>{{ product.Planned | currency}} USD</strong></td>
+                <td class="text-right"><strong>{{ product.Paid | currency}} USD</strong></td>
+                <td>
+                    <button type="button" pButton pRipple [pRowToggler]="product"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-product>
+            <tr>
+                <td colspan="6">
+                    <p-table [value]="product.Accounts" dataKey="id">
+                        <ng-template pTemplate="header">
+            <tr>
+                <th width="65%">Name</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual</th>
+                <th width="10%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order let-expa="expanded">
+            <tr>
+                <td>{{ order.name }}</td>
+                <td class="text-right">{{ order.totalPlanned | currency: 'USD' }}</td>
+                <td class="text-right">{{ order.totalPaid | currency: 'USD' }}</td>
+                <td>
+                    <button type="button" pButton pRipple [pRowToggler]="order"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="expa ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-order>
+            <tr>
+                <td colspan="6">
+                    <p-table [value]="order.rows" dataKey="id">
+                        <ng-template pTemplate="header">
+            <tr>
+                <th width="65%">Type</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual</th>
+                <th width="10%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-data let-expande="expanded">
+            <tr>
+                <td>{{data.name}}</td>
+                <td class="text-right">{{data.totalPlanned | currency: 'USD'}}</td>
+                <td class="text-right">{{data.totalPaid | currency: 'USD'}}</td>
+                <td>
+                    <button type="button" pButton pRipple [pRowToggler]="data"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="expande ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-bnf>
+            <tr>
+                <td colspan="6">
+                    <p-table [value]="bnf.rows" dataKey="idrow">
+                        <ng-template pTemplate="header">
+            <tr>
+                <th width="21.66%">Type</th>
+                <th width="21.66%">Activity</th>
+                <th width="21.66%">Sub account</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual</th>
+                <th width="10%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-data let-expanded="expanded">
+            <tr>
+                <td>{{data.Type}}</td>
+                <td>{{data.activity}}</td>
+                <td>{{data.concept}}</td>
+                <td class="text-right">{{data.planned | currency: 'USD'}}</td>
+                <td class="text-right">{{data.paid | currency: 'USD'}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6">There are no data avaiable.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    </td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6">There are no data avaiable.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+
+    </td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6">There are no data avaiable.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+
+    </td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6">There are no data avaiable.</td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <tr>
+            <td width="52.5%" class="text-right">Total</td>
+            <td width="12.5%" class="text-right">{{totalsFinancial.totalApproved | currency}} USD</td>
+            <td width="12.5%" class="text-right">{{totalsFinancial.totalPlanned | currency}} USD</td>
+            <td width="12.5%" class="text-right">{{totalsFinancial.totalPaid | currency}} USD</td>
+        </tr>
+    </ng-template>
+    </p-table>

@@ -1,0 +1,16 @@
+.form-margin{
+    margin: 2em;
+}
+
+::ng-deep .p-toast .p-toast-message {
+    background-color: rgba(255, 255, 255, 0.9) !important; /* Fondo claro */
+    color: #333 !important; /* Texto oscuro */
+    border: 1px solid #ccc; /* Opcional: añade un borde para mejor visibilidad */
+    padding: 10px;
+    border-radius: 5px; /* Opcional: bordes redondeados */
+}
+
+::ng-deep .p-toast .p-toast-message-content {
+    white-space: normal !important; /* Permite varias líneas de texto */
+    color: #333 !important; /* Asegura el color oscuro del texto */
+}

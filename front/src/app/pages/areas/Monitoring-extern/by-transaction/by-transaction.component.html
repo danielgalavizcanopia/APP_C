@@ -1,0 +1,86 @@
+<div class="flex justify-content-between mb-5">
+    <div>
+        <div>
+            <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
+                optionValue="idrpnumber" (onChange)="changeRP()"></p-selectButton>
+        </div>
+    </div>
+    <div>
+        <p-button label="Download by transaction" styleClass="p-button-outlined" class="m-1" icon="pi pi-file-excel"
+            (onClick)="exportByTransactionExcel()"></p-button>
+    </div>
+</div>
+
+<p-table [value]="byTransactionData" [loading]="loading" [rows]="5" dataKey="id" [tableStyle]="{'min-width': '70rem'}">
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width:5%">RP</th>
+            <th style="width:5%">Transaction ID</th>
+            <th style="width:5%">Payment Date</th>
+            <th style="width:12.5%">Account</th>
+            <th style="width:12.5%">Subaccount</th>
+            <th style="width:25%">Activity</th>
+            <th style="width:12.5%">Type of Supplier</th>
+            <th style="width:12.5%">Type of Beneficiary</th>
+           <!-- <th style="width:12.5%">Recipient</th> -->
+            <th style="width:5%" class="text-right">Amount (USD)</th>
+            <th style="width:5%"></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-account let-expanded="expanded">
+        <tr>
+            <td colspan="8">
+                <span class="font-bold ml-2">{{account.accountType}}</span>
+            </td>
+            <td class="text-right">
+                <strong>{{account.total | currency}}</strong>
+            </td>
+            <td>
+                <button type="button" pButton pRipple [pRowToggler]="account"
+                    class="p-button-text p-button-rounded p-button-plain"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-subaccount>
+        <tr>
+            <td colspan="10">
+                <p-table [value]="subaccount.accounts" dataKey="id" [paginator]="true" [rows]="25"
+                    [rowsPerPageOptions]="[25, 50]">
+                    <ng-template pTemplate="body" let-order>
+        <tr>
+            <td style="width:5%">{{'RP' +order.idrpnumber}}</td>
+            <td style="width:5%">{{order.idTransaction}}</td>
+            <td style="width:5%">{{order.createdAt | date: 'dd/MM/yyyy': 'UTC'}}</td>
+            <td style="width:12.5%">{{order.principalAccount}}</td>
+            <td style="width:12.5%">{{order.accountName}}</td>
+            <td style="width:25%">{{order.Actividad}}</td>
+            <td style="width:12.5%">{{order.typeofSupplier}}</td>
+            <td style="width:12.5%">{{order.typeofBeneficiary}}</td>
+         <!--   <td>{{order.recipient}}</td>-->
+            <td style="width:5%" class="text-right">{{order.Amount_USD | currency}}</td>
+            <td style="width:5%"></td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="8">There are no summary in this activity.</td>
+        </tr>
+    </ng-template>
+</p-table>
+</td>
+</tr>
+</ng-template>
+<ng-template pTemplate="footer">
+    <tr>
+        <td class="text-right" colspan="8">Total</td>
+        <td class="text-right">{{totalAmount | currency}}</td>
+        <td></td>
+    </tr>
+</ng-template>
+<ng-template pTemplate="emptymessage">
+    <tr>
+        <td colspan="9">There are no data avaiable.</td>
+    </tr>
+</ng-template>
+</p-table>

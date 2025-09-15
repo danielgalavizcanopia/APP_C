@@ -1,0 +1,137 @@
+/* You can add global styles to this file, and also import other style files */
+$gutter: 1rem; //for primeflex grid system
+
+/* Layout */
+@import "assets/layout/styles/layout/layout.scss";
+
+/* PrimeNG */
+@import "../node_modules/primeng/resources/primeng.min.css";
+@import "../node_modules/primeflex/primeflex.scss";
+@import "../node_modules/primeicons/primeicons.css";
+
+/* Quill Text Editor for p-editor */
+@import "../node_modules/quill/dist/quill.core.css";
+@import "../node_modules/quill/dist/quill.snow.css";
+
+
+.login-body{
+    position: fixed;
+    width: 100%;
+    z-index: 9;
+    height: 100vh;
+}
+
+.login{
+    padding: 100px;
+}
+
+.login-logo{
+ 
+    background-image: url(./assets/layout/images/login-fondo.png);
+    background-position: left;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+}
+
+.p-password{
+    width: 100%;
+}
+
+.pointer{
+    cursor: pointer
+}
+
+small{
+    font-size: 12px;
+    color: #464B54;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.container{
+    padding: 16px 30px;
+}
+
+
+.statusautizathed {
+    background-color: #64c44b;
+    color: #0c3b00;
+}
+
+.statuspending {
+    background-color: #e5ee63;
+    color: #595f00;
+}
+
+.statusdecline {
+    background-color: #ee6363;
+    color: #4d1200;
+}
+
+@media screen and (max-width: 768px) {
+
+.login{
+    padding: 50px;
+}
+
+.login-logo{
+ 
+    padding: 50px;
+    height: inherit;
+}
+
+}
+
+.hidden-on-mobile {
+    display: none;
+  }
+  
+  @media (min-width: 800px) {
+    .hidden-on-mobile {
+      display: inline-block;
+    }
+  }
+
+.profile-item{
+    border-radius: 4px;
+}
+
+.icon-fondo i{
+    font-size: 14px;
+    display: inline-block;
+    background: #2E4740;
+    color: white;
+    line-height: 1;
+    padding: 8px 2px 8px 4px;
+    margin-right: 8px;
+    border-radius: 50%;
+    text-align: center;
+    width: 32px;
+    height: 32px;
+}
+
+.p-datatable-scrollable-table>.p-datatable-tbody>.p-rowgroup-header {
+    position: static !important;
+}
+
+.plus-card{
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+}
+
+.p-inputnumber{
+    width: 100%;
+}
+
+.alert {
+    background-color: #fff2e2;
+    padding: 24px;
+    border-radius: 20px;
+    small, p{
+        color: #b37211;
+    }
+}

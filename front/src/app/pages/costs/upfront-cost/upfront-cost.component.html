@@ -1,0 +1,104 @@
+<p-dialog header="Upfront Costs USD" [(visible)]="visible"
+    (onHide)="closeModal()">
+    <div class="pt-3">
+
+        <p-table>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Account</th>
+                    <th>Cost</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" [formGroup]="upFrontForm">
+                <tr>
+                    <td>CAR Onsite Verification</td>
+                    <td>
+                        <p-inputNumber formControlName="CAROnsiteVerification" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>CCBS Onsite Verification</td>
+                    <td>
+                        <p-inputNumber formControlName="CCBSOnsiteVerification" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Monitoring Baseline</td>
+                    <td>
+                        <p-inputNumber formControlName="MonitoringBaseline" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Onsite Implementation</td>
+                    <td>
+                        <p-inputNumber formControlName="OnsiteImplementation" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Project Management Expenses</td>
+                    <td>
+                        <p-inputNumber formControlName="Project_Management_Expenses" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PDD Development</td>
+                    <td>
+                        <p-inputNumber formControlName="PDDDevelopment" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Registration</td>
+                    <td>
+                        <p-inputNumber formControlName="Registration" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Verification Support</td>
+                    <td>
+                        <p-inputNumber formControlName="VerificationSupport" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Legal & Tax Services</td>
+                    <td>
+                        <p-inputNumber formControlName="Legal_and_Tax_Services" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contingency</td>
+                    <td>
+                        <p-inputNumber formControlName="Contingency" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>CAPEX of Projects</td>
+                    <td>
+                        <p-inputNumber formControlName="CAPEX_of_Projects" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Social Monitoring</td>
+                    <td>
+                        <p-inputNumber formControlName="Social_Monitoring" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Notary Services</td>
+                    <td>
+                        <p-inputNumber formControlName="Notary_Services" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between flex-wrap">
+            <div>
+                <p *ngIf="upFrontCost" class="font-bold m-0">Last update date</p>
+                <p *ngIf="upFrontCost" class="m-0">{{upFrontCost.DateModify | date}}</p>
+            </div>
+            <p-button label="Save changes" (onClick)="save()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

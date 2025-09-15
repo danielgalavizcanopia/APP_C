@@ -1,0 +1,60 @@
+.status-pending {
+    color: #707070;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-approved {
+    color: #00946E;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-double-approved {
+    color: #006328;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-denied {
+    color: #c80000;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-double-denied {
+    color: #630000;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-warn {
+    color: #b38f00;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+
+
+.status-nowarn {
+    color: #707070;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status-info{
+    background-color: #f7f7f7;
+    padding: 4px;
+    border-radius: 8px;
+    h6{
+        margin:0;
+        color:#707070
+    }
+}

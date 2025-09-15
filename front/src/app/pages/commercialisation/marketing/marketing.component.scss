@@ -1,0 +1,69 @@
+.status-one{
+  background-color: #AAE0DB;
+  color: #163029;
+  border-radius: 20px;
+  height: 60%;
+  width: 100px;
+}
+
+
+:host ::ng-deep .p-timeline {
+  padding: 0 !important;
+  position: relative;
+}
+
+:host ::ng-deep .p-timeline-event {
+  display: flex !important;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+:host ::ng-deep .p-timeline-event-opposite {
+  flex: 0 0 150px;
+  max-width: 150px;
+  text-align: left;
+  padding-right: 1rem;
+  font-weight: bold;
+}
+
+:host ::ng-deep .p-timeline-event-content {
+  flex: 1 1 auto;
+  width: 100%;
+  padding-left: 2rem;
+  position: relative;
+}
+
+:host ::ng-deep .p-timeline-line {
+  left: 160px !important; /* posición de la línea alineada con el content */
+  background: #cfd8dc;
+}
+
+/* Ajusta el punto circular del timeline */
+:host ::ng-deep .p-timeline-event-marker {
+  left: 152px !important;
+  margin-left: 0;
+}
+
+.status-pending{
+    background-color: #E3F0EA; color: #000000; padding: 3px; border-radius: 5px;
+}
+.status-evaluation{
+    background-color: #D87610; color: #FFFFFF; padding: 3px; border-radius: 5px;
+}
+.status-finished{
+    background-color: #00946E; color: #FFFFFF; padding: 3px; border-radius: 5px;
+}
+
+::ng-deep .p-toast .p-toast-message {
+    background-color: rgba(255, 255, 255, 0.9) !important; /* Fondo claro */
+    color: #333 !important; /* Texto oscuro */
+    border: 1px solid #ccc; /* Opcional: añade un borde para mejor visibilidad */
+    padding: 10px;
+    border-radius: 5px; /* Opcional: bordes redondeados */
+}
+
+::ng-deep .p-toast .p-toast-message-content {
+    white-space: normal !important; /* Permite varias líneas de texto */
+    color: #333 !important; /* Asegura el color oscuro del texto */
+}

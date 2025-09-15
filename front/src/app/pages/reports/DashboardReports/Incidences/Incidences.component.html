@@ -1,0 +1,397 @@
+<p-confirmPopup></p-confirmPopup>
+<section class="m-5">
+    <div class="flex justify-content-between mb-3">
+        <div>
+            <div class="text-3xl text-900">Incidences</div>
+        </div>
+        <div>
+            <p-button type="button" styleClass="p-button-outlined p-button-success ml-2" icon="pi pi-file-excel" label="Download Project Incidences XLSX" (onClick)="exportIncidencesXLSX()"></p-button>
+            <p-button type="button" styleClass="p-button-outlined p-button-success ml-2" icon="pi pi-file-excel" label="Download General Incidences XLSX" (onClick)="exportGeneralIncidencesXLSX()"></p-button>
+            <p-button type="button" styleClass="p-button-success ml-2" icon="pi pi-plus" (onClick)="showDialog()" label="New Incidence"></p-button>
+        </div>
+    </div>
+    <div class="flex justify-content-end">
+        <div>
+            <p-calendar appendTo="body" class="m-1" placeholder="Incidence date"></p-calendar>
+        </div>
+        <div>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search..." />
+            </span>
+        </div>
+    </div>
+
+    <p-table
+        #dt1
+        [value]="Incidences"
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [globalFilterFields]="['ShortDescIncidenceType', 'ShortDescriptionImpact', 'IncidenceDescription']"
+        [loading]="loading"
+    >
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="ShortDescIncidenceType">Incidence Type <p-sortIcon field="ShortDescIncidenceType"></p-sortIcon></th>
+            <th pSortableColumn="ShortDescriptionImpact">Impact Type <p-sortIcon field="ShortDescriptionImpact"></p-sortIcon></th>
+            <th pSortableColumn="IncidenceDescription">Incidence Description <p-sortIcon field="IncidenceDescription"></p-sortIcon></th>
+            <th pSortableColumn="Name">Responsible <p-sortIcon field="Name"></p-sortIcon></th>
+            <th pSortableColumn="DateIncidence">Incidence Date <p-sortIcon field="DateIncidence"></p-sortIcon></th>
+            <th>Date closed</th>
+            <th pSortableColumn="StatusName">Status <p-sortIcon field="StatusName"></p-sortIcon></th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-incidence let-expanded="expanded">
+        <tr>
+            <td>{{incidence.ShortDescIncidenceType}}</td>
+            <td>{{incidence.ShortDescriptionImpact}}</td>
+            <td>{{truncateText(incidence.IncidenceDescription, 60)}}</td>
+            <td>{{incidence.Name}}</td>
+            <td>{{incidence.DateIncidence | date: 'dd/MM/yyyy': 'UTC'}}</td>
+            <td>{{incidence.DateSuggestedAttention | date: 'dd/MM/yyyy': 'UTC'}}</td>
+            <td>
+                <span *ngIf="incidence.StatusName == 'No Started' || !incidence.StatusName" class="status-pending"><strong>Pending attention</strong></span>
+                <span *ngIf="incidence.StatusName == 'In progress'" class="status-evaluation"><strong>{{incidence.StatusName}}</strong></span>
+                <span *ngIf="incidence.StatusName == 'Done'" class="status-finished"><strong>{{incidence.StatusName}}</strong></span>
+            </td>
+            <td>
+                <div class="flex justify-content-end">
+                    <p-button class="m-1" *ngIf="incidence.StatusName != 'Done'" icon="pi pi-pencil" (onClick)="onRowSelected(incidence, 1)"></p-button>
+                    <p-button class="m-1" *ngIf="incidence.StatusName != 'Done'" icon="pi pi-sync" (onClick)="onRowSelected(incidence, 2)"></p-button>
+                    <p-button class="m-1" *ngIf="incidence.StatusName == 'Done'" icon="pi pi-eye" (onClick)="onRowSelected(incidence, 3)"></p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6">There are no Incidences in this Project.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+    
+</section>
+
+<p-dialog header="Incidence" [(visible)]="visible" [modal]="true" [responsive]="true" [maximizable]="true" [style]="{width: '90vw'}" (onHide)="hideDialog()">
+    <p-accordion [activeIndex]="0">
+        <p-accordionTab header="Report">
+            <div [formGroup]="IncidenceForm" class="grid mt-1">
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="incidenceType" [options]="IncidencesType" placeholder="Incidence Type" optionLabel="ShortDescIncidenceType" optionValue="IdincidenceType" [showClear]="true"></p-dropdown>
+                        <label>Incidence Type</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('IdIncidentImpact')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="IdIncidentImpact" [options]="Incidentimpact" placeholder="Impact" optionLabel="ShortDescriptionImpact" optionValue="IdincidentImpact" [showClear]="true"></p-dropdown>
+                        <label>Impact Type</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('IdIncidentImpact')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <input pInputText formControlName="LocationIncidence" maxlength="255"/>
+                        <label>Incidence location</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('LocationIncidence')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="idbitacora" [options]="logs" placeholder="Project Log" optionLabel="Foliobitacora" optionValue="idbitacora" [filter]="true" filterBy="Foliobitacora" [showClear]="true"></p-dropdown>
+                        <label>Project Log</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('idbitacora')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-calendar appendTo="body" [style]="{'width':'100%'}" dateFormat="yy-mm-dd" [showIcon]="true" formControlName="DateIncidence"></p-calendar>
+                        <label>Incidence Date</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('DateIncidence')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <input pInputText formControlName="UserReporting" maxlength="55"/>
+                        <label>Name of the person reporting</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('NameSIL')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-12">
+                    <p><strong>Involved</strong></p>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <input pInputText formControlName="ForestryOwner" maxlength="255"/>
+                        <label>Forestry owner</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('ForestryOwner')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="p-inputgroup" *ngIf="SILadd == false">
+                        <p-dropdown [style]="{'width':'100%'}" formControlName="IdInvolvedSIL" placeholder="SIL Involved" [options]="InvolvedSIL" optionLabel="InvolvedSILName" optionValue="IdInvolvedSIL" [filter]="true" filterBy="InvolvedSILName" [showClear]="true"></p-dropdown>
+                        <button type="button" pButton icon="pi pi-plus" pTooltip="Other" (click)="SILadd = true;" styleClass="p-button-warn"></button>
+                        <div *ngIf="IncidenceForm.get('IdInvolvedSIL')?.invalid && formV">
+                            <small class="p-error">This field is required</small>
+                        </div>
+                    </div>
+                    <div class="p-inputgroup" *ngIf="SILadd == true">
+                    <input type="text" [(ngModel)]="usuarioName" maxlength="54" [ngModelOptions]="{standalone: true}" (keydown.enter)="saveSIL()" pInputText placeholder="Write User Name" pTooltip="Enter key to save User" />
+                    <button type="button" pButton icon="pi pi-times" pTooltip="Cancel"  (click)="hideSIL()"
+                        styleClass="p-button-warn"></button>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-multiSelect [style]="{'width':'100%'}" [options]="canopiaUsers" formControlName="CCinvolved" defaultLabel="Canopia Involved" optionLabel="Name" (onChange)="onSelectionCCSChange($event)"></p-multiSelect>
+                        <label>Canopia Involved</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('CCinvolved')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <input pInputText formControlName="OthersInvolved" maxlength="255"/>
+                        <label>Others Involved</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('OthersInvolved')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <p><strong>Description</strong></p>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="IncidenceCauses" maxlength="500"></textarea>
+                        <label for="float-input">Incidence causes</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('IncidenceCauses')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="IncidenceDescription" maxlength="500"></textarea>
+                        <label for="float-input">Incidence Description</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('IncidenceDescription')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="ImmediateActions" maxlength="500"></textarea>
+                        <label for="float-input">Inmediatly actions</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('ImmediateActions')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="Impact" maxlength="500"></textarea>
+                        <label for="float-input">Impact</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('Impact')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <p><strong>Requirements and Suggestions</strong></p>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="ForestryOwnerRequirements" maxlength="500"></textarea>
+                        <label for="float-input">Forestry owner Requirements</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('ForestryOwnerRequirements')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" rows="5" pInputTextarea formControlName="SILRequirements" maxlength="500"></textarea>
+                        <label for="float-input">SIL Requirements</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('SILRequirements')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-calendar appendTo="body" dateFormat="yy-mm-dd" [style]="{'width':'100%'}" formControlName="DateSuggestedAttention" [showIcon]="true"></p-calendar>
+                        <label>Suggested date of attention</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('DateSuggestedAttention')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="projectManagers" formControlName="notifyTo" placeholder="Notified Project Manager" appendTo="body" optionLabel="Name" optionValue="IDUser" [showClear]="true"></p-dropdown>
+                        <label>Notified Project Manager</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('notifyTo')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown appendTo="body" formControlName="Idusuariosname" [options]="canopiaUsers" placeholder="Incident responsible" optionLabel="Name" optionValue="Idusuariosname" [showClear]="true"></p-dropdown>
+                        <label>Incident responsible</label>
+                    </span>
+                    <div *ngIf="IncidenceForm.get('Idusuariosname')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+           
+          
+            </div>
+        </p-accordionTab>
+        <p-accordionTab header="Evidence">
+            <div class="grid" [formGroup]="EvidenceForm">
+                <div class="col-12 md:col-4">
+                    <span class="p-float-label">
+                        <input formControlName="EvidenceName" pInputText maxlength="255"/>
+                        <label for="float-input">Report Name</label>
+                    </span>
+                    <div *ngIf="EvidenceForm.get('EvidenceName')?.invalid && formE">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <input formControlName="EvidenceLink" pInputText maxlength="255"/>
+                        <label for="float-input">Link</label>
+                    </span>
+                    <div *ngIf="EvidenceForm.get('EvidenceLink')?.invalid && formE">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-content-end">
+                <p-button *ngIf="IncidenceSelected" type="button" styleClass="p-button-success" icon="pi pi-save" (onClick)="saveEvidences(1)" label="Save evidence" [disabled]="disableEvidenceButton"></p-button>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+    <p-table
+        #dt1
+        [value]="EvidencesByIncidence"
+        [paginator]="true"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[5, 10, 15]"
+        [loading]="loadingEvidence"
+        styleClass="mt-2"
+    >
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Link</th>
+            <th>Report Name</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-evidence>
+        <tr>
+            <td><p-button [label]="evidence.EvidenceLink" styleClass="p-button-link" (onClick)="openLinkEvidence(evidence.EvidenceLink)"></p-button></td>
+            <td>{{ truncateText(evidence.nameevidence, 80)}}</td>
+            <td>
+                <p-button class="m-1 p-button-outlined p-button-danger" (onClick)="confirm($event, evidence.IdIncidenceEvidence)" icon="pi pi-trash"></p-button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6">There are no Evidence in this Incidence.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+    <p-footer>
+        <div class="flex justify-content-end" *ngIf="IncidenceStatus != 'Done'">
+            <p-button type="button" styleClass="p-button-outlined" (onClick)="hideDialog()" icon="pi pi-times" label="Cancel"></p-button>
+            <p-button type="button" styleClass="p-button-success" (onClick)="saveIncidence()" icon="pi pi-save" label="Save Incidence" [disabled]="disableButton"></p-button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<p-dialog header="Incidence" [(visible)]="visibleMessage" [modal]="true" [responsive]="true" [maximizable]="true" [style]="{ width: '75vw' }">
+    <div class="grid">
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [(ngModel)]="statusIncidenceSelected" [options]="statusIndicenceOptions" placeholder="Impact" optionLabel="StatusName" optionValue="IdstatusReporteoActividades" [showClear]="true"></p-dropdown>
+                <label>Status</label>
+            </span>
+            <div *ngIf="!statusIncidenceSelected && formV">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-12">
+            <span class="p-float-label">
+                <textarea [(ngModel)]="descriptionIncidence" rows="5" pInputTextarea></textarea>
+                <label for="float-input">Description</label>
+            </span>
+            <div *ngIf="!descriptionIncidence && formV">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-12">
+            <div class="flex justify-content start">
+                <p><strong>History</strong></p>
+            </div>
+            <p-table [value]="HistoryIncidenceStatus" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]"
+                [globalFilterFields]="['Descripcion_evento', 'DecisionsRequired', 'fecha_registro']" [loading]="loadingStatus">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Date Registry</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer let-expanded="expanded">
+                    <tr>
+                        <td>{{customer.DateCreate | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                        <td>{{customer.StatusName}}</td>
+                        <td>{{customer.StatusDescription}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6">There are no Evidence in this Incidence.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+    <p-footer>
+        <div class="flex justify-content-end">
+            <p-button type="button" styleClass="p-button-outlined" (onClick)="hideDialogMessage()" icon="pi pi-times" label="Cancel"></p-button>
+            <p-button type="button" styleClass="p-button-success" (onClick)="saveStatus()" icon="pi pi-save" label="Save" [disabled]="disableStatusIButton"></p-button>
+        </div>
+    </p-footer>
+</p-dialog>

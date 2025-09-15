@@ -1,0 +1,79 @@
+<div class="layout-topbar">
+
+  <div class="topbar-start">
+    <button #menubutton type="button" class="topbar-menubutton p-link p-trigger" (click)="onMenuButtonClick()">
+      <i class="pi pi-bars"></i>
+    </button>
+  </div>
+
+  <div class="layout-topbar-menu-section">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <div class="topbar-end">
+    <ul class="topbar-menu">
+      <li class="grid">
+        <div class="formgroup-inline">
+          <p-dropdown [options]="Projects" [(ngModel)]="selectedCountry"
+            (ngModelChange)="onProjectSelected(selectedCountry)" optionLabel="ProjectName" [filter]="true"
+            styleClass="w-full" filterBy="ProjectName" [showClear]="true" placeholder="Select a project">
+            <ng-template pTemplate="selectedItem">
+              <div class="">
+                <div>{{ selectedCountry?.ProjectName }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-country pTemplate="item">
+              <div class="">
+                <div>{{ country.ProjectName }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <span class="pi pi-info-circle m-2"
+            pTooltip="Select a Project to management his information, You can Write the Project Name to Search most easier"
+            tooltipPosition="right"></span>
+        </div>
+      </li>
+
+      <li #profile class="profile-item topbar-item ">
+        <a pStyleClass="@next" enterClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden"
+          leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple class="cursor-pointer">
+          <div class="inline-flex">
+            <span class="icon-fondo"><i class="pi pi-user pr-1"></i></span>
+            <div>
+              <h6 class="p-0 m-0">
+                {{token?.name}}
+              </h6>
+              <small>{{token?.area}}</small>
+            </div>
+           
+          </div>
+        </a>
+
+        <ul class="topbar-menu active-topbar-menu p-4 w-15rem z-5 ng-hidden border-round">
+          <li role="menuitem" class="m-0 mb-3">
+            <!-- <p-button label="Support Airtable" (onClick)="supportAirtable()" icon="pi pi-question-circle"></p-button>
+      <p-button label="Support HelpDesk" (onClick)="supportHelpedsk()" icon="pi pi-question-circle"></p-button> -->
+            <a (onClick)="redirectToNotifications()" icon="pi pi-bell" badgeStyleClass="bg-danger"
+              class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent"
+              enterClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden"
+              leaveActiveClass="px-fadeout">
+              <i class="pi pi-fw pi-bell mr-2"></i>
+              <span>Notificaciones</span>
+            </a>
+          </li>
+          <li role="menuitem" class="m-0">
+            <a *ngIf="buttonvisible" pRipple (click)="logOut()"
+              class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent"
+              enterClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden"
+              leaveActiveClass="px-fadeout">
+              <i class="pi pi-fw pi-sign-out mr-2"></i>
+              <span>Exit</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+
+</div>

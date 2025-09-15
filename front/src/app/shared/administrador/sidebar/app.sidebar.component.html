@@ -1,0 +1,36 @@
+<div class="layout-sidebar" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+    <div class="sidebar-header">
+        <a [routerLink]="['/home']" class="app-logo">
+            <div class="app-logo-small  h-2rem">
+                <img class="" src="../../../../assets/layout/images/logo-horizontal.png" alt="">
+            </div>
+        </a>
+        <button class="layout-sidebar-anchor p-link z-2 " type="button" (click)="anchor()"></button>
+    </div>
+
+<div class="grid block sm:hidden">
+    <a [routerLink]="['/home']" class="app-logo">
+        <div class="app-logo-normal ">
+            <img class="h-2rem ml-3" src="../../../../assets/layout/images/logo-horizontal.png" alt="">
+        </div>
+    </a>
+</div>
+
+    <div  #menuContainer class="layout-menu-container">
+        <app-menu></app-menu>
+    </div>
+
+    <div class="flex justify-content-center flex-column ">
+        <div class="" >
+            <p-button styleClass="w-full mt-1" size="large" (click)="openModal(true)" label="New project"></p-button>
+        </div>
+        <div class="">
+            <p-button styleClass="w-full mt-1" size="large" icon="pi pi-user" iconPos="left" label="EXIT"
+            *ngIf="buttonvisible" pRipple (click)="logOut()"></p-button>
+        </div>
+
+      
+    </div>
+</div>
+
+<app-modal-new-project></app-modal-new-project>

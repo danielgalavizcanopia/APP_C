@@ -1,0 +1,159 @@
+<section class="container">
+    <div class="flex justify-content-center">
+        <div class="text-2xl text-900">Legal</div>
+    </div>
+    <div class="grid m-3" [formGroup]="legalForm">
+        <div class="col-12 md:col-12">
+            <div class="flex justify-content-end">
+                <p-button  [disabled]="enablebutton" styleClass="p-button-success" icon="pi pi-pencil" iconPos="right" [label]="buttonlabel" (onClick)="toggleFormulario()"></p-button>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="LeadLegal" formControlName="idleadlegal" placeholder="Legal Lead" optionLabel="leadlegal" optionValue="Idleadlegal" inputId="float-label"></p-dropdown>
+                <label for="float-label">Legal Lead</label>
+            </span>
+            <div *ngIf="legalForm.get('idleadlegal')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="DDSattus" formControlName="idlegalDDStatus" placeholder="Legal DD Status" optionLabel="legalDDStatus" optionValue="IDlegalDDStatus" inputId="float-label"></p-dropdown>
+                <label for="float-label">Legal DD Status</label>
+            </span>
+            <div *ngIf="legalForm.get('idlegalDDStatus')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="LolSignedDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>LOI Signed Date</label>
+            </span>
+            <div *ngIf="legalForm.get('LolSignedDate')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="KYCCompleted" />
+                <label htmlFor="username">KYC Completed?</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="CBRequestedRAN" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>CB Requested to RAN date</label>
+            </span>
+            <div *ngIf="legalForm.get('CBRequestedRAN')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="cities" formControlName="CBCompleted" placeholder="CB Completed" optionLabel="name" optionValue="code" inputId="float-label"></p-dropdown>
+                <label for="float-label">CB Completed?</label>
+            </span>
+            <div *ngIf="legalForm.get('CBCompleted')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="ERPASignedDate" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>ERPA Signed Date</label>
+            </span>
+            <div *ngIf="legalForm.get('ERPASignedDate')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="Buyer" />
+                <label htmlFor="username">Buyer</label>
+            </span>
+            <div *ngIf="legalForm.get('Buyer')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="ProjectAgregator"/>
+                <label htmlFor="username">Project Aggregator</label>
+            </span>
+            <div *ngIf="legalForm.get('ProjectAgregator')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="ProjectDevelopment" />
+                <label htmlFor="username">Project Developer</label>
+            </span>
+            <div *ngIf="legalForm.get('ProjectDevelopment')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="ProjectCoordinator" />
+                <label htmlFor="username">Project Coordinator</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="ProjectCoordinatorTerm" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>Project Coordinator Term</label>
+            </span>
+            <div *ngIf="legalForm.get('ProjectCoordinatorTerm')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="SpecificConditionsPrescendent" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Specific Conditions Prescendent</label>
+            </span>
+            
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="KYCtoMESubmission" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>KYC to ME Submission Date</label>
+            </span>
+            <div *ngIf="legalForm.get('KYCtoMESubmission')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="KYC" />
+                <label htmlFor="username">KYC</label>
+            </span>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="MEKYCStatus" formControlName="IDMeKYCStatus" placeholder="CB Completed" optionLabel="MeKYCStatus" optionValue="IDMeKYCStatus" inputId="float-label"></p-dropdown>
+                <label for="float-label">ME KYC Status</label>
+            </span>
+            <div *ngIf="legalForm.get('IDMeKYCStatus')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="NotesLegalTEam" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Notes Legal Team</label>
+            </span>
+        </div>
+    </div>
+    <div class="flex justify-content-center">
+        <p-button [label]="buttonlabel" [disabled]="booleanoActivo" icon="pi pi-save" (onClick)="saveLegal()"></p-button>
+    </div>
+</section>

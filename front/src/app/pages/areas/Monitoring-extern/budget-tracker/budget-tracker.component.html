@@ -1,0 +1,101 @@
+
+    <div class="flex justify-content-between mb-5">
+        <div>
+            <div>
+                <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
+                    optionValue="idrpnumber" (onChange)="changeRP()"></p-selectButton>
+            </div>
+        </div>
+        <div>
+            <p-button label="Download by activities" (onClick)="exportBTToExcel()" styleClass="p-button-outlined"
+                class="m-1" icon="pi pi-file-excel"></p-button>
+            <p-button label="Provisional MXN Ledger" (onClick)="exportProvisionalReport()"
+                [pTooltip]="messageProvisionalReport" tooltipPosition="top" styleClass="p-button-outlined" class="m-1"
+                icon="pi pi-file-excel"></p-button>
+        </div>
+    </div>
+    <p-table [loading]="loading" paginatorDropdownAppendTo="body" dataKey="id" [value]="BudgetTrackerData"
+        [paginator]="true" [rows]="5" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [lazy]="true"
+        [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th width="50%">Account Type</th>
+                <th width="12.5%" class="text-right">Approved</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+                        [pTooltip]="LastUpdatePaid"></i></th>
+                <th width="12.5%" class="text-right">Provisional<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+                        [pTooltip]="LastUpdateProvisional"></i></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-yourRowVaraible let-expanded="expanded">
+            <tr>
+                <td>
+                    <strong>{{yourRowVaraible.Name}}</strong>
+                </td>
+                <td class="text-right">
+                    <strong>{{yourRowVaraible.Approved | currency}} USD</strong>
+                </td>
+                <td class="text-right">
+                    <strong>{{yourRowVaraible.PlannedTotal | currency}} USD</strong>
+                </td>
+                <td class="text-right">
+                    <strong>{{yourRowVaraible.PaidTotal | currency}} USD</strong>
+                </td>
+                <td class="text-right">
+                    <strong>{{yourRowVaraible.ProvisionalTotal | currency}} MXN</strong>
+                </td>
+                <td>
+                    <button type="button" pButton pRipple [pRowToggler]="yourRowVaraible"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-product>
+            <tr>
+                <td colspan="5">
+                    <div class="p-0">
+                        <p-table [value]="product.Accounts" dataKey="id">
+                            <ng-template pTemplate="header">
+            <tr>
+                <th width="62.5%">Activity</th>
+                <th width="12.5%" class="text-right">Planned</th>
+                <th width="12.5%" class="text-right">Actual</th>
+                <th width="12.5%" class="text-right">Provisional</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+            <tr>
+                <td>{{ order.NombreActividad }}</td>
+                <td class="text-right">{{ order.Planned | currency }} USD</td>
+                <td class="text-right">{{ order.Actual | currency }} USD</td>
+                <td class="text-right">{{ order.Provisional | currency }} MXN</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5">There are no summary in this activity.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    </div>
+    </td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="5">There are no data avaiable.</td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <tr>
+            <td class="text-right">Total</td>
+            <td class="text-right">{{totalsFinancial.totalApproved | currency}} USD</td>
+            <td class="text-right">{{totalsFinancial.totalPlanned | currency}} USD</td>
+            <td class="text-right">{{totalsFinancial.totalPaid | currency}} USD</td>
+            <td class="text-right">{{totalsFinancial.totalProvisional | currency}} MXN</td>
+        </tr>
+    </ng-template>
+    </p-table>

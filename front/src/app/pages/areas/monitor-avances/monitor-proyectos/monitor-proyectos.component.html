@@ -1,0 +1,290 @@
+<p-toast></p-toast>
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Monitoring of activities by Project - form</h3>
+    <p>
+        If you want create or update a new activity monitoring, please select a Reporting Period and Activity.
+    </p>
+
+</p-sidebar>
+
+<section class="m-5" [formGroup]="activityForm">
+    <div class="grid">
+        <div class="col-12 md:col-4">
+            <p>Start your process by selecting an RP and Activity</p>
+            <div class="grid">
+                <div class="col-12 md:col-3">
+                    <p-dropdown appendTo="body" [options]="rpnumbers" formControlName="rpnumber" placeholder="RP"
+                        optionLabel="RP_Number" optionValue="idrpnumber" (onChange)="getActivitiesByRP($event.value)"
+                        [showClear]="true"></p-dropdown>
+                </div>
+                <div class="col-12 md:col-9" *ngIf="!idActivity">
+                    <p-dropdown appendTo="body" [options]="ActivitiesByRP" formControlName="activity"
+                        placeholder="Select Activity" optionLabel="NombreActividad" optionValue="IdActividaddata"
+                        (onChange)="getReportActDetailById($event.value)" [showClear]="true"></p-dropdown>
+                </div>
+                <div class="col-12 md:col-9" *ngIf="idActivity">
+                    <div class="text-lg text-900 m-1" *ngIf="ActivitySelected">Activity: {{ActivitySelected.Actividad}}
+                    </div>
+                </div>
+                <div class="col-12 md:col-12" *ngIf="ActivitySelected">
+                    <p-fieldset legend="Activity Detail">
+                        <div class="grid">
+                            <div class="col">
+                                <small class="font-bold">STARD PLANNED DATE</small>
+                                <p>{{ActivitySelected.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}}</p>
+                            </div>
+                            <div class="col">
+                                <small class="font-bold">END PLANNED DATE</small>
+                                <p>{{ActivitySelected.actividaddateend | date: 'dd/MM/yyyy': 'UTC'}}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <small class="font-bold">QUANTITATIVES INDICADORS</small>
+                            <ul *ngIf="ActivitiesReportedByID">
+                                <li *ngFor="let indicator of ActivitiesReportedByID">{{indicator.NombreCuantitativo}}:
+                                    {{indicator.estimado}}</li>
+                            </ul>
+                        </div>
+                        <div class="pb-2">
+                            <small class="font-bold">ACCOUNT TYPE</small>
+                            <p>{{ActivitySelected.Ca_o_pex == 1 ? 'Capex Account' : 'Opex Account'}}</p>
+                        </div>
+                        <div class="pb-2">
+                            <small class="font-bold">ACCOUNT SELECTED</small>
+                            <p>{{ActivitySelected.Ca_o_pex == 1 ? ActivitySelected.NombreCapex :
+                                ActivitySelected.NombreOpex}}</p>
+                        </div>
+                        <div class="pb-2">
+                            <small class="font-bold">ESTIMATED (USD)</small>
+                            <p> {{ActivitySelected.EstimadoUSD | currency}}</p>
+                        </div>
+                        <div class="pb-2">
+                            <small class="font-bold">EVALUATOR</small>
+                            <p>{{ActivitySelected.NombreEvaluador}}</p>
+                        </div>
+                    </p-fieldset>
+                    <span class="p-float-label mt-5" *ngIf="idActivity">
+                        <p-dropdown appendTo="body" [options]="statusReporteo" [(ngModel)]="statusSelected"
+                            [ngModelOptions]="{standalone: true}" placeholder="Select Status" optionLabel="StatusName"
+                            optionValue="IdstatusReporteoActividades" [showClear]="true"
+                            (ngModelChange)="setStatusReporteoActivity()"></p-dropdown>
+                        <label for="float-input">Select Status</label>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 md:col-8" formArrayName="items">
+            <div class="flex justify-content-between">
+                <h5>Monitor activity</h5>
+                <p-button type="button" styleClass="p-button-success ml-2" pTooltip="Info" tooltipPosition="bottom"
+                    (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+            </div>
+            <p-scrollPanel #scrollPanel [style]="{ width: '100%', height: '450px' }">
+                <div class="pb-2" *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+                    <p-fieldset *ngIf="row.get('status')?.value == 1">
+                        <ng-template pTemplate="header">
+                            <small class="font-bold" *ngIf="reporteoByActivities && reporteoByActivities.length > 0">
+                                Registration
+                                Date: {{reporteoByActivities[i]?.DateCreate | date: 'dd/MM/yyyy':
+                                'UTC'}}</small>
+                        </ng-template>
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="p-inputgroup">
+                                    <p-dropdown formControlName="Idcuantitativo" appendTo="body"
+                                        [style]="{'width':'100%'}" [options]="ActivitiesReportedByID"
+                                        optionLabel="NombreCuantitativo" placeholder="Indicator"
+                                        [showClear]="true"></p-dropdown>
+                                    <span
+                                        class="p-inputgroup-addon">{{row.get('Idcuantitativo')?.value?.Metrica}}</span>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="p-float-label">
+                                    <p-calendar formControlName="begindate" appendTo="body" placeholder="Initial Date"
+                                        [showIcon]="true" [style]="{'width':'100%'}" dateFormat="yy-mm-dd"></p-calendar>
+                                    <label>Initial Date</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="p-float-label">
+                                    <p-calendar formControlName="enddate" appendTo="body" placeholder="End Date"
+                                        [showIcon]="true" [style]="{'width':'100%'}" dateFormat="yy-mm-dd"></p-calendar>
+                                    <label>End Date</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <span class="p-float-label">
+                                    <p-inputNumber class="w-full" styleClass="w-full"
+                                        formControlName="AvanceCuantitativo"
+                                        (ngModelChange)="calculateProgress(i)"></p-inputNumber>
+                                    <label>Quantitative Progress</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <div class="text-lg text-black-alpha-70 m-1">
+                                    <p class="p-0 m-0">{{row.get('calculatedprogress')?.value}} %</p>
+                                    <small>Calculate Progress</small>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <span class="p-float-label">
+                                    <p-inputNumber class="w-full" styleClass="w-full" formControlName="NumJornales"
+                                        [maxlength]="3" [min]="0"></p-inputNumber>
+                                    <label>Journals</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <span class="p-float-label">
+                                    <p-inputNumber class="w-full" styleClass="w-full" formControlName="participatingM"
+                                        [maxlength]="3" [min]="0"></p-inputNumber>
+                                    <label>Participating Man</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <span class="p-float-label">
+                                    <p-inputNumber class="w-full" styleClass="w-full" formControlName="participatingW"
+                                        [maxlength]="3" [min]="0"></p-inputNumber>
+                                    <label>Participating Woman</label>
+                                </span>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <p-button styleClass="p-button-danger" icon="pi pi-trash" pTooltip="Remove"
+                                    (click)="row.get('status')?.setValue(0); remove(i)"></p-button>
+                            </div>
+                        </div>
+                    </p-fieldset>
+                </div>
+                <div class="col-12 md:col-12 text-center">
+                    <p-button styleClass="p-button-rounded" icon="pi pi-plus" pTooltip="Add Item"
+                        (click)="addItem()"></p-button>
+                </div>
+            </p-scrollPanel>
+            <span class="p-float-label">
+                <textarea id="float-input" rows="5" cols="30" minlength="82" maxlength="250" pInputTextarea></textarea>
+                <label for="float-input">Description</label>
+            </span>
+        </div>
+    </div>
+    <div class="flex align-items-end justify-content-end">
+        <p-button label="Cancel" styleClass="p-button-outlined mr-1" icon="pi pi-times"
+            routerLink="/Monitor-activities"></p-button>
+        <p-button *ngIf="ActivitySelected && items.length > 0" label="Save activity" icon="pi pi-save" (onClick)="showDialog()" iconPos="right"></p-button>
+    </div>
+</section>
+
+<!-- RESPALDO DE ULTIMO DROPDOWN DE STATUS -->
+<!-- 
+<div class="col-12 md:col-4">
+    <span class="p-float-label" *ngIf="idActivity">
+        <p-dropdown appendTo="body" [options]="statusReporteo" [(ngModel)]="statusSelected" placeholder="Select Status"  optionLabel="StatusName" 
+        optionValue="IdstatusReporteoActividades" [showClear]="true" (ngModelChange)="setStatusReporteoActivity()"></p-dropdown>
+        <label for="float-input">Select Status</label>
+    </span>
+</div> 
+-->
+<p-dialog header="Save progress" [(visible)]="visible" [modal]="true" [style]="{ width: 'auto', height: 'auto' }"
+    (onHide)="onHide()">
+    <ng-template pTemplate="content">
+        <div class="mt-3">
+            <div>
+                <div class="flex justify-content-center">
+                    <div class="text-lg text-900">Are you sure you want to save these records?
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-content-center">
+                        <span class="p-error font-bold">You will not be able to edit them after saving changes</span>
+                    </div>
+                </div>
+            </div>
+            <p-table [value]="progressPreview" [tableStyle]="{'min-width': '60rem'}">
+                <ng-template pTemplate="header">
+                    <tr class="backgroundtable">
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Quantitative Indicator</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Amount</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Progress %</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Start Date</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>End Date</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Journals</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Participating Man</strong></p>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="flex justify-content-center">
+                                <p class="text-white"><strong>Participating Woman</strong></p>
+                            </div>
+                        </th>
+                        <!-- <th><div class="flex justify-content-center"><p class="text-white"><strong>Status</strong></p></div></th> -->
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-i="rowIndex">
+                    <tr *ngIf="row.status == 1">
+                        <td>
+                            {{row.Idcuantitativo.NombreCuantitativo}}
+                        </td>
+                        <td>
+                            {{row.AvanceCuantitativo}}
+                        </td>
+                        <td>
+                            {{row.calculatedprogress}} %
+                        </td>
+                        <td>
+                            {{row.begindate | date}}
+                        </td>
+                        <td>
+                            {{row.enddate | date}}
+                        </td>
+                        <td>
+                            {{row.NumJornales}}
+                        </td>
+                        <td>
+                            {{row.participatingM}}
+                        </td>
+                        <td>
+                            {{row.participatingW}}
+                        </td>
+                        <!-- <td>
+                            <p-dropdown [options]="rpnumbers" optionLabel="RP_Number" optionValue="idrpnumber" [showClear]="true"></p-dropdown>
+                        </td> -->
+                        <td>
+                            <!-- <p-button styleClass="p-button-danger" icon="pi pi-trash" label="Remove" (click)="removeItem(i)"></p-button> -->
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-times" (click)="onHide()" label="Cancel"></p-button>
+        <p-button *ngIf="disableButtonSave" icon="pi pi-save" (click)="saveActivities()" label="Save"></p-button>
+        <i *ngIf="!disableButtonSave" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    </ng-template>
+</p-dialog>

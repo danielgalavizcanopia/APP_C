@@ -1,0 +1,181 @@
+
+
+<section>
+    <div class="flex justify-content-center mt-3">
+        <div class="text-3xl">Select a project to view and manage its information</div>
+    </div>
+    <div class="card">
+        <div> 
+        <p-table #dt1 [value]="projects" dataKey="id" [rows]="20" [paginator]="true" stateStorage="session" responsiveLayout="scroll" 
+                stateKey="statedemo-session" [globalFilterFields]="['idprojects','Folio_project','ProjectName', 'Aggregation', 'TipoPropiedad', 'Municipio','Estado']">
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-end">
+                        <span class="p-input-icon-left ml-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search project" />
+                        </span>
+                    </div>
+                </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="idprojects" style="width:8%">ID<p-sortIcon field="idprojects"></p-sortIcon></th>
+                    <th pSortableColumn="Folio" style="width:9%">Folio</th>
+                    <th pSortableColumn="ProjectName" style="width:24%">Project name</th>
+                    <th pSortableColumn="Aggregation" style="width:14%">Aggregation<p-sortIcon field="Aggregation"></p-sortIcon></th>
+                    <th pSortableColumn="NucleoAgrario" style="width:10%">Agrarian Core</th>
+                    <th pSortableColumn="TipoPropiedad" style="width:10%">Kind of property</th>
+                    <th pSortableColumn="Municipio" style="width:15%">Municipality<p-sortIcon field="Municipio"></p-sortIcon></th>
+                    <th pSortableColumn="Estado" style="width:15%">State<p-sortIcon field="Estado"></p-sortIcon></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-list let-columns="columns">
+                <tr [pSelectableRow]="list" class="pointer"  (click)="onRowSelect(list); btnSelectedRegister(list)" [ngClass]="{'p-highlight': isProjectSelected(list)}">
+                   
+                    <td>
+                        {{list.idprojects}}
+                    </td>
+                    <td>
+                        {{list.Folio_project}}
+                    </td>
+                    <td>
+                        {{list.ProjectName}}
+                    </td>
+                    <td>
+                        {{list.Aggregation}}
+                    </td>
+                    <td>
+                       {{list.NucleoAgrario}}
+                    </td>
+                    <td>
+                       {{list.TipoPropiedad}}
+                    </td>
+                    <td>
+                       {{list.Municipio}}
+                    </td>
+                    <td>
+                       {{list.Estado}}
+                    </td>
+                    <td>
+                        <span class="p-column-title">Editar</span>
+                        <button  pButton pRipple type="button"(click)="editProject(list)" icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4">No projects found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    </div>
+</section>
+
+<!--INICIA MODAL DE NUEVO PROYECTO-->
+<p-dialog [modal]="true" [(visible)]="isOpen"  [style]="{width: '50vw', height: '30vw'}" (onHide)="close()">
+    <form [formGroup]="Update">
+        <p-fieldset legend="Update project">
+            <div class="flex flex-wrap align-items-center justify-content-center">
+                <div class="pb-3">
+                    <div class="flex align-items-center justify-content-center">
+                        <p style="color:red">Authorization is required to update this project. Please provide a brief justification of the reason for the update:
+                    </div>
+                </div>
+            </div>
+             
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <input class="p-inputtext-lg" appNoEmoji formControlName="ProjectName" id="ProjectName" type="text" [value]="proyectoSelected?.ProjectName"
+                            pInputText>
+                        <label  for="ProjectName">Project Name *</label>
+                    </span>
+                </div>
+            
+            
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="agregation"
+                            formControlName="idaggregation" id="idaggregation" placeholder="select a Aggregation" 
+                            optionLabel="descripcion" optionValue="idaggregation" inputId="float-label">
+                            <!--  -->
+                        </p-dropdown>
+                        <label for="idaggregation">Aggregation *</label>
+                    </span>
+                </div>
+            
+                <div class="field col-12">
+                    <span class="p-float-label">
+                        <input class="p-inputtext-lg" appNoEmoji formControlName="Counterpart" id="Counterpart" type="text" 
+                            pInputText>
+                        <label for="Counterpart">Counterpart *</label>
+                    </span>
+                </div>
+
+            
+            
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="catalogoEstados" 
+                            id="idEstado" placeholder="Select a State" optionLabel="nomEstado" (onChange)="selectEstado($event.value)" [ngModel]="estadoSelected"
+                            [ngModelOptions]="{standalone: true}" optionValue="idEstado" inputId="float-label"></p-dropdown>
+                            <!--  -->
+                        <label for="idEstado">State</label>
+                    </span>
+                </div>
+            
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="municipios" id="idMunicipio" placeholder="Select a Municipality" 
+                            [disabled]="municipios.length==0" (onChange)="selectMunicipality($event.value)"
+                            optionLabel="nameMunicipality" optionValue="idmunicipio"  [ngModel]="municipioSelected?.idmunicipio" [ngModelOptions]="{standalone: true}">
+                            <!-- optionValue="idMunicipio" -->
+                        </p-dropdown>
+                        <label for="nameMunicipality">Municipality</label>
+                    </span>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown styleClass="p-inputtext-lg" [options]="nucleoAgrario"
+                            formControlName="idnucleoAgrario" id="idnucleoAgrario" (onChange)="nucleoAgrarioFilter($event.value)" placeholder="select Agrarian Core"
+                            optionLabel="NameNuc" [ngModel]="agrarioSelected" optionValue="idnucleoAgrario" inputId="float-label"> </p-dropdown>
+                            <!--  -->
+                        <label for="NameNuc">Agrarian Core</label>
+                    </span>
+                </div>
+                
+                <div class="field col-12 md:col-6">
+                    <h5>kind of property: {{proyectoSelected?.TipoPropiedad}}</h5>
+                </div>
+            </div>
+            
+            <div class="field col-12">
+                <span class="p-float-label">
+                    <input class="p-inputtext-lg" formControlName="Justification" id="Justification" type="text"
+                        pInputText>
+                    <label for="Justification">justification * </label>
+                   
+                </span>
+            </div>
+        </p-fieldset>
+    </form>
+
+
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-times" (click)="close()" label="Cancel" styleClass="p-button-outlined p-button-success"></p-button>
+        <p-button  label="Update" (click)="FnrequestProjectUpdate()" styleClass="p-button-success"></p-button>
+    </ng-template>
+
+</p-dialog>
+    <p-toast position="top-right"></p-toast>
+    <app-alerta></app-alerta>
+
+    
+
+
+
+<p-toast position="top-right"></p-toast>
+
+
+  

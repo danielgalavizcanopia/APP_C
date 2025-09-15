@@ -1,0 +1,466 @@
+<section class="m-5" [formGroup]="desarrolloForm">
+    <div class="flex justify-content-center">
+        <div class="text-2xl text-900">Development</div>
+    </div>
+    <div class="flex justify-content-end mb-3">
+        <button [disabled]="enablebutton" pButton label="Save changes" icon="pi pi-save" (click)="save()"></button>
+    </div>
+        <p-panel header="Development" >
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <span class="p-float-label">  
+                        <textarea id="float-input" formControlName="Description" rows="5" cols="30" pInputTextarea></textarea>
+                        <label for="float-input">Description</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('Description')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <span class="p-float-label">  
+                        <textarea id="float-input" formControlName="UnderlyingActivities" rows="5" cols="30" pInputTextarea></textarea>
+                        <label for="float-input">Underlying Activities</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('UnderlyingActivities')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdLicensesPermits" [options]="LicencesPermits" placeholder="Licenses Permits" optionLabel="LicensesPermits" optionValue="IdLicensesPermits"></p-dropdown>
+                        <label for="float-label">Licenses Permits</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdLicensesPermits')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdleadDesarrollo" [options]="LeadDesarrollo" placeholder="Lead Desarrollo" optionLabel="LeadDesarollo" optionValue="IdleadDesarrollo"></p-dropdown>
+                        <label for="float-label">Lead Desarrollo</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdleadDesarrollo')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdDevelopmentStatus" [options]="DevelopmentStatus" placeholder="Development Status" optionLabel="DevelopmentStatus" optionValue="IdDevelopmentStatus"></p-dropdown>
+                        <label for="float-label">Development Status</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdDevelopmentStatus')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="idprogramme" [options]="Registry" placeholder="Registry" optionLabel="Description_programme" optionValue="id_programme"></p-dropdown>
+                        <label for="float-label">Programme</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('idprogramme')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="RegistrationRoute" [options]="Registrationroute" placeholder="Registration Route" optionLabel="Description_Registration" optionValue="id_registrationRoute"></p-dropdown>
+                        <label htmlFor="username">Registration Route</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('RegistrationRoute')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="Idmethodology" [options]="Methodology" placeholder="methodology" optionLabel="Methodology" optionValue="Idmethodology"></p-dropdown>
+                        <label for="float-label">methodology</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('Idmethodology')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input pInputText formControlName="Credittype" />
+                        <label htmlFor="username">Credit type</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('Credittype')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdConfidenceOfFrontCost" [options]="Confidenceoffrontcost" placeholder="Confidence Of Front Cost" optionLabel="ConfidenceOfFrontCost" optionValue="IdconfidenceOfFrontCost"></p-dropdown>
+                        <label for="float-label">Confidence Of Front Cost</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdConfidenceOfFrontCost')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdCBACalculatorVersion" [options]="CBAcalculatorversion" placeholder="CBA Calculator Version" optionLabel="CBACalculatorVersion" optionValue="IdCBACalculatorVersion"></p-dropdown>
+                        <label for="float-label">CBA Calculator Version</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdCBACalculatorVersion')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input pInputText formControlName="CBAFileReference" />
+                        <label htmlFor="username">CBA File Reference</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('CBAFileReference')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input pInputText formControlName="ProjectIRR" />
+                        <label htmlFor="username">Project IRR</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('ProjectIRR')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input type="number" pInputText formControlName="ProjectAreaHA" />
+                        <label htmlFor="username">Project Area HA</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('ProjectAreaHA')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdConfidenceofCreditingActivityArea" [options]="Confidenceofcreditingactivityarea" placeholder="Confidence of Crediting ActivityArea" optionLabel="ConfidenceofCreditingActivityArea" optionValue="IdConfidenceofCreditingActivityArea"></p-dropdown>
+                        <label for="float-label">Confidence of Crediting ActivityArea</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdConfidenceofCreditingActivityArea')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdProjectCondition" [options]="Projectcondition" placeholder="Project Condition" optionLabel="ProjectCondition" optionValue="IdProjectCondition"></p-dropdown>
+                        <label for="float-label">Project Condition</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdProjectCondition')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-calendar [style]="{'width':'100%'}" dateFormat="yy-mm-dd" formControlName="ApprovedByCounterPartProject" [showIcon]="true"></p-calendar>
+                        <label htmlFor="username">Approved By Counter Part Project</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('ApprovedByCounterPartProject')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-calendar [style]="{'width':'100%'}" dateFormat="yy-mm-dd" formControlName="Expectec2ndCreditInPeriod" [showIcon]="true"></p-calendar>
+                        <label htmlFor="username">Expected 2nd Credit In Period</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('Expectec2ndCreditInPeriod')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdERsCalculatorVersion" [options]="ERScalculatorversion" placeholder="ERs Calculator Version" optionLabel="ERSCalculatorVersion" optionValue="IdERsCalculatorVersion"></p-dropdown>
+                        <label for="float-label">ERs Calculator Version</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdERsCalculatorVersion')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdMercuriaDDStatus" [options]="Mercuriaddstatus" placeholder="Mercuria DD Status" optionLabel="MercuriaDDStatus" optionValue="IdMercuriaDDStatus"></p-dropdown>
+                        <label for="float-label">Mercuria DD Status</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdMercuriaDDStatus')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input pInputText formControlName="DDPack" />
+                        <label htmlFor="username">DD Pack</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('DDPack')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-calendar [style]="{'width':'100%'}" dateFormat="yy-mm-dd" formControlName="DDPacktoMeSubmission" [showIcon]="true"></p-calendar>
+                        <label htmlFor="username">DD Pack to Me Submission Date</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('DDPacktoMeSubmission')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdEstimatePermanence" [options]="Estimatepermanence" placeholder="Estimate Permanence" optionLabel="EstimatePermanence" optionValue="IdEstimatePermanence"></p-dropdown>
+                        <label for="float-label">Estimate Permanence</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdEstimatePermanence')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdEstimateLeakeAge" [options]="Estimateleakeage" placeholder="Estimate LeakeAge" optionLabel="EstimateLeakeAge" optionValue="IdEstimateLeakeAge"></p-dropdown>
+                        <label for="float-label">Estimate LeakeAge</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdEstimateLeakeAge')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input pInputText formControlName="EstimatedReversalRisk" />
+                        <label htmlFor="username">Estimated Reversal Risk</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('EstimatedReversalRisk')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <p-dropdown formControlName="IdEstimatedMRVRequirements" [options]="Estimatedmrvrequirements" placeholder="Estimated MRV Requirements" optionLabel="EstimatedMRVRequirements" optionValue="IdEstimatedMRVRequirements"></p-dropdown>
+                        <label for="float-label">Estimated MRV Requirements</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('IdEstimatedMRVRequirements')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input type="number" pInputText formControlName="EstimateSampleSize" />
+                        <label htmlFor="username">Estimate Sample Size</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('EstimateSampleSize')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">  
+                        <input type="number" pInputText formControlName="TotalCert10YrsTCO2" />
+                        <label htmlFor="username">Total Cert 10 Yrs tCO2</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('TotalCert10YrsTCO2')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <span class="p-float-label">  
+                        <textarea id="float-input" formControlName="DevelopmentTeamNotes" rows="5" cols="30" pInputTextarea></textarea>
+                        <label for="float-input">Development Team Notes</label>
+                    </span>
+                    <div *ngIf="desarrolloForm.get('DevelopmentTeamNotes')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+        <p-panel header="Annual CRTs Year">
+            <div class="grid">
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2022" />
+                        <label htmlFor="username">Annual CRTs Year 2022</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2023" />
+                        <label htmlFor="username">Annual CRTs Year 2023</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2024" />
+                        <label htmlFor="username">Annual CRTs Year 2024</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2025" />
+                        <label htmlFor="username">Annual CRTs Year 2025</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2026" />
+                        <label htmlFor="username">Annual CRTs Year 2026</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2027" />
+                        <label htmlFor="username">Annual CRTs Year 2027</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2028" />
+                        <label htmlFor="username">Annual CRTs Year 2028</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2029" />
+                        <label htmlFor="username">Annual CRTs Year 2029</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2030" />
+                        <label htmlFor="username">Annual CRTs Year 2030</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2031" />
+                        <label htmlFor="username">Annual CRTs Year 2031</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2032" />
+                        <label htmlFor="username">Annual CRTs Year 2032</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2033" />
+                        <label htmlFor="username">Annual CRTs Year 2033</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2034" />
+                        <label htmlFor="username">Annual CRTs Year 2034</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2035" />
+                        <label htmlFor="username">Annual CRTs Year 2035</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2036" />
+                        <label htmlFor="username">Annual CRTs Year 2036</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2037" />
+                        <label htmlFor="username">Annual CRTs Year 2037</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2038" />
+                        <label htmlFor="username">Annual CRTs Year 2038</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2039" />
+                        <label htmlFor="username">Annual CRTs Year 2039</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2040" />
+                        <label htmlFor="username">Annual CRTs Year 2040</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2041" />
+                        <label htmlFor="username">Annual CRTs Year 2041</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2042" />
+                        <label htmlFor="username">Annual CRTs Year 2042</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2043" />
+                        <label htmlFor="username">Annual CRTs Year 2043</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2044" />
+                        <label htmlFor="username">Annual CRTs Year 2044</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2045" />
+                        <label htmlFor="username">Annual CRTs Year 2045</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2046" />
+                        <label htmlFor="username">Annual CRTs Year 2046</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2047" />
+                        <label htmlFor="username">Annual CRTs Year 2047</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2048" />
+                        <label htmlFor="username">Annual CRTs Year 2048</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2049" />
+                        <label htmlFor="username">Annual CRTs Year 2049</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2050" />
+                        <label htmlFor="username">Annual CRTs Year 2050</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2051" />
+                        <label htmlFor="username">Annual CRTs Year 2051</label>
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <span class="p-float-label">
+                        <input type="number" pInputText formControlName="2052" />
+                        <label htmlFor="username">Annual CRTs Year 2052</label>
+                    </span>
+                </div>
+            </div>
+        </p-panel>
+        <div class="flex justify-content-end mt-3">
+            <button [disabled]="enablebutton" pButton label="Save changes" icon="pi pi-save" (click)="save()"></button>
+        </div>
+</section>

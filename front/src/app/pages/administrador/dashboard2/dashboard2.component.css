@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+.status-one{
+  background-color: #AAE0DB;
+  color: #163029;
+  border-radius: 20px;
+  height: 100%;
+}
+
+.impact{
+  border: 1px solid rgba(68, 72, 109, 0.17);
+  border-radius: 20px;
+}
+
+.non-selected{
+  opacity: 0.4;
+}
+
+.status-pending{
+  background-color: #E3F0EA; color: #000000; padding: 4px; border-radius: 5px;
+}
+.status-evaluation{
+  background-color: #D87610; color: #FFFFFF; padding: 4px; border-radius: 5px;
+}
+
+.green{
+color: #088F83;
+}
+
+.orange{
+color: #D87610;
+}
+
+.red{
+color:#D1410D;
+}

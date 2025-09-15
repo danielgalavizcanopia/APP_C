@@ -1,0 +1,30 @@
+<div class="mt-3">
+    <div class="flex justify-content-center">
+        <div class="text-4xl text-900">SIG</div>
+    </div>
+    <div class="m-5">
+        <div class="grid">
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-dropdown [options]="catalogleadsig" id="IdLeadSIG" [(ngModel)]="LeadSelected" placeholder="Select a Lead SIG" optionLabel="LeadSIG" optionValue="IdLeadSIG" inputId="float-label"></p-dropdown>
+                    <label for="IdLeadSIG">Lead</label>
+                    <!-- <small *ngIf="isFieldInvalidAndTouched('IdLeadSIG')" id="blErrorLeadSIG" class="p-error">Lead is required.</small> -->
+                </span>
+            </div>
+            <div class="col-12 md:col-12">
+                <p-tabView>
+                    <p-tabPanel header="Project area">
+                        <app-area-proyecto></app-area-proyecto>
+                    </p-tabPanel>
+                    <p-tabPanel header="Activity area">
+                        <app-area-actividad></app-area-actividad>
+                    </p-tabPanel>
+                    <p-tabPanel header="PED">
+                        <app-componen-ped></app-componen-ped>
+                    </p-tabPanel>
+                </p-tabView>
+            </div>
+        </div>
+    </div>
+</div>
+

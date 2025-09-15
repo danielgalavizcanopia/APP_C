@@ -1,0 +1,256 @@
+<!-- INICIA MODIFICACION-->
+ <section class="m-5">
+<div>
+  <div class="flex justify-content-between mb-5">
+    <div>
+      <div class="flex align-content-end">
+        <div class="">
+          <h3>Plan Annual Preview</h3>
+          <p class="pr-5">Folio: <span class="font-bold">{{annualPlanSelected?.FolioPadi}}</span> | Date Created: <span class="font-bold">{{annualPlanSelected?.DateCreate | date}}</span></p>
+        </div>
+        <div class="flex align-items-center">
+          <span class=" p-float-label">
+            <p-dropdown styleClass="m-1" [options]="validacionesSt" [(ngModel)]="status" placeholder="Select Status"
+              optionLabel="statusvalidateplan" optionValue="Idstatusvalidateplan" [showClear]="true"></p-dropdown>
+            <label for="float-label">Status actual</label>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p-button (onClick)="exportToExcel()" label="Download XLSX file" styleClass="m-1 p-button-outlined"
+        icon="pi pi-file-excel"></p-button>
+      <p-button (onClick)="exportToWord()" label="Download DOCX file" styleClass="m-1 p-button-outlined"
+        icon="pi pi-file-word"></p-button>
+      <p-button (onClick)="saveAnnualPlanNew()" label="Save Annual Plan" styleClass="m-1" 
+        icon="pi pi-save"></p-button>
+
+    </div>
+  </div>
+  <p-divider></p-divider>
+</div>
+
+<div>
+  <p-tabView>
+    <p-tabPanel header="Activity Schedule">
+      <!-- VERIFICAR PARA ARMAR EN UN AÑO TOMANDO LA FECHA INICIO MÁS CERCANA, Y LA FECHA FIN MÁS LEJANA -- USANDO ACTIVIDADES POR PLAN ANUAL -->
+      <p-table [value]="activitiesSchedule" [loading]="loading" [rows]="10" [showCurrentPageReport]="true"
+        styleClass="p-datatable-sm" [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+          <tr>
+            <th> <small>SOP</small> </th>
+            <th> <small>Activity</small> </th>
+            <th> <small>Planned (USD)</small> </th>
+            <th *ngFor="let mes of mesesDelAno"> <small>{{mes}}</small></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+          <tr>
+            <td width="15%">{{ customer.SOPdescription }}</td>
+            <td width="15%">{{ customer.Actividad || customer.NombreActividad }}</td>
+            <td width="10%" class="text-right">{{ customer.EstimadoUSD | currency }}</td>
+            <td *ngFor="let mes of mesesDelAno;"
+              [ngStyle]="{'background-color': getMonthBackgroundCell(customer.actividaddatestart, customer.actividaddateend, mes),'color':'#FFFFFF'}">
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr>
+            <td></td>
+            <td>Total:</td>
+            <td class="text-right"> {{sumTotalsByActivities(activitiesSchedule) | currency}}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <p>Without Activities</p>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Summary of Activities">
+      <p-table [value]="activitiesByPlan" [loading]="loading" [rows]="10" [tableStyle]="{  'min-width': '100rem', }"
+        [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>No.</th>
+            <th>Activity</th>
+            <th>Description</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
+          <tr>
+            <td>{{rowIndex + 1}}</td>
+            <td>{{ customer.Actividad || customer.NombreActividad }}</td>
+            <td>{{customer.objetivo}}</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <p>Without Activities</p>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Activity Details">
+      <div class="mt-5" *ngFor="let activity of activitiesByPlan; let i = index">
+        <div class="flex justify-content-between mb-5">
+          <div class="text-2xl text-900">Actividad {{i+1}} - {{ activity.Actividad || activity.NombreActividad}}</div>
+          <div class="text-lg text-900">{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} -
+            {{activity.actividaddateend | date: 'dd/MM/yyyy': 'UTC'}}</div>
+        </div>
+        <p-table styleClass="p-datatable-gridlines">
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="bg-primary">Objetivo</td>
+              <td>{{activity.objetivo}}</td>
+            </tr>
+            <tr>
+              <td class="bg-primary">Metodología</td>
+              <td>{{activity.SOPdescription}}</td>
+            </tr>
+            <tr>
+              <td class="bg-primary">Periodo de ejecución</td>
+              <td>{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} - {{activity.actividaddateend | date:
+                'dd/MM/yyyy': 'UTC'}}</td>
+            </tr>
+            <tr>
+              <td class="bg-primary">Presupuesto de actividad (USD)</td>
+              <td>{{activity.EstimadoUSD | currency}}</td>
+            </tr>
+            <tr>
+              <td class="bg-primary">Indicadores</td>
+              <td>
+                <div class="flex justify-content-start mb-1">
+                  <div class="text-lg text-900">Cualitativos</div>
+                </div>
+                <div>
+                  {{activity.Cualitativos}}
+                </div>
+                <div class="flex justify-content-start mb-5">
+                </div>
+                <div class="text-lg text-900">Cuantitativos</div>
+                <ul *ngIf="indicadoresCuantitativos[activity.IdActividaddata]; else loading"
+                  [innerHTML]="indicadoresCuantitativos[activity.IdActividaddata]"></ul>
+                <ng-template #loading>
+                  Cargando indicadores...
+                </ng-template>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" class="bg-primary">
+                <div class="flex justify-content-center">
+                  <strong>Reporteo</strong>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <div class="flex justify-content-between mb-3">
+                  <div><strong>Who?</strong></div>
+                  <div><strong>How?</strong></div>
+                  <div><strong>When?</strong></div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" *ngIf="reporteo[activity.IdActividaddata]; else loading"
+                [innerHTML]="reporteo[activity.IdActividaddata]"></td>
+            </tr>
+            <!-- <ng-template #loadingRep>
+                      Cargando indicadores...
+                    </ng-template> -->
+            <tr>
+              <td colspan="2">
+                <div class="mt-2">
+                  <p-table styleClass="p-datatable-gridlines">
+                    <ng-template pTemplate="footer">
+            <tr>
+              <td class="bg-primary" rowspan="5">Roles para realizar actividad</td>
+              <td>Seguimiento</td>
+              <td>{{activity.IDUserSeguimiento}}</td>
+            </tr>
+            <tr>
+              <td>Coordinador</td>
+              <td>{{activity.IDUserCoordinador}}</td>
+            </tr>
+            <tr>
+              <td>Ejecutor de campo</td>
+              <td>{{activity.UserEjecutordeCampo}}</td>
+            </tr>
+            <tr>
+              <td>Supervisor</td>
+              <td>{{activity.UserSupervisor}}</td>
+            </tr>
+            <tr>
+              <td>Evaluador</td>
+              <td>{{activity.IDUserEvaluador}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="mt-2">
+        Mapa de ubicación geográfica
+        <div class="flex justify-content-center">
+          <img *ngIf="activity.linkdelarchivo" [src]="url + activity.linkdelarchivo" width="500" height="400">
+          <small *ngIf="!activity.linkdelarchivo">Sin imagen previa</small>
+        </div>
+      </div>
+      </td>
+      </tr>
+      </ng-template>
+      </p-table>
+</div>
+</p-tabPanel>
+
+<p-tabPanel *ngIf="annualPlanSelected?.status === 4 || annualPlanSelected?.status === 6" [header]="typeHeaderBackup">
+ <app-plans-backup></app-plans-backup>
+ </p-tabPanel>
+</p-tabView>
+</div>
+</section>
+<!--TERMINA MODIFICACION-->
+
+
+<!--INICIA MODAL-->
+<p-dialog header="Save confirm" [(visible)]="visible" [modal]="true" [style]="{width: '50vw'}"
+  (onHide)="hideDialog()">
+  <ng-template pTemplate="content">
+    <div class="flex justify-content-start mb-5">
+      <small>Confirm the option selected before your save the changes.</small>
+    </div>
+    <div class="grid" *ngIf="typeValidation == 2">
+      <div class="col-12 md:col-12">
+        <span class="p-float-label">
+          <textarea id="float-input" [(ngModel)]="corrections" rows="5" cols="30" pInputTextarea></textarea>
+          <label for="float-input">Send your Corrections</label>
+        </span>
+      </div>
+    </div>
+    <div class="grid" *ngIf="typeValidation == 4">
+      <div class="col-12 md:col-12">
+        Are you sure to validate as correct this Annual Plan?
+      </div>
+    </div>
+    <div class="grid" *ngIf="typeValidation == 5">
+      <div class="col-12 md:col-12">
+        Are you sure you want to cancel this PADI? Once canceled, its status cannot be changed again.
+      </div>
+    </div>
+    <div class="grid" *ngIf="typeValidation == 6">
+      <div class="col-12 md:col-12">
+        Confirm approval of this PADI? A copy will be generated and further modifications will be disabled.
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end">
+      <div class="mr-2">
+        <p-button icon="pi pi-times" (onClick)="hideDialog()" label="Cancel"></p-button>
+      </div>
+      <div class="mr-2">
+        <p-button *ngIf="!formV" icon="pi pi-save" label="Save" (onClick)="saveAnnualPlan()"></p-button>
+        <i *ngIf="formV" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

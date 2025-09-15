@@ -1,0 +1,361 @@
+<section class="container">
+    <div class="grid">
+        <div class="col-12 md:col-12">
+            <p-fieldset legend="PROJECT OVERVIEW">
+                <div class="grid">
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.Id_ProyectoCAR}}</p>
+                        <small class="font-bold uppercase">CAR ID</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.ProjectCounterpart}}</p>
+                        <small class="font-bold uppercase">Project counterpart</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.ProjecType}}</p>
+                        <small class="font-bold uppercase">Project Type</small>
+                    </div>
+
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.Periodo_Mas_Cercano}}</p>
+                        <small class="font-bold uppercase">Start and End Date</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{'RP' + dashboardOverView?.currentRP}}</p>
+                        <small class="font-bold uppercase">Current RP</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.CDRss_issued_to_date | number}}</p>
+                        <small class="font-bold uppercase">CDRs Issue to date</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">{{dashboardOverView?.Expected_cdrs_current_rp | number}}</p>
+                        <small class="font-bold uppercase">Expected CDRs current date</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">----</p>
+                        <small class="font-bold uppercase">PMs</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">----</p>
+                        <small class="font-bold uppercase">SME (OPEN SPRINTS)</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">----</p>
+                        <small class="font-bold uppercase">SIL</small>
+                    </div>
+                    <div class="col-2 p-2 text-center">
+                        <p class="m-0">----</p>
+                        <small class="font-bold uppercase">PROJECT COORDINATOR</small>
+                    </div>
+                </div>
+            </p-fieldset>
+        </div>
+        <div class="col-12 md:col-4">
+            <p-fieldset legend="ACCUMULATED BUDGET">
+                <div class="grid">
+                    <div class="col-12 md:col-12">
+                        <h6>Summary Budget Tracker</h6>
+                        <p-table [value]="summaryActT" [loading]="loadingAct">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="font-bold">Activity</th>
+                                    <th class="font-bold">Planned Budget</th>
+                                    <th class="font-bold">Actual Spent</th>
+                                    <th class="font-bold">Variance (%)</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-account>
+                                <tr
+                                    *ngIf="account.EstimadoUSDCapex && account.AmountCapex && account.VarianceCapexPercent">
+                                    <td>{{ "Capex" }}</td>
+                                    <td>{{ account.EstimadoUSDCapex | currency }}</td>
+                                    <td>{{ account.AmountCapex | currency }}</td>
+                                    <td>{{ account.VarianceCapexPercent | number:'1.2-2' }}%</td>
+                                </tr>
+                                <tr
+                                    *ngIf="account.EstimadoUSDOpex && account.AmountOpex && account.VarianceOpexPercent">
+                                    <td>{{ "Opex" }}</td>
+                                    <td>{{ account.EstimadoUSDOpex | currency }}</td>
+                                    <td>{{ account.AmountOpex | currency }}</td>
+                                    <td>{{ account.VarianceOpexPercent | number:'1.2-2' }}%</td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="footer">
+                                <tr>
+                                    <td class="font-bold">TOTAL</td>
+                                    <td class="font-bold">{{totalActT?.TotalEstimadoUSD | currency}}</td>
+                                    <td class="font-bold">{{totalActT?.TotalPagadoUSD | currency}}</td>
+                                    <td class="font-bold">{{totalActT?.TotalVariancePercent | number:'1.2-2' }}%</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                    <div class="col-12 md:col-12">
+                        <p-divider></p-divider>
+                    </div>
+                    <div class="col-12 md:col-12">
+                        <h6>Benefit Distribution Tracker</h6>
+                        <p-table [value]="summaryBenefT" dataKey="id" [loading]="loadingBenef">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="font-bold">Beneficiary</th>
+                                    <th class="font-bold">Planned Budget</th>
+                                    <th class="font-bold">Actual Spent</th>
+                                    <th class="font-bold">Variance(%)</th>
+                                    <th class="font-bold">Percent of actual</th>
+                                    <th></th>
+
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-product let-expanded="expanded">
+                                <tr>
+
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.totalPlanned | currency }}</td>
+                                    <td>{{ product.totalPaid | currency }}</td>
+                                    <td>{{ product.variance | number:'1.2-2' }}%</td>
+                                    <td>{{ product.percentage | number:'1.2-2' }}%</td>
+                                    <td>
+                                        <button type="button" pButton pRipple [pRowToggler]="product" class="p-button-text p-button-rounded p-button-plain p-button-sm" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="rowexpansion" let-product>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="p-0">
+                                            <p-table [value]="product.rows" dataKey="id">
+                                                <ng-template pTemplate="body" let-order>
+                                                    <tr>
+                                                        <td style="width: 3rem;">{{ order.name }}</td>
+                                                        <td>{{ order.totalPlanned | currency}}</td>
+                                                        <td>{{ order.totalPaid | currency}}</td>
+                                                        <td>{{ order.variance | number:'1.2-2' }}%</td>
+                                                        <td>{{ calcularPorcentaje(order.totalPaid, product.totalPaid) | number:'1.2-2' }}%</td>
+                                                        <td></td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="6">There are no order for this product yet.</td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="footer">
+                                <tr>
+                                    <td class="font-bold">TOTAL</td>
+                                    <td class="font-bold">{{totalBenefTPlanned | currency}}</td>
+                                    <td class="font-bold">{{totalBenefTPaid | currency}}</td>
+                                    <td class="font-bold">{{calcularVarianza(totalBenefTPlanned, totalBenefTPaid) | number:'1.2-2'}}%</td>
+                                    <td class="font-bold">{{calcularPorcentaje(totalBenefTPlanned, totalBenefTPaid) | number:'1.2-2'}}%</td>
+                                    <td class="font-bold"></td>
+
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="5">No data found.</td>
+                                </tr>
+                            </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+    <div class="col-12 md:col-8">
+        <p-fieldset legend="PROJECT PROGRESS">
+            <div class="grid">
+                <div class="col-12 md:col-12">
+                    <div class="grid">
+                        <div class="col-8">
+                            <span class="p-float-label">
+                                <p-dropdown [options]="macrossCatalog" optionLabel="macroprocess" optionValue="Idmacroprocess" (onChange)="getMacroProcessByProject($event.value)" placeholder="Macroprocess"></p-dropdown>
+                                <label for="float-label">Macroprocess</label>
+                            </span>
+                        </div>
+                        <div class="col mr-1 p-2 cursor-pointer text-center status-one" routerLink="/Reports/Incidences">
+                            <p class="font-bold  m-0" *ngIf="CountIndicencesNEvidences">{{CountIndicencesNEvidences.total_incidencias}}</p>
+                            <small class="uppercase">Total incidences</small>
+                        </div>
+                        <div class="col p-2 cursor-pointer text-center status-one" routerLink="/Reports/ProjectLog">
+                            <p class="m-0 font-bold " *ngIf="CountIndicencesNEvidences">{{CountIndicencesNEvidences.total_evidencias}}</p>
+                            <small class="uppercase">Total evidences</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-12">
+                    <p-table [value]="MacroProcessByProject" dataKey="name" [paginator]="true" [rows]="15">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>IDProjectLog</th>
+                                <th>Subprocess</th>
+                                <th>KeyMilestone</th>
+                                <th style="min-width:3rem">Alert</th>
+                                <th>Planned Start Date</th>
+                                <th>Planned End Date</th>
+                                <th>Actual Start Date</th>
+                                <th>Actual End Date</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-subprocess let-expanded="expanded">
+                            <tr>
+                                <td>{{ subprocess.idbitacora }}</td>
+                                <td>{{ subprocess.SubProcess }}</td>
+                                <td>{{ subprocess.Milestone }}</td>
+                                <td>
+                                    <i *ngIf="subprocess.Alert == 1" class="pi pi-circle-fill green"></i>
+                                    <i *ngIf="subprocess.Alert == 2" class="pi pi-circle-fill orange"></i>
+                                    <i *ngIf="subprocess.Alert == 3" class="pi pi-circle-fill red"></i>
+                                </td>
+                                <td>{{subprocess.PlannedStartDate | date: 'dd/MM/yyyy': 'UTC' }}</td>
+                                <td>{{subprocess.PlannedStartDate | date: 'dd/MM/yyyy': 'UTC' }}</td>
+                                <td>
+                                    <div *ngIf="subprocess.ActualStartDate">{{subprocess.ActualStartDate | date: 'dd/MM/yyyy': 'UTC' }}</div>
+                                    <div *ngIf="!subprocess.ActualStartDate">--</div>
+                                </td>
+                                <td>
+                                    <div *ngIf="subprocess.ActualEndDate">{{subprocess.ActualEndDate | date: 'dd/MM/yyyy': 'UTC' }}</div>
+                                    <div *ngIf="!subprocess.ActualEndDate">--</div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="5">No subprocess found, please select Macroprocess.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+    <div class="col-12 md:col-12">
+        <p-fieldset legend="STATUS ACTIVITIES AND INCIDENCES">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <h6>Risk management</h6>
+                    <p-table [value]="incidencesByProject" [loading]="loadingInc" [paginator]="true" [rows]="10">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Report</th>
+                                <th>Report date</th>
+                                <th>Follow Up</th>
+                                <th>Resolution Date</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-incidence>
+                            <tr>
+                                <td>{{ truncateText(incidence.IncidenceDescription, 50) }}</td>
+                                <td>{{ incidence.DateIncidence | date: 'dd/MM/yyyy': 'UTC'}}</td>
+                                <td>{{ incidence.Name }}</td>
+                                <td>
+                                    <span *ngIf="incidence.UltimoStatus == null" class="status-pending"><strong>Not
+                                            started</strong></span>
+                                    <span *ngIf="incidence.UltimoStatus == 'In progress'"
+                                        class="status-evaluation"><strong>{{incidence.UltimoStatus}}</strong></span>
+                                    <p
+                                        *ngIf="incidence.UltimoStatus != null && incidence.UltimoStatus != 'In progress'">
+                                        {{incidence.UltimoStatus}}</p>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="4">No incidences found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="flex justify-content-between">
+                        <div>
+                            <h6>KPIs by Activity</h6>
+                        </div>
+                        <div>
+                            <p-dropdown appendTo="body" [style]="{'width':'100%'}" [options]="ActivitiesByProject"
+                                (onChange)="getKPIActivitiesByActivity($event.value)" placeholder="Activity"
+                                optionLabel="Actividad" optionValue="IdActividaddata" [showClear]="true"></p-dropdown>
+                        </div>
+                    </div>
+                    <p-table [value]="KPIByActivity" [loading]="loadingABP" [paginator]="true" [rows]="10">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>KPI</th>
+                                <th>Target</th>
+                                <th>Actual</th>
+                                <th>% Achieved</th>
+                                <th>Status</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-kpi>
+                            <tr>
+                                <td>{{ kpi.Metrica }}</td>
+                                <td>{{ kpi.estimado }}</td>
+                                <td>{{ kpi.AvanceCuantitativo }}</td>
+                                <td>{{ kpi.calculatedprogress }}%</td>
+                                <td>{{ kpi.StatusName }}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="5">No activities found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+
+    <div class="col-12 md:col-12">
+        <p-fieldset legend="IMPACT">
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <div class="grid">
+                        <div class="impact col-4"  *ngFor="let ods of topOdsByProject; let index = index" [ngClass]="{'non-selected': selectedIndex !== null && selectedIndex !== index}">
+                            <a (click)="getActivitiesByOds(ods.Idglobalgoals, ods.ShortDescriptionODSs, index)">
+                                <img width="100%" src="../../../../assets/layout/images/{{ods.Idglobalgoals}}.png" />
+                                <h6>----</h6>
+                                <p>{{ods.ShortDescriptionODSs}}</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-8 ">
+                    <p-table [value]="ActivitiesByOds" dataKey="IdActividaddata" selectionMode="single"
+                        [paginator]="true" [rows]="5">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>
+                                    <p *ngIf="odsName">Activitys Of “{{odsName}}”</p>
+                                    <p *ngIf="!odsName">Please, select a ODS</p>
+                                </th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-activity>
+                            <tr [pSelectableRow]="activity"
+                                (click)="openModalAnnualCost(true, activity.IdActividaddata)">
+                                <td>{{ activity.Actividades }}</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="4">No activities found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </p-fieldset>
+    </div>
+    </div>
+</section>
+<activity-detail></activity-detail>

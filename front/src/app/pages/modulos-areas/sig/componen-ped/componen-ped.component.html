@@ -1,0 +1,119 @@
+<section [formGroup]="PEDInfo">
+    <section>
+        <p-fieldset legend="PED AP-Regional Result">
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="ctResultadoPED" formControlName="IdResultadoPEDAP" placeholder="PED AP-Regional Result" optionLabel="ResultadoPEDAP" optionValue="IdResultadoPEDAP" [showClear]="true"></p-dropdown>
+                        <label for="Certificación">PED AP-Regional Result</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="options" formControlName="IncluirANPoADVC" placeholder="Can it include ANP or ADVC?" optionLabel="label" optionValue="value" [showClear]="true"></p-dropdown>
+                        <label for="Phina">Can it include ANP or ADVC?</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="options" formControlName="IncluirPSA" placeholder="Can it include PSA?" optionLabel="label" optionValue="value" [showClear]="true"></p-dropdown>
+                        <label for="ProjectName">Can it include PSA?</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="options" formControlName="RequiereQExistaAC" placeholder="Does it require commercial agriculture?" optionLabel="label" optionValue="value" [showClear]="true"></p-dropdown>
+                        <label for="Phina">Does it require commercial agriculture?</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="options" formControlName="RequiereSubsidios" placeholder="Does it require subsidies?" optionLabel="label" optionValue="value" [showClear]="true"></p-dropdown>
+                        <label for="Phina">Does it require subsidies?</label>
+                    </span>
+                </div>
+            </div>
+        </p-fieldset>
+        <div>
+            <p-fieldset legend="PED Local en AA">
+                <div class="formgrid grid">
+                    <div class="field col-12 md:col-4">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctseccionAA" formControlName="IdSeccionPEDAA" placeholder="placeholder" (onChange)="ruleDropdownFields()" optionLabel="SeccionPEDAA" optionValue="IdSeccionPEDAA" [showClear]="true"></p-dropdown>
+                            <label for="Certificación">Sección PED AA</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="poblacionaa" formControlName="IdPoblacionAA" placeholder="placeholder" optionLabel="PoblacionAA"
+                            optionValue="IdPoblacionAA" [showClear]="true"></p-dropdown>
+                            <label for="Phina">Población AA con modelo de REDES</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-4">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctActivityAG" formControlName="IdActividadAgropecuaria" placeholder="placeholder" optionLabel="ActividadAgropecuaria"
+                            optionValue="IdActividadAgropecuaria" [showClear]="true"></p-dropdown>
+                            <label for="ProjectName">Actividad agropecuaria AA + 1km</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctEncuestas" formControlName="IdEncuestas" placeholder="Encuestas" optionLabel="Encuentas" optionValue="IdEncuestas" [showClear]="true"></p-dropdown>
+                            <label for="Phina">Encuestas</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctsubSidiosAA" formControlName="IdSubsidiosAA" placeholder="Subsidios AA + 1km" optionLabel="SubsidiosAA" optionValue="IdSubsidiosAA" [showClear]="true"></p-dropdown>
+                            <label for="Phina">Subsidios AA + 1km</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctPendienteAA" formControlName="IdPendienteAA" placeholder="placeholder" optionLabel="PendienteAA" optionValue="IdPendienteAA" [showClear]="true"></p-dropdown>
+                            <label for="Phina">Pendiente AA</label>
+                        </span>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <span class="p-float-label">
+                            <p-dropdown [options]="ctChangeofCoverage" formControlName="IdCambioCoberturaAA" placeholder="placeholder" optionLabel="CambioCoberturaAA"
+                            optionValue="IdCambioCoberturaAA" [showClear]="true"></p-dropdown>
+                            <label for="Phina">Cambio de cobertura AA</label>
+                        </span>
+                    </div>
+                </div>
+            </p-fieldset>
+        </div>
+        <div>
+            
+        <p-fieldset legend="FACTIBILIDAD LOCAL en AA">
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="ctresultPedAA" formControlName="IdResultadoPEDAA" placeholder="placeholder" optionLabel="ResultadoPEDAA" optionValue="IdResultadoPEDAA" [showClear]="true"></p-dropdown>
+                        <label for="ProjectName">Resultado PED AA-Local</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-8">
+                    <span class="p-float-label">
+                        <input class="p-inputtext" id="Phina" formControlName="LinkPEDAA" type="text" pInputText>
+                        <label for="Phina">Link PED AA-Local</label>
+                    </span>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <span class="p-float-label">
+                        <textarea rows="5" cols="30" formControlName="ObservacionesPEDAA" pInputTextarea></textarea>
+                        <label for="ProjectName">Notes PED AA-Local</label>
+                    </span>
+                </div>
+            </div>
+        </p-fieldset>
+        </div>
+    </section>
+
+    <div class="flex justify-content-center">
+        <p-button [disabled]="enablebutton" icon="pi pi-file-o" label="Save" (onClick)="savePED()" class="p-button-lg mt-3"></p-button>
+    </div>
+</section>
+  

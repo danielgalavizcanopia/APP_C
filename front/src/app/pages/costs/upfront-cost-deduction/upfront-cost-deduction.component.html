@@ -1,0 +1,117 @@
+
+
+<p-dialog header="Upfront Cost Deduction (UCD)" [(visible)]="visible" (onHide)="openModal(false)">
+    <div class="pt-3">
+        <p-table [value]="upfrontCostD.controls">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>RP</th>
+                    <th>UCD</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-i="rowIndex">
+                <tr [formGroup]="row">
+                    <td>RP{{row.get('idrpnumber')?.value}}</td>
+                    <td>
+                        <ng-container *ngIf="!editMode[i]; else editTemplate">
+                            <p class="text-right">{{ row.get('valorUCD')?.value | currency}}</p>
+                        </ng-container>
+
+                        <ng-template #editTemplate>
+                            <p-inputNumber formControlName="valorUCD" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                        </ng-template>
+                    </td>
+                    <td>
+                        <p-button *ngIf="row.get('Idfinalupfrontdeduction')?.value" icon="pi pi-pencil" (click)="enableEdit(i, editMode[i])" styleClass="p-button-rounded p-button-text"></p-button>
+                        <p-button *ngIf="i === upfrontCostD.length - 1" icon="pi pi-plus" (onClick)="addItem()"></p-button>
+
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <tr>
+                    <td class="font-bold">TOTAL</td>
+                    <td class="font-bold text-right">{{getTotalUpfrontCostDeduction() | currency}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <!-- <div class="flex justify-content-center">
+            <h2>Upfront Cost Deduction USD</h2>
+        </div> 
+        <div class="grid" [formGroup]="UpfrontDeductionForm">
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2022" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2022</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2023" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2023</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2024" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2024</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2025" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2025</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2026" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2026</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2027" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2027</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2028" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2028</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2029" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2029</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2030" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2030</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2031" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2031</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="UCD2032" type="number">
+                    <label class="block mb-2" for="currency-us">UCD 2032</label>
+                </span>
+            </div>
+    
+        </div> -->
+       
+    </div>
+
+     <ng-template pTemplate="footer">
+                   <p-button label="Save changes" (onClick)="save()"></p-button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,125 @@
+<p-dialog header="Annual Cost deductions AOyMCD" [(visible)]="visible" (onHide)="openModal(false)">
+    <div class="pt-3">
+        <p-table [value]="annualCostD.controls">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>RP</th>
+                    <th>AOyMCD</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row let-i="rowIndex">
+                <tr [formGroup]="row">
+                    <td>RP{{row.get('idrpnumber')?.value}}</td>
+                    <td>
+                        <ng-container *ngIf="!editMode[i]; else editTemplate">
+                            <p class="text-right">{{ row.get('valorAOyMCD')?.value | currency}}</p>
+                        </ng-container>
+
+                        <ng-template #editTemplate>
+                            <p-inputNumber formControlName="valorAOyMCD" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+                        </ng-template>
+                    </td>
+                    <td>
+                        <p-button *ngIf="row.get('Idannualcostddaoymcd')?.value" icon="pi pi-pencil" (click)="enableEdit(i, editMode[i])" styleClass="p-button-rounded p-button-text"></p-button>
+                        <p-button *ngIf="i === annualCostD.length - 1" icon="pi pi-plus" (onClick)="addItem()"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <tr>
+                    <td class="font-bold">TOTAL</td>
+                    <td class="font-bold text-right">{{getTotalAnnualCostDeduction() | currency}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+
+        <!-- <div class="flex justify-content-center">
+            <h2>Annual O&M Cost deductions USD</h2>
+        </div> 
+        <div class="grid" [formGroup]="anualOMForm">
+            <div class="col-3">
+                <span class="p-float-label">
+                    <p-calendar [style]="{'width':'100%'}" formControlName="DD_pack" [showIcon]="true"></p-calendar>
+                    <label class="block mb-2" for="currency-us">DD Pack to ME Submission Date</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2022" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2022</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2023" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2023</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2024" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2024</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2025" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2025</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2026" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2026</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2027" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2027</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2028" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2028</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2029" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2029</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2030" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2030</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2031" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2031</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2032" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2032</label>
+                </span>
+            </div>
+            <div class="col-3">
+                <span class="p-float-label">
+                    <input pInputText formControlName="AOyMCD2033" type="number">
+                    <label class="block mb-2" for="currency-us">AO&MCD 2033</label>
+                </span>
+            </div>
+        </div> -->
+
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Save changes" (onClick)="save()"></p-button>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,171 @@
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Project Logs</h3>
+    <p>
+        This view consists of two sections:
+
+        <li>Project log table</li>
+        <li>A button to access links by log</li>
+        <li>To create a new project log, click the "New Log" button.</li>
+
+        <li>To update an existing log, click the "Edit Log" button next to the corresponding entry.</li>
+    </p>
+</p-sidebar>
+<section class="m-5">
+    <p-toast></p-toast>
+    <div class="flex justify-content-between mb-3">
+        <div>
+            <div class="text-3xl text-900">Project Log</div>
+        </div>
+        <div>
+            <button pButton pRipple label="Download XLSX Hystory Logs" icon="pi pi-file-excel" class="p-button-outlined p-button-success mr-2" (click)="exportToExcel()"></button>
+            <button pButton pRipple label="Download XLSX Evidences" icon="pi pi-file-excel" class="p-button-outlined p-button-success mr-2" (click)="exportEvidencesToExcel()"></button>
+            <button pButton pRipple label="Download DOCX report" icon="pi pi-file-word" class="p-button-outlined p-button-success mr-2" (click)="exportToWord()"></button>
+            <button pButton pRipple label="Filter" icon="pi pi-filter" class="p-button-success mr-2" (click)="visibleFilter = true"></button>
+            <!-- <button pButton pRipple label="View Link Evidences" icon="pi pi-link" class="p-button-success mr-2" (click)="showDialog()"></button> -->
+            <button pButton pRipple label="New log" icon="pi pi-plus" class="p-button-success mr-2" routerLink="/Project-log-create" ></button>
+            <p-button type="button" styleClass="p-button-success" pTooltip="Info" (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col-12 md:col-12">
+            <p-table
+                #dt1
+                [value]="evidencesByLog"
+                dataKey="idbitacora"
+                [paginator]="true"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                [tableStyle]="{ 'min-width': '50rem' }"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [globalFilterFields]="['Descripcion_evento', 'DecisionsRequired', 'fecha_registro', 'blogTitle', 'Foliobitacora']"
+                [loading]="loading"
+            >
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-end">
+                    <div class="mr-2">
+                        <span class="p-input-icon-left ml-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search..." />
+                        </span>
+                    </div>
+                </div>
+            </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Folio</th>
+                        <th>Title</th>
+                        <th>Milestone</th>
+                        <!-- <th>Category</th> -->
+                        <th>Event Date</th>
+                        <th>Description</th>
+                        <th>Decisions Required</th>
+                        <th>Agreements</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer let-expanded="expanded">
+                    <tr>
+                        <td>
+                            <button type="button" pButton pRipple [pRowToggler]="customer" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        </td>
+                        <td>{{ customer.Foliobitacora }}</td>
+                        <td>{{ customer.blogTitle }}</td>
+                        <td>{{ customer.Milestone }}</td>
+                        <!-- <td>{{ 'Category example' }}</td> -->
+                        <td>{{ customer.fecha_evento | date: 'dd/MM/yyyy': 'UTC'   }}</td>
+                        <td>{{ truncateText(customer.Descripcion_evento, 80)  }}</td>
+                        <td>{{ truncateText(customer.DecisionsRequired, 80) }}</td>
+                        <td>{{ truncateText(customer.agreements, 80) }}</td>
+                        <td>
+                            <div class="flex justify-content-end">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-success mr-2" [routerLink]="['/Project-log-edit', customer.idbitacora]"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-rowLog>
+                    <tr>
+                        <td colspan="7">
+                            <div class="p-3">
+                                <p-table [value]="rowLog.evidencias" dataKey="idevidencia">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th pSortableColumn="id">Link Evidence <p-sortIcon field="link_evidencia"></p-sortIcon></th>
+                                            <th pSortableColumn="customer">Notes <p-sortIcon field="Observaciones"></p-sortIcon></th>
+                                            <th style="width: 4rem"></th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-linkev>
+                                        <tr>
+                                            <td><p-button [label]="linkev.link_evidencia" styleClass="p-button-link" (onClick)="openLinkEvidence(linkev.link_evidencia)"></p-button></td>
+                                            <td>{{ linkev.Observaciones }}</td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="6">There are no evidences yet.</td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6">There are no Logs in this Project.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+</section>
+
+<p-dialog header="Advance filters" [(visible)]="visibleFilter" [responsive]="true" (onHide)="visibleFilter = false;" [position]="'topright'">
+    <ng-template pTemplate="container">
+        <div class="grid">
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <p-dropdown appendTo="body" [options]="HitosProcess" [(ngModel)]="Milestone" placeholder="Milestone"  [filter]="true" filterBy="ConcatenatedDescription"  optionLabel="ConcatenatedDescription" optionValue="IdhitoProceso" [showClear]="true"></p-dropdown>
+                    <label>Milestone</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <p-calendar appendTo="body" [showIcon]="true" [(ngModel)]="StartDate"></p-calendar>
+                    <label>Start Date</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <p-calendar appendTo="body" [showIcon]="true" [(ngModel)]="EndDate"></p-calendar>
+                    <label>End Date</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <p-dropdown appendTo="body" [options]="Users" [(ngModel)]="User" placeholder="User"  [filter]="true" filterBy="Name"  optionLabel="Name" optionValue="IDUser" [showClear]="true"></p-dropdown>
+                    <label>Users</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <input type="text" pInputText [(ngModel)]="LogTitle">
+                    <label>Log Title</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-3">
+                <span class="p-float-label ml-auto">
+                    <input type="text" pInputText [(ngModel)]="Folio">
+                    <label>Folio</label>
+                </span>
+            </div>
+        </div>
+    </ng-template>
+    <p-footer>
+        <button pButton icon="pi pi-search" (click)="getLinkEvidenciasByBitacora()" label="Search"></button>
+    </p-footer>
+</p-dialog>

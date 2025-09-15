@@ -1,0 +1,191 @@
+<p-toast></p-toast>
+<p-confirmPopup></p-confirmPopup>
+
+<section class="m-5">
+  <!--mejora summary-->
+  <div class="flex justify-content-between flex-wrap">
+    <div class="text-3xl font-bold">Summary Cost</div>
+    <div>
+      <!--para bloquear-->
+      <!-- <p-button label="Block entry" icon="pi pi-lock" styleClass="p-button-warning mr-3"
+        pTooltip="" tooltipPosition="bottom" (click)="confirm($event)"></p-button> -->
+
+
+      <p-button *ngIf="validateUserLock" [label]="labelbuttonLock" [icon]="iconbuttonLock"
+        styleClass="p-button-warning mr-3" (click)="confirm($event)" [pTooltip]="toolTip"
+        tooltipPosition="bottom"></p-button>
+
+      <p-menu #menu [model]="items" [popup]="true"></p-menu>
+      <p-button *ngIf="lock?.status === 0" label="Trigger" (click)="menu.toggle($event)" icon="pi pi-angle-down"
+        iconPos="right"></p-button>
+    </div>
+  </div>
+  <!--mensaje de bloqueo para todos los usuario-->
+  <div class="alert" *ngIf="lock && lock.status == 1">
+    <p class="font-bold m-0">Data Entry Disabled</p>
+    <small>A data entry lock has been activated for the entire team.
+      Only the Legal Department is authorized to unlock access and allow data entry again.</small>
+  </div>
+  <div class="grid">
+    <div class="col-12 md:col-6">
+      <p-divider align="left">
+        <b>ERs From Restoration</b>
+      </p-divider>
+      <p-table [value]="summaryCost">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>RP</th>
+            <th class="text-right">Annual Costs</th>
+            <th class="text-right">Upfront Costs Deductions</th>
+            <th class="text-right">Annual Cost deductions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-summary>
+          <tr *ngIf="summary.RP">
+            <td>RP{{summary.RP}}</td>
+            <td class="text-right">{{summary.AnnualCosts | currency}}</td>
+            <td class="text-right">{{summary.UpfrontCostsDeductions | currency}}</td>
+            <td class="text-right">{{summary.AnnualCostDeductions | currency}}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr>
+            <td class="font-bold text-right">TOTAL</td>
+            <td class="font-bold text-right">{{getTotalSummaryCost(1) | currency}}</td>
+            <td class="font-bold text-right">{{getTotalSummaryCost(2) | currency}}</td>
+            <td class="font-bold text-right">{{getTotalSummaryCost(3) | currency}}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="col-12 md:col-6">
+      <p-divider align="left">
+        <b>Upfront Costs USD</b>
+      </p-divider>
+      <p-table [value]="labelsUpfront">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Account</th>
+            <th>Total</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-upfront>
+          <tr
+            *ngIf="upfront.concept != 'Idupdfront' && upfront.concept != 'Idproject' && upfront.concept != 'DateModify'">
+            <td class="text-right">{{getReplaceWithSpaces(upfront.concept)}}</td>
+            <td class="text-right">{{upfront.value | currency}}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr>
+            <td class="font-bold text-right">TOTAL</td>
+            <td class="font-bold text-right">{{getTotalUpfrontCost() | currency}}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!--terminacion-->
+
+  <!--
+  <p-table>
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Years</th>
+        <th>Annual Costs</th>
+        <th>Upfront Costs Deductions</th>
+        <th>Annual Cost deductions</th>
+        <th>Upfront Costs USD</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td></td>
+        <td><p-button label="Open Form" (onClick)="openModalAnnualCost(true)"></p-button></td>
+        <td><p-button label="Open Form" (onClick)="openModalUpfrontDeductionCost(true)"></p-button></td>
+        <td><p-button label="Open Form" (onClick)="openModalAnnualDeductionCost(true)"></p-button></td>
+        <td><p-button label="Open Form" (onClick)="openModalUpfrontCost(true)"></p-button></td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>{{summaryCost?.['2022_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2022_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2022_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>Year: {{summaryCost?.YearUpdfront}} - {{summaryCost?.totalupdfront | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td>{{summaryCost?.['2023_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2023_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2023_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2024</td>
+        <td>{{summaryCost?.['2024_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2024_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2024_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2025</td>
+        <td>{{summaryCost?.['2025_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2025_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2025_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2026</td>
+        <td>{{summaryCost?.['2026_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2026_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2026_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2027</td>
+        <td>{{summaryCost?.['2027_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2027_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2027_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2028</td>
+        <td>{{summaryCost?.['2028_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2028_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2028_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2029</td>
+        <td>{{summaryCost?.['2029_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2029_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2029_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2030</td>
+        <td>{{summaryCost?.['2030_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2030_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2030_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2031</td>
+        <td>{{summaryCost?.['2031_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2031_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2031_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2032</td>
+        <td>{{summaryCost?.['2032_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2032_UCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td>{{summaryCost?.['2032_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+      <tr>
+        <td>2033</td>
+        <td>{{summaryCost?.['2033_AnnualOMCts'] | currency:'USD':'symbol':'1.0-0' }}</td>
+        <td></td>
+        <td>{{summaryCost?.['2033_AOMCD'] | currency:'USD':'symbol':'1.0-0' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+-->
+  <!--INICIA MODALS-->
+  <app-annual-om></app-annual-om>
+  <app-upfront-cost-deduction></app-upfront-cost-deduction>
+  <app-annual-omdeductions></app-annual-omdeductions>
+  <app-upfront-cost></app-upfront-cost>

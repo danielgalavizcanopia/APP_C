@@ -1,0 +1,67 @@
+<section class="m-5">
+    <p-table #dt1 [value]="capexAccounts" [rows]="10" [paginator]="true" styleClass="p-datatable-striped"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[25, 50, 100]">
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-between">
+                <p><strong>Capex Accounts</strong></p>
+                <div class="flex justify-content-end">
+                    <button pButton label="Create" class="p-button-outlined" icon="pi pi-plus" (click)="showDialog()"></button>
+                    <button pButton label="Sub Accounts" class="p-button-outlined ml-3" routerLink="/capex-subaccounts"></button>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th><strong>Number</strong></th>
+                <th><strong>Account name</strong></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{product.cuentacompaq}}</td>
+                <td>{{product.concepto}}</td>
+                <td>
+                    <p-button class="m-2" icon="pi pi-pencil" label="Edit" (click)="onRowSelected(product)"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3">No capex accounts found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</section>
+
+<p-dialog header="Capex Account Form" [(visible)]="visible" [style]="{width: '50vw'}" (onHide)="hideDialog()">
+    <ng-template pTemplate="content">
+        <div class="grid" [formGroup]="capexForm">
+            <div class="col-6">
+                <span class="p-float-label">
+                    <input pInputText id="username" type="number" formControlName="cuentacompaq" />
+                    <label htmlFor="username">Num. Account</label>
+                </span>
+            </div>
+            <div class="col-6">
+                <span class="p-float-label">
+                    <input pInputText id="username" formControlName="concepto" />
+                    <label htmlFor="username">Concept</label>
+                </span>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between">
+            <div>
+                <p-button *ngIf="capexAccountSelected" class="m-2" icon="pi pi-trash" label="Delete" (click)="confirm($event)"></p-button>
+            </div>
+            <div>
+                <p-button class="m-2" icon="pi pi-times" label="Cancel" (onClick)="hideDialog()"></p-button>
+                <p-button class="m-2" icon="pi pi-save" label="Save" (onClick)="saveCapexAccount()"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+<p-confirmPopup></p-confirmPopup>
+

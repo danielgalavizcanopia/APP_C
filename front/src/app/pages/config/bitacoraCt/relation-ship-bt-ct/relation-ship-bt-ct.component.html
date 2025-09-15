@@ -1,0 +1,98 @@
+<section class="m-5">
+    <div class="grid">
+        <div class="col-12 md:col-12">
+            <h2>How Assign Category by Hito</h2>
+            <li>Select Hito to assign your category</li>
+            <li>Select Category</li>
+            <li>Click Save</li>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown appendTo="body" [options]="hitos" [(ngModel)]="hitoSelected" optionLabel="LargeDescription" [filter]="true" filterBy="LargeDescription" [showClear]="true" placeholder="Select a Hito">
+                    <ng-template pTemplate="hitoSelected">
+                        <div class="flex align-items-center gap-2" *ngIf="hitoSelected">
+                            <div>{{ hitoSelected }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-rowData pTemplate="item">
+                            <div>{{ rowData.LargeDescription }}</div>
+                    </ng-template>
+                </p-dropdown>
+                <label for="float-label">Select a Hito</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown appendTo="body" [options]="categorias" [(ngModel)]="categoriaSelected" optionLabel="LargeDescription" [filter]="true" filterBy="LargeDescription" [showClear]="true" placeholder="Select a Category">
+                    <ng-template pTemplate="categoriaSelected">
+                        <div class="flex align-items-center gap-2" *ngIf="categoriaSelected">
+                            <div>{{ categoriaSelected }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-rowData pTemplate="item">
+                            <div>{{ rowData.LargeDescription }}</div>
+                    </ng-template>
+                </p-dropdown>
+                <label for="float-label">Select a Category</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-3">
+            <p>Options Selected:
+                <li *ngIf="hitoSelected">{{hitoSelected?.LargeDescription}}</li>
+                <li *ngIf="categoriaSelected">{{categoriaSelected?.LargeDescription}}</li>
+            </p>
+        </div>
+        <div class="col-12 md:col-1">
+            <button pButton label="Save" icon="pi pi-save" (click)="saveRelation()"></button>
+        </div>
+    </div>
+    <p-divider></p-divider>
+    <div class="grid">
+        
+        <div class="col-12 md:col-12">
+            <h2>How Assign Evidence by Category</h2>
+            <li>Select Category to assign your Evidence</li>
+            <li>Select Evidence</li>
+            <li>Click Save</li>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown appendTo="body" [options]="categorias" [(ngModel)]="categoriaSelected" optionLabel="LargeDescription" [filter]="true" filterBy="LargeDescription" [showClear]="true" placeholder="Select a Category">
+                    <ng-template pTemplate="categoriaSelected">
+                        <div class="flex align-items-center gap-2" *ngIf="categoriaSelected">
+                            <div>{{ categoriaSelected }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-rowData pTemplate="item">
+                            <div>{{ rowData.LargeDescription }}</div>
+                    </ng-template>
+                </p-dropdown>
+                <label for="float-label">Select a Category</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown appendTo="body" [options]="evidencias" [(ngModel)]="evidenciaSelected" optionLabel="LargeDescription" [filter]="true" filterBy="LargeDescription" [showClear]="true" placeholder="Select a Evidence">
+                    <ng-template pTemplate="hitoSelected">
+                        <div class="flex align-items-center gap-2" *ngIf="evidenciaSelected">
+                            <div>{{ evidenciaSelected }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-rowData pTemplate="item">
+                            <div>{{ rowData.LargeDescription }}</div>
+                    </ng-template>
+                </p-dropdown>
+                <label for="float-label">Select a Evidence</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-3">
+            <p>Options Selected:
+                <li *ngIf="categoriaSelected">{{categoriaSelected?.LargeDescription}}</li>
+                <li *ngIf="evidenciaSelected">{{evidenciaSelected?.LargeDescription}}</li>
+            </p>
+        </div>
+        <div class="col-12 md:col-1">
+            <button pButton label="Save" icon="pi pi-save" (click)="saveRelation()"></button>
+        </div>
+    </div>
+</section>

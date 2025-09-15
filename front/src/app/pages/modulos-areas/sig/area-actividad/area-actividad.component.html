@@ -1,0 +1,31 @@
+
+<form [formGroup]="recoInfo">
+    <p-fieldset legend="VALIDACIÓN">
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-dropdown [options]="catvalidacion" formControlName="IdStatusValidacionAA" placeholder="Estatus validación AA" optionLabel="StatusValidacionAA" optionValue="IdStatusValidacionAA" [showClear]="true"></p-dropdown>
+                    <label for="ProjectName">Validation status AA</label>
+                </span>
+            </div>
+            <div class="field col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-dropdown [options]="catversionaa" formControlName="IdversionAA" placeholder="Versión AA" optionLabel="VersionAA" optionValue="IdversionAA" [showClear]="true"></p-dropdown>
+                    <label for="Phina">Version AA</label>
+                </span>
+            </div>
+            <div class="field col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea rows="5" cols="30" pInputTextarea formControlName="ObservacionesAA"></textarea>
+                    <label for="ProjectName">Notes AA</label>
+                </span>
+            </div>
+        </div>
+    </p-fieldset>
+</form>
+
+<div class="flex justify-content-center">
+    <p-button [disabled]="enablebutton" icon="pi pi-file-o" label="Save" (onClick)="setActivityArea()" class="m-2"></p-button>
+</div>
+
+

@@ -1,0 +1,170 @@
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Origination Information to use</h3>
+    <p>
+        If you want create or update your Origination, please click the "Edit" Button to enable a form. <br>
+        All fields is required to update your Origination. <br>
+    </p>
+
+</p-sidebar>
+
+<section class="container">
+    <div class="flex justify-content-center">
+        <div class="text-2xl text-900">Origination</div>
+    </div>
+    <!-- <p-toast></p-toast> -->
+    <form [formGroup]="recoInfo">
+        <div class="grid">
+            <div class="col-12 md:col-12">
+                <div class="flex justify-content-end">
+                    <p-button  [disabled]="enablebutton" styleClass="p-button-success" icon="pi pi-pencil" iconPos="right" [label]="buttonlabel" (onClick)="toggleFormulario()"></p-button>
+                    <p-button type="button" styleClass="p-button-success ml-2" pTooltip="Info" (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+                </div>
+            </div>
+    
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input class="p-inputtext-lg" formControlName="ProjectCounterpart" id="ProjectCounterpart" type="text" pInputText>
+                    <label for="ProjectCounterpart">Project Counterpart</label>
+                </span>
+                <div *ngIf="recoInfo.get('ProjectCounterpart')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                        <p-dropdown appendTo="body" [options]="ctimplpar" formControlName="ImplementationPartner" placeholder="ImplementationPartner" optionLabel="ImplementationPartner" optionValue="idimplemenp"></p-dropdown>
+                    <label for="ImplementationPartner">Implementation Partner</label>
+                </span>
+                <div *ngIf="recoInfo.get('ImplementationPartner')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                        <p-dropdown appendTo="body" [options]="ctLandTernure" formControlName="LandTenureType" placeholder="LandTenureType" optionLabel="LandTenureType" optionValue="idlandtenure"></p-dropdown>
+                    <label for="LandTenureType">Land Tenure Type</label>
+                </span>
+                <div *ngIf="recoInfo.get('LandTenureType')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctprojecttype" formControlName="ProjectType" placeholder="ProjectType" optionLabel="ProjecType" optionValue="idprojecttype"></p-dropdown>
+                    <label for="ProjectType">Project Type</label>
+                </span>
+                <div *ngIf="recoInfo.get('ProjectType')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctprogram" formControlName="Program" placeholder="Program" optionLabel="Program" optionValue="idprogram"></p-dropdown>
+                    <label for="Program">Program</label>
+                </span>
+                <div *ngIf="recoInfo.get('Program')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctleadorigi" formControlName="OriginationLead" placeholder="OriginationLead" optionLabel="Nombre" optionValue="idleadoriginacion"></p-dropdown>
+                    <label for="OriginationLead">Origination Lead</label>
+                </span>
+                <div *ngIf="recoInfo.get('OriginationLead')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctpromoter" formControlName="OriginationPromoter" placeholder="OriginationPromoter" optionLabel="OriginationPromoter" optionValue="idoriginationpromoter"></p-dropdown>
+                    <label for="OriginationPromoter">Origination Promoter</label>
+                </span>
+                <div *ngIf="recoInfo.get('OriginationPromoter')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctstatusorigin" formControlName="OriginationStatus" placeholder="OriginationStatus" optionLabel="OriginationStatus" optionValue="idoriginationstatus"></p-dropdown>
+                    <label for="OriginationStatus">Origination Status</label>
+                </span>
+                <div *ngIf="recoInfo.get('OriginationStatus')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctapprovedbuyer" formControlName="ApprovedBuyer" placeholder="ApprovedBuyer" optionLabel="ApprovedBuyercol" optionValue="idapprovedbuyer"></p-dropdown>
+                    <label for="ApprovedBuyer">Approved Buyer</label>
+                </span>
+                <div *ngIf="recoInfo.get('ApprovedBuyer')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar appendTo="body" [style]="{'width':'100%'}" formControlName="ProjectApproval" [minDate]="minDateERPA" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+                    <label for="ProjectApproval">Project Approval</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar appendTo="body" [style]="{'width':'100%'}" formControlName="ERPAApproval" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+                    <label for="ERPAApproval">ERPA Approval</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label" style="display: flex; width: 100%;">
+                    <p-inputNumber class="w-full" [style]="{'flex': '1'}" [minFractionDigits]="2" [max]="100.00" formControlName="PercentageMktPrice" suffix="%"></p-inputNumber>
+                    <label for="PercentageMktPrice">Percentage Mkt Price</label>
+                </span>
+                <div *ngIf="recoInfo.get('PercentageMktPrice')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctprospecpriority" formControlName="ProspectPriority" placeholder="ProspectPriority" optionLabel="ProspecPriority" optionValue="idprospectpriority"></p-dropdown>
+                    <label for="ProspectPriority">Prospect Priority</label>
+                </span>
+                <div *ngIf="recoInfo.get('ProspectPriority')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="ctprojectalive" formControlName="ProjectAlive" placeholder="ProjectAlive" optionLabel="ProjectAlive" optionValue="idprojectalive"></p-dropdown>
+                    <label for="ProjectAlive">Project Alive</label>
+                </span>
+                <div *ngIf="recoInfo.get('ProjectAlive')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar appendTo="body" [style]="{'width':'100%'}" formControlName="ExpectedERPASigningDate" [minDate]="minDate" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
+                    <label for="ExpectedERPASigningDate">Expected ERPA SigningDate</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <textarea rows="5" cols="30" pInputTextarea formControlName="NotesOriginationTeam"></textarea>
+                    <label for="NotesOriginationTeam">Notes Origination Team</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <textarea rows="5" cols="30" pInputTextarea formControlName="NotesChanges"></textarea>
+                    <label for="NotesChanges">Notes Changes</label>
+                </span>
+            </div>
+        </div>
+    
+    </form>
+    <div class="flex justify-content-center">
+        <p-button label="Create" [disabled]="enablebutton" *ngIf="buttonlabel === 'Create'" (onClick)="addNewOrigintation()" [disabled]="booleanoActivo" icon="pi pi-save"></p-button>
+        <p-button label="Update" [disabled]="enablebutton" *ngIf="buttonlabel === 'Update'" (onClick)="updateOrigination()" [disabled]="booleanoActivo" icon="pi pi-save"></p-button>
+    </div>
+</section>
+

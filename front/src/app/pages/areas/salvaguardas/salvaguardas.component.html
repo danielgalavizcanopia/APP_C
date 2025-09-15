@@ -1,0 +1,154 @@
+<section class="container">
+    <div class="flex justify-content-center">
+        <div class="text-2xl text-900">Safeguards</div>
+    </div>
+    <div class="grid m-3" [formGroup]="SalvaguardaForm">
+        <div class="col-12 md:col-12">
+            <div class="flex justify-content-end">
+                <p-button  [disabled]="enablebutton" styleClass="p-button-success" icon="pi pi-pencil" iconPos="right" [label]="buttonlabel" (onClick)="toggleFormulario()"></p-button>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="LeadSafeGuards" formControlName="Leads" placeholder="Legal Lead" optionLabel="leadsafeguards" optionValue="Idleadsafeguards" inputId="float-label"></p-dropdown>
+                <label for="float-label">Safeguards Lead</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('Leads')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="StatusSafeguard" formControlName="Statussafeguards" placeholder="Legal Lead" optionLabel="Statussafeguards" optionValue="Idstatussafeguards" inputId="float-label"></p-dropdown>
+                <label for="float-label">Status Safeguards</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('Statussafeguards')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="LastPPTtoProjectCounterPart"/>
+                <label htmlFor="username">Last PPT to Project Counterpart</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('LastPPTtoProjectCounterPart')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="SafeguardNHapproach" formControlName="SafeguardsNoHarmApproach" placeholder="Legal Lead" optionLabel="SafeguardsNoHarmApproach" optionValue="IdsafeguardsNoHarmApproach" inputId="float-label"></p-dropdown>
+                <label for="float-label">Safeguards/no harm approach</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('SafeguardsNoHarmApproach')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="SocialCommunityNH" formControlName="SocialCommunityNoHarm" placeholder="Legal Lead" optionLabel="SocialCommunityNoHarm" optionValue="IdSocialCommunityNoHarm" inputId="float-label"></p-dropdown>
+                <label for="float-label">Social/Community no harm</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('SocialCommunityNoHarm')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="ShareHoldersEngagement" formControlName="ShareholdersEngagement" placeholder="Legal Lead" optionLabel="ShareholdersEngagement" optionValue="idShareholdersEngagement" inputId="float-label"></p-dropdown>
+                <label for="float-label">Shareholders engagement</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('ShareholdersEngagement')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="cities" formControlName="PressNegative" placeholder="Legal Lead" optionLabel="name" optionValue="code" inputId="float-label"></p-dropdown>
+                <label for="float-label">Press - negative</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('PressNegative')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="biodiversity" formControlName="Biodiversity" placeholder="Legal Lead" optionLabel="Biodiversity" optionValue="IdBiodiversity" inputId="float-label"></p-dropdown>
+                <label for="float-label">Biodiversity</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('Biodiversity')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="HumanRights" formControlName="HumanRights" placeholder="Legal Lead" optionLabel="HumanRights" optionValue="IdHumanRights" inputId="float-label"></p-dropdown>
+                <label for="float-label">Human Rights</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('HumanRights')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="IndigenousPeople" formControlName="IndigenousPeople" placeholder="Legal Lead" optionLabel="IndigenousPeople" optionValue="IdIndigenousPeople" inputId="float-label"></p-dropdown>
+                <label for="float-label">Indigenous peoples/ cultural heritage</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('IndigenousPeople')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="hs" formControlName="HS" placeholder="Legal Lead" optionLabel="HS" optionValue="IdHS" inputId="float-label"></p-dropdown>
+                <label for="float-label">H & S</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('HS')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="NegativeHS" formControlName="NegativeEHS" placeholder="Legal Lead" optionLabel="NegativeEHS" optionValue="IdNegativeEHS" inputId="float-label"></p-dropdown>
+                <label for="float-label">Negative EHS</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('NegativeEHS')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="ProjectCoordinator" />
+                <label htmlFor="username">Project Coordinator</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('ProjectCoordinator')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar formControlName="ProjectCoordinatorTerm" [style]="{'width':'100%'}" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>Project Coordinator Term</label>
+            </span>
+            <div *ngIf="SalvaguardaForm.get('ProjectCoordinatorTerm')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-6 md:col-4">
+            <span class="p-float-label">
+                <textarea formControlName="NotesSafeguardsTeam" id="float-input" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Notes Safeguards Team</label>
+            </span>
+        </div>
+
+    </div>
+    <div class="flex justify-content-center">
+        <p-button [label]="buttonlabel" [disabled]="booleanoActivo" icon="pi pi-save" (onClick)="saveSalvaguarda()"></p-button>
+    </div>
+</section>

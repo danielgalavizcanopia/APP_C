@@ -1,0 +1,163 @@
+<p-sidebar appendTo="body" [(visible)]="sidebarVisible" [style]="{'width': '30rem'}" position="right">
+    <h3>Project Logs - form</h3>
+    <p>
+        This view have a 2 sections <br>
+        <li>Create a Log with main Hito</li>
+        <li>Create or update evidences with category and type of evidences</li>
+        If you want create a new project log, write all 1st section fields. <br>
+        If you want update a log and evidence, click "Save changes". <br>
+        If you want update a evidence, click in evidence Row that you want edit, after update the form, and finally click in "Update Evidence"
+    </p>
+</p-sidebar>
+<section class="m-5" [formGroup]="BitacoraForm">
+    <div class="card">
+        <div class="flex justify-content-end">
+                <p class="ml-5"><strong>User: </strong> <small>{{token?.email}}</small></p>
+                <p class="ml-5"><strong>Status Process: </strong><span *ngIf="evidences.length > 0" class="m-2 status-finished"><strong>With Evidences</strong></span> <span *ngIf="evidences.length == 0" class="m-2 status-finished"><strong>Without Evidences</strong></span></p>
+                <p-button type="button" styleClass="p-button-success" pTooltip="Info" tooltipPosition="left" (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col-12 md:col-2">
+            <span class="p-float-label">
+                <p-calendar [style]="{'width':'100%'}" formControlName="fecha_evento" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="2024-01-01"></p-calendar>
+                <label htmlFor="username">Event date</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-2">
+            <span class="p-float-label">
+                <input type="text" pInputText formControlName="blogTitle" maxlength="75">
+                <label htmlFor="username">Log title</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="HitosProcess" formControlName="IDHitoProceso" (onChange)="getCategoriaEvidencia($event.value)" placeholder="Milestones" optionLabel="ConcatenatedDescription" optionValue="IdhitoProceso" [filter]="true" filterBy="ConcatenatedDescription"></p-dropdown>
+                <label for="float-label">Milestones</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4"></div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="Descripcion_evento" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Description</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="DecisionsRequired" rows="5" cols="30" pInputTextarea></textarea>
+                <label htmlFor="username">Decisions required</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="agreements" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Agreements</label>
+            </span>
+        </div>
+
+        <div class="col-12 md:col-12">
+            <p-checkbox *ngIf="idBitacora" name="evidence" [value]="evidenceForm" [binary]="true" (onChange)="onDisplayEvidenceForm()" label="Add evidences"></p-checkbox>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+    <div class="grid" *ngIf="evidenceForm">
+        <div class="col-12 md:col-3">
+            <span class="p-float-label">
+                <p-dropdown [options]="CategoriaEvidencia" formControlName="IDCategoriaEvidencia" (onChange)="getTipoEvidencia($event.value)" placeholder="Category" optionLabel="NombreCategoríaLargo" optionValue="Id_CategoriaEvidencia" inputId="float-label"></p-dropdown>
+                <label for="float-label">Category</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-6">
+            <span class="p-float-label">
+                <p-dropdown [options]="TipoEvidencia" formControlName="IDTipoEvidencia" placeholder="Type Evidence" optionLabel="DescripcionEvidencia" optionValue="IDTipoEvidencia" inputId="float-label"></p-dropdown>
+                <label for="float-label">Type Evidence</label>
+            </span>
+        </div>
+        <div class="col-12 md:col-12 md:col-12">
+        </div>
+        <div class="col-12 md:col-4" *ngIf="evidenceForm">
+            <span class="p-float-label">
+                <input type="text" formControlName="link_evidencia" pInputText id="username" maxlength="255" />
+                <label htmlFor="username">Link evidence</label>
+            </span>
+        </div>
+        <!-- <div class="col-12 md:col-6" *ngIf="evidenceForm">
+            <div class="flex justify-content-start">
+                <p-fileUpload *ngIf="!uploadedFiles" [multiple]="false" mode="basic" name="demo[]" [maxFileSize]="40000000" (onSelect)="onUpload($event)" [auto]="true" chooseLabel="Attachments"></p-fileUpload>
+                <p-button class="mr-3" *ngIf="uploadedFiles" label="Delete Attachments"  (onClick)="onClear()"></p-button>
+                <p class="m-1" *ngIf="uploadedFiles">File Name: {{uploadedFiles?.name}}</p>
+                <p class="m-1">Max File Size: 40mb</p>
+            </div>
+        </div> -->
+        <div class="col-12 md:col-12" *ngIf="evidenceForm">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="Observaciones" rows="5" cols="30" maxlength="255" pInputTextarea></textarea>
+                <label for="float-input">Notes</label>
+            </span>
+        </div>
+    </div>
+    <div *ngIf="evidenceForm" class="flex justify-content-end">
+        <div>
+            <button *ngIf="idBitacora" pButton label="Save Evidence" icon="pi pi-save" (click)="updateBitacora()"></button>
+        </div>
+    </div>
+    <div class="col-12 md:col-12" *ngIf="idBitacora">
+        <p-table #dt1 [value]="evidences" [tableStyle]="{ 'min-width': '50rem' }" stateStorage="session" responsiveLayout="scroll">
+            <ng-template pTemplate="caption">
+                <h3>Evidences</h3>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Link</th>
+                    <!-- <th>Attachment</th> -->
+                    <th>User Validate</th>
+                    <th>Notes</th>
+                    <th>Validate</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-columns="columns" let-rowData>
+                <tr>
+                    <td> <p-button [label]="rowData.link_evidencia" styleClass="p-button-link" (onClick)="openLinkEvidence(rowData.link_evidencia)"></p-button></td>
+                    <!-- <td (click)="downloadFile(rowData.datos_adjuntos)"><span class="pi pi-file"></span>Visualizar Documento</td> -->
+                    <td>{{ rowData.Name || 'Unvalidated evidence' }}</td>
+                    <td>{{ rowData.Observaciones }}</td>
+                    <td>
+                        <p-checkbox name="userValidate" [binary]="true" [(ngModel)]="rowData.IDUserValidate" [ngModelOptions]="{standalone: true}" [ngModel]="isValidateNumber(rowData.IDUserValidate)" (onChange)="validateEvidence(rowData.idevidencia, $event)" label="Validate Evidence"></p-checkbox>
+                    </td>
+                    <td>
+                        <div class="flex justify-content-end">
+                            <button pButton pRipple icon="pi pi-pencil" class="p-button-success" (click)="onEvidenceSelected(rowData)"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <p>Without Evidences</p>
+            </ng-template>
+        </p-table>
+    </div>
+    <div class="col-12 md:col-12">
+        <div class="flex justify-content-end">
+            <div class="m-3">
+                <p-button label="Cancel" styleClass="p-button-outlined mr-1" icon="pi pi-times" routerLink="/Reports"></p-button>
+                <p-button *ngIf="!idBitacora && !evidenceForm" label="Save Log" icon="pi pi-save" (onClick)="confirm1()"></p-button>
+                <p-button *ngIf="!idBitacora && evidenceForm" label="Save Log" [disabled]="validateSaveButton" icon="pi pi-save" (onClick)="saveBitacora()"></p-button>
+                <p-button *ngIf="idBitacora && evidenceForm || idBitacora && !evidenceForm" label="Save Log" [disabled]="validateSaveButton" icon="pi pi-save" (onClick)="saveBitacora()"></p-button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<p-confirmDialog #cd [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+        <h3>Save Log</h3>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Yes" (click)="cd.accept()"></button>
+    </ng-template>
+</p-confirmDialog>

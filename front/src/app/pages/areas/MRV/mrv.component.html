@@ -1,0 +1,108 @@
+<p-toast></p-toast>
+<section class="container">
+    <div class="flex justify-content-center">
+        <div class="text-2xl text-900">MRV</div>
+    </div>
+    <div class="grid mt-5" [formGroup]="mrvForm">
+        <div class="col-12 md:col-12">
+            <div class="flex justify-content-end">
+                <p-button  [disabled]="enablebutton" styleClass="p-button-success" icon="pi pi-pencil" iconPos="right" [label]="buttonlabel" (onClick)="toggleFormulario()"></p-button>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="MrvLead" formControlName="IdleadMRV" placeholder="MRV Lead" optionLabel="leadMRV" optionValue="IdleadMRV" inputId="float-label"></p-dropdown>
+                <label for="float-label">MRV Lead</label>
+            </span>
+            <div *ngIf="mrvForm.get('IdleadMRV')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="permanence" formControlName="IdPermanence" placeholder="Permanence" optionLabel="Permancence" optionValue="IdPermanence" inputId="float-label"></p-dropdown>
+                <label for="float-label">Permanence</label>
+            </span>
+            <div *ngIf="mrvForm.get('IdPermanence')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="leakeage" formControlName="Idleakeage" placeholder="Leakeage" optionLabel="Leakeage" optionValue="Idleakeage" inputId="float-label"></p-dropdown>
+                <label for="float-label">Leakeage</label>
+            </span>
+            <div *ngIf="mrvForm.get('Idleakeage')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="RevesalRisk" />
+                <label htmlFor="username">Reversal Risk (removals)</label>
+            </span>
+            <div *ngIf="mrvForm.get('RevesalRisk')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <input pInputText id="username" formControlName="SampleSize" type="number" />
+                <label htmlFor="username">Sample Size</label>
+            </span>
+            <div *ngIf="mrvForm.get('SampleSize')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="mrvrequirements" formControlName="IdMRVRequirements" placeholder="Leakeage" optionLabel="MRVRequirements" optionValue="IdMRVRequirements" inputId="float-label"></p-dropdown>
+                <label for="float-label">MRV requeriments</label>
+            </span>
+            <div *ngIf="mrvForm.get('IdMRVRequirements')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar appendTo="body" formControlName="BLInventoryStartDate" [style]="{'width':'100%'}" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>BL Inventory Start Date</label>
+            </span>
+            <div *ngIf="mrvForm.get('BLInventoryStartDate')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-calendar appendTo="body" formControlName="BLInventoryEndDate" [style]="{'width':'100%'}" [showIcon]="true" dateFormat="yy-mm-dd"></p-calendar>
+                <label>BL Inventory End Date</label>
+            </span>
+            <div *ngIf="mrvForm.get('BLInventoryEndDate')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <p-dropdown [options]="statusmrv" formControlName="IdMRVStatus" placeholder="MRV Status" optionLabel="StatusMRV" optionValue="IdStatusMRV" inputId="float-label"></p-dropdown>
+                <label for="float-label">MRV Status</label>
+            </span>
+            <div *ngIf="mrvForm.get('IdMRVStatus')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+        <div class="col-12 md:col-4">
+            <span class="p-float-label">
+                <textarea id="float-input" formControlName="CommentsofMRV" rows="5" cols="30" pInputTextarea></textarea>
+                <label for="float-input">Changes commentaries</label>
+            </span>
+            <div *ngIf="mrvForm.get('CommentsofMRV')?.invalid && formValidate">
+                <small class="p-error">This field is required</small>
+            </div>
+        </div>
+    </div>
+    <div class="flex justify-content-center">
+        <p-button [label]="buttonlabel" [disabled]="booleanoActivo" icon="pi pi-save" (onClick)="saveMRV()"></p-button>
+    </div>
+</section>

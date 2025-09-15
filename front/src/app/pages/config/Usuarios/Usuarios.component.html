@@ -1,0 +1,98 @@
+<section class="m-5">
+    <div class="flex justify-content-end">
+        <div class="m-1">
+            <p-button class="m-1" icon="pi pi-plus" label="Add new user" (onClick)="showVisible()"></p-button>
+        </div>
+    </div>
+    <p-table [value]="Users" [loading]="loading" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Position</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-User>
+            <tr>
+                <td>{{ User.Name }}</td>
+                <td>{{ User.Email }}</td>
+                <td>{{ User.PositionName }}</td>
+                <td>
+                    <div class="flex justify-content-end">
+                        <p-button class="m-1" icon="pi pi-pencil" (onClick)="onRowSelected(User)" styleClass="p-button-rounded"></p-button>
+                        <p-button class="m-1" icon="pi pi-trash" styleClass="p-button-outlined p-button-rounded p-button-danger"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</section>
+
+<p-dialog header="User Form" [(visible)]="visible" [modal]="true" [maximizable]="true" (onHide)="hideVisible()">
+    <ng-template pTemplate="content">
+        <div class="grid" [formGroup]="usuarioForm">
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <input type="text" formControlName="userName" pInputText>
+                    <label>Name</label>
+                </span>
+                <div *ngIf="usuarioForm.get('userName')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <input type="email" formControlName="Email" pInputText>
+                    <label>Email</label>
+                </span>
+                <div *ngIf="usuarioForm.get('Email')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-password appendTo="body" formControlName="Password" (keydown.space)="$event.preventDefault();" [feedback]="true" [toggleMask]="true">
+                        <ng-template pTemplate="header">
+                            <h6>Pick a password</h6>
+                        </ng-template>
+                        <ng-template pTemplate="footer">
+                            <p-divider></p-divider>
+                            <p class="mt-2">Suggestions</p>
+                            <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                                <li>At least one lowercase</li>
+                                <li>At least one uppercase</li>
+                                <li>At least one numeric</li>
+                                <li>Minimum 8 characters</li>
+                            </ul>
+                        </ng-template>
+                    </p-password>
+                    <label>Password</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-6">
+                <span class="p-float-label">
+                    <p-password appendTo="body" formControlName="ConfirmPassword" (keydown.space)="$event.preventDefault();" [toggleMask]="true">
+                    </p-password>
+                    <label>Confirm password</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <p-dropdown formControlName="idPosition" appendTo="body" [options]="Positions" optionLabel="ShortDescription" optionValue="idpositions" [showClear]="true"></p-dropdown>
+                    <label>Position</label>
+                </span>
+                <div *ngIf="usuarioForm.get('idPosition')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <p-footer>
+        <div class="flex justify-content-end">
+            <p-button class="m-1" label="Cancel" (click)="hideVisible()" icon="pi pi-times"></p-button>
+            <p-button class="m-1" label="Save" (onClick)="save()" icon="pi pi-save"></p-button>
+        </div>
+    </p-footer>
+</p-dialog>

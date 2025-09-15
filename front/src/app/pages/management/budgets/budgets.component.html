@@ -1,0 +1,934 @@
+<p-confirmPopup></p-confirmPopup>
+
+<div class="flex justify-content-between">
+    <div class="pb-3">
+        <p-dropdown appendTo="body" [options]="rpnumbers" [(ngModel)]="RPselected" placeholder="Select RP" optionValue="idrpnumber"
+            optionLabel="RP_Number" [showClear]="true" (onChange)="getActivitiesData()">
+        </p-dropdown>
+    </div>
+    <div class="pb-3">
+        <div class="flex justify-content-end">
+            <div class="mr-3">
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input type="text" pInputText placeholder="Search Activity..." [(ngModel)]="searchText" (input)="onSearchChange()"
+                />
+                </span>
+
+            </div>
+            <div>
+                <p-menu #menu [model]="this.itemsButton" [popup]="true"></p-menu>
+                <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-angle-down" label="Actions"
+                    iconPos="right"></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<p-table #dt1 [value]="filteredActivities"
+    sortField="AccountName" sortMode="single" [scrollable]="true" scrollHeight="auto"
+    rowGroupMode="subheader" groupRowsBy="AccountName" [paginator]="true" [rows]="50"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [(selection)]="selectedCopyActivities"
+    dataKey="IdActividaddata"
+    [loading]="loading">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>
+                <p-tableHeaderCheckbox (click)="onHeaderCheckboxToggle($event)" dataKey="IdActividaddata"></p-tableHeaderCheckbox>
+            </th>
+            <th>Type*</th>
+            <th>Account Type</th>
+            <th>Activities</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Planned</th>
+            <th>Status on PADI</th>
+            <th>Status Activity</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body"   let-rowData>
+        <tr *ngFor="let sub of rowData.subaccounts">
+            <td>
+                <p-tableCheckbox [value]="sub" dataKey="IdActividaddata"></p-tableCheckbox>
+            </td>
+            <td>{{ "RP" + sub.idrpnumber }}</td>
+            <td>{{ sub.Ca_o_pex == 1 ? sub.capexsubaccount : sub.opexsubaccount }}</td>
+            <td>{{ sub.Actividad }}</td>
+            <td>{{ sub.actividaddatestart | date: 'dd/MM/yyyy': 'UTC' }}</td>
+            <td>{{ sub.actividaddateend | date: 'dd/MM/yyyy': 'UTC' }}</td>
+            <td class="text-right">{{ sub.EstimadoUSD | currency}}</td>
+            <td>
+                <!-- statusvalidacion -->
+                <span [ngClass]="isValidStatus(sub.statusvalidateplan)"><strong>{{sub.FolioPadi || 'Not Assigned'}}</strong></span>
+            </td>
+            <td [pEditableColumn]="sub.IdstatusValidacion" pEditableColumnField="IdstatusValidacion">
+                <div *ngIf="sub.statusvalidateplan == null">
+                    <p-cellEditor (click)="onStatusSelected(sub)">
+                        <ng-template pTemplate="input">
+                            <span class="p-float-label">
+                                <p-dropdown appendTo="body" [options]="validacionesSt" (onChange)="setValidaciones()"
+                                    [(ngModel)]="validacionSelected" placeholder="Select a Status"
+                                    optionLabel="statusvalidacion" optionValue="IdstatusValidacion"></p-dropdown>
+                                <label for="float-label">Select a Status</label>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <span *ngIf="sub.IdstatusValidacion == 1"
+                                class="m-2 status-pending"><strong>Pending</strong></span>
+                            <span *ngIf="sub.IdstatusValidacion == 2"
+                                class="m-2 status-correction"><strong>Correction</strong></span>
+                            <span *ngIf="sub.IdstatusValidacion == 3"
+                                class="m-2 status-evaluation"><strong>Evaluation</strong></span>
+                            <span *ngIf="sub.IdstatusValidacion == 4"
+                                class="m-2 status-finished"><strong>Approved</strong></span>
+                            <span *ngIf="sub.IdstatusValidacion == 5"
+                                class="m-2 status-canceled"><strong>Canceled</strong></span>
+                        </ng-template>
+                    </p-cellEditor>
+                </div>
+                <div *ngIf="sub.statusvalidateplan != null">
+                    <span *ngIf="sub.IdstatusValidacion == 1"
+                        class="m-2 status-pending"><strong>Pending</strong></span>
+                    <span *ngIf="sub.IdstatusValidacion == 2"
+                        class="m-2 status-correction"><strong>Correction</strong></span>
+                    <span *ngIf="sub.IdstatusValidacion == 3"
+                        class="m-2 status-evaluation"><strong>Evaluation</strong></span>
+                    <span *ngIf="sub.IdstatusValidacion == 4"
+                        class="m-2 status-finished"><strong>Approved</strong></span>
+                    <span *ngIf="sub.IdstatusValidacion == 5"
+                        class="m-2 status-canceled"><strong>Canceled</strong></span>
+                </div>
+                
+            </td>
+            <td>
+                <div class="flex justify-content-end">
+                    <p-button class="m-1" pTooltip="Edit Activity" tooltipPosition="left" icon="pi pi-pencil"
+                        styleClass="p-button-rounded" (onClick)="onRowSelected(sub)"></p-button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="groupheader" let-rowData>
+        <tr pRowGroupHeader *ngIf="rowData.subaccounts.length != 0">
+            <td></td>
+            <td colspan="5" class="font-bold">
+                {{ rowData.AccountName }}
+            </td>
+            <td class="font-bold text-right">{{ sumTotalsByActivities(rowData.subaccounts) | currency}}</td>
+            <td colspan="2"></td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <tr>
+            <td colspan="6"></td>
+            <td class="font-bold text-right">Total: {{ getTotalActivities() | currency}}</td>
+            <td colspan="3"></td>
+        </tr>
+    </ng-template>
+</p-table>
+<!--nueva actividad-->
+<p-dialog header="Activity Form" [(visible)]="visible" [modal]="true" [maximizable]="true" (onHide)="hideVisible()">
+    <ng-template pTemplate="content">
+        <div class="grid" [formGroup]="activityForm">
+            <!--inicia modificacion-->
+            <div class="grid col-12">
+                <div class="md:col-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="rpnumbers" formControlName="p_idrpnumber" placeholder="Select RP number"
+                            optionLabel="RP_Number" optionValue="idrpnumber"></p-dropdown>
+                        <label>Select RP</label>
+                    </span>
+                    <div *ngIf="activityForm.get('p_idrpnumber')?.invalid && formValidate">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-1">
+                    <p-button *ngIf="activitySelected && activitySelected.statusvalidateplan ==  null" icon="pi pi-pencil" styleClass="p-button-rounded" tooltipPosition="bottom" (onClick)="enableRPdropdown()" pTooltip="Edit RP"></p-button>
+                </div>
+               <hr>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_Ca_o_pex"
+                        (onChange)="typeAccountSelected($event)" [options]="cities"
+                        placeholder="Select Capex Or Opex Accounts" optionLabel="name" optionValue="code"
+                        inputId="float-label"></p-dropdown>
+                    <label>Select Capex Or Opex Accounts</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Ca_o_pex')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4" *ngIf="typeAccounts == 1">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_idcapexsubaccount"
+                        [options]="CuentasCapex" placeholder="Select Capex Account" optionLabel="concepto"
+                        optionValue="idcapexsubaccount" [filter]="true"></p-dropdown>
+                    <label>Select Capex Account</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idcapexsubaccount')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4" *ngIf="typeAccounts == 2">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_idopexsubaccount" [options]="CuentasOpex"
+                        placeholder="Select Opex Account" optionLabel="concepto" optionValue="idopexsubaccount"
+                        [filter]="true"></p-dropdown>
+                    <label>Select Opex Account</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idopexsubaccount')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" appendTo="body" formControlName="p_idactivitiesprojects"
+                        [options]="activitiesCt" placeholder="Select Activity" optionLabel="projectsactivities"
+                        optionValue="idactivitiesprojects" [filter]="true"></p-dropdown>
+                    <label>Select Activity</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idactivitiesprojects')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+                <div *ngIf="activitySelected && !activitySelected.idactivitiesprojects">
+                    <small>Preview Name: {{activitySelected.NombreActividad}}</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <!-- <p-dropdown [style]="{'width':'100%'}" formControlName="p_Ods" [options]="Ods" placeholder="Select ODS" (onChange)="catchODS($event)" [tooltip]="odsSelected" optionLabel="ShortDescriptionODSs" optionValue="Idglobalgoals"></p-dropdown> -->
+
+                    <p-multiSelect [style]="{'width':'100%'}" [options]="Ods" formControlName="p_Ods"
+                        defaultLabel="Select ODS" (onChange)="onSelectionChange($event)" [tooltip]="odsSelected"
+                        optionLabel="ShortDescriptionODSs"></p-multiSelect>
+                    <label>Select ODS</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Ods')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" appendTo="body" formControlName="p_Idsop" [options]="SOPs"
+                        placeholder="Select SOP" optionLabel="ShortDescriptionSOP" optionValue="Idsop"
+                        [filter]="true"></p-dropdown>
+                    <label>Select SOP</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Idsop')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-inputNumber class="w-full" [style]="{'flex': '1'}" formControlName="p_Estimado" mode="decimal"
+                        [maxFractionDigits]="2" [minFractionDigits]="2"></p-inputNumber>
+                    <label>Budget Estimated (USD)</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Estimado')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar formControlName="p_fechaPeriodostart" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                        appendTo="body" [showIcon]="true"></p-calendar>
+                    <label>Date period Start</label>
+                </span>
+                <div *ngIf="activityForm.get('p_fechaPeriodostart')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar formControlName="p_fechaPeriodoend" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                        appendTo="body" [showIcon]="true"></p-calendar>
+                    <label>Date period End</label>
+                </span>
+                <div *ngIf="activityForm.get('p_fechaPeriodoend')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="p_objetivo" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label>Objective</label>
+                </span>
+                <div *ngIf="activityForm.get('p_objetivo')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <!--generador nuevos datos Quantitative indicators-->
+            <div class="col-12 md:col-12 plus-card">
+                <div class="mb-2 font-bold">
+                    <small>Quantitative indicators</small>
+                </div>
+                <div formArrayName="IndCuantitativos">
+                    <div *ngFor="let item of IndCuantitativos.controls; let i = index" [formGroupName]="i">
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="p-inputgroup" *ngIf="indicadorcuantitativoadd == false">
+                                    <p-dropdown [style]="{'width':'100%'}" [options]="IndicadoresCuantitativos"
+                                        formControlName="indicadorId" placeholder="Quantitative Indicator"
+                                        optionLabel="nombre" optionValue="Idcuantitativo" [filter]="true"></p-dropdown>
+                                    <button type="button" pButton icon="pi pi-plus"
+                                        (click)="indicadorcuantitativoadd = true;"
+                                        styleClass="p-button-warn p-button-lg"></button>
+                                </div>
+                                <div class="p-inputgroup" *ngIf="indicadorcuantitativoadd == true && i === 0">
+                                    <input type="text" [(ngModel)]="indicadorName" maxlength="54"
+                                        [ngModelOptions]="{standalone: true}"
+                                        (keydown.enter)="saveIndicadorCuantitativo()" pInputText
+                                        placeholder="Write User Name" pTooltip="Enter key to save User" />
+                                    <button type="button" pButton label="cancel" (click)="hideindicadorcuantiv()"
+                                        styleClass="p-button-danger p-button-lg"></button>
+                                </div>
+                                <div *ngIf="item.get('indicadorId')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="p-float-label">
+                                    <p-dropdown [options]="Metricas" formControlName="metrica" placeholder="KPI"
+                                        optionLabel="Metrica" optionValue="Idmetrica"></p-dropdown>
+                                    <label for="">Select KPI</label>
+                                </span>
+                                <div *ngIf="item.get('metrica')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p-inputNumber [style]="{'width':'100% !important'}"
+                                    formControlName="cantidad"></p-inputNumber>
+                                <div *ngIf="item.get('cantidad')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <!-- <div [style]="{'width':'100%'}" class="m-1">
+                                <p *ngIf="this.metricaLabel[i]">{{this.metricaLabel[i].Metrica}}</p>
+                            </div> -->
+                            <div class="col-12 md:col-1">
+                                <p-button styleClass="p-button-danger p-button-rounded" icon="pi pi-trash"
+                                    (click)="removeItem(i); deleteIndicators(item.value)"></p-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="IndCuantitativos.length == 0 && formValidate">
+                    <small class="p-error">Please, add 1 quantitative indicator</small>
+                </div>
+                <div class="text-center col-12">
+                    <p-button icon="pi pi-plus" label="Add indicator" (click)="addItem()"></p-button>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="p_Cualitativos" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label>Qualitative Indicators</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Cualitativos')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12 plus-card">
+                <div class="mb-2 font-bold">
+                    <small>Reporting</small>
+                </div>
+
+                <div formArrayName="Reporteo" class="col-12 md:col-12">
+                    <div class="grid" *ngFor="let item of Reporteo.controls; let i = index" [formGroupName]="i">
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input type="text" formControlName="quien" pInputText>
+                                <label>Who?</label>
+                            </span>
+                            <div *ngIf="item.get('quien')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input type="text" formControlName="como" pInputText>
+                                <label>How?</label>
+                            </span>
+                            <div *ngIf="item.get('quien')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar formControlName="cuando" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                                    appendTo="body" [showIcon]="true"></p-calendar>
+                                <label>When?</label>
+                            </span>
+                            <div *ngIf="item.get('cuando')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-1">
+                            <p-button styleClass="p-button-danger p-button-rounded" icon="pi pi-trash"
+                                (click)="removeReporteo(i); deleteReporting(item.value);"></p-button>
+                        </div>
+                    </div>
+                    <div *ngIf="Reporteo.length == 0 && formValidate">
+                        <small class="p-error">Please, add 1 quantitative indicator</small>
+                    </div>
+                </div>
+                <div class="text-center col-12">
+                    <p-button icon="pi pi-plus" label="Add row" (click)="addReporteo()"></p-button>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2 font-bold">
+                <p-divider></p-divider>
+                <small>Roles</small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <div class="p-inputgroup" *ngIf="seguimientoadd == false">
+                    <p-dropdown appendTo="body" [style]="{'width':'100%'}" [options]="seguimiento"
+                        formControlName="p_IDUserSeguimiento" placeholder="Select Follow-up"
+                        optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <button type="button" pButton icon="pi pi-plus" (click)="seguimientoadd = true;"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div class="p-inputgroup" *ngIf="seguimientoadd == true">
+                    <input type="text" [(ngModel)]="usuarioName" maxlength="54" [ngModelOptions]="{standalone: true}"
+                        (keydown.enter)="saveUsuarioName(7)" pInputText placeholder="Write User Name"
+                        pTooltip="Enter key to save User" />
+                    <button type="button" pButton label="cancel" (click)="hideseguimiento()"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div *ngIf="activityForm.get('p_IDUserSeguimiento')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <div class="p-inputgroup" *ngIf="coordinadoradd == false">
+                    <p-dropdown appendTo="body" [style]="{'width':'100%'}" [options]="Coordinadores"
+                        formControlName="p_IDUserCoordinador" placeholder="Select Coordinator"
+                        optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <button type="button" pButton icon="pi pi-plus" (click)="coordinadoradd = true;"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div class="p-inputgroup" *ngIf="coordinadoradd == true">
+                    <input type="text" [(ngModel)]="usuarioName" maxlength="54" [ngModelOptions]="{standalone: true}"
+                        (keydown.enter)="saveUsuarioName(2)" pInputText placeholder="Write User Name"
+                        pTooltip="Enter key to save User" />
+                    <button type="button" pButton icon="pi pi-trash" label="cancel" (click)="hidecoordinador()"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div *ngIf="activityForm.get('p_IDUserCoordinador')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input type="text" pInputText formControlName="p_UserEjecutordeCampo">
+                    <label>Field manager</label>
+                </span>
+                <div *ngIf="activityForm.get('p_UserEjecutordeCampo')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input type="text" pInputText formControlName="p_UserSupervisor">
+                    <label>Supervisor</label>
+                </span>
+                <div *ngIf="activityForm.get('p_UserSupervisor')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="evaluador" formControlName="p_IDUserEvaluador"
+                        placeholder="Select Evaluation" optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <label>Evaluator</label>
+                </span>
+                <div *ngIf="activityForm.get('p_IDUserEvaluador')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <!--termina modificacion-->
+
+            <div class="upload col-4 flex justify-content-between align-content-center flex-wrap">
+                <div>
+                    <div class="flex align-items-center ">
+                        <small *ngIf="!uploadedFiles && !activitySelected">Upload your evidence, photo, document,
+                            or image.</small>
+                    </div>
+                    <div class="flex align-items-center " *ngIf="activitySelected">
+                        <img *ngIf="activitySelected.linkdelarchivo && !uploadedFiles" class="ml-5"
+                            [src]="url + activitySelected.linkdelarchivo" width="300px">
+                        <small *ngIf="!activitySelected.linkdelarchivo">Upload your evidence, photo, document,
+                            or image.</small>
+                    </div>
+                    <div>
+                        <p *ngIf="uploadedFiles">{{uploadedFiles?.name}}</p>
+                    </div>
+                </div>
+                <div>
+                    <p-fileUpload *ngIf="!uploadedFiles" mode="basic" pTooltip="Choose your file location"
+                        tooltipPosition="top" chooseIcon="pi pi-cloud-upload" name="demo[]" [auto]="true"
+                        accept="image/*" [maxFileSize]="1000000" (onSelect)="onUpload($event)"></p-fileUpload>
+                    <p-button styleClass="p-button-danger" *ngIf="uploadedFiles" icon="pi pi-trash"
+                        pTooltip="Delete Attachment" tooltipPosition="top" (onClick)="onClear()"></p-button>
+                </div>
+            </div>
+
+        </div>
+
+    </ng-template>
+    <p-footer>
+        <div class="flex justify-content-between">
+            <div>
+                <p-button *ngIf="activitySelected && activitySelected.IdstatusValidacion != 4" class="m-1" icon="pi pi-trash"
+                    (click)="confirm($event, activitySelected, 0)" label="Delete"
+                    styleClass="p-button-outlined p-button-danger"></p-button>
+            </div>
+            <div>
+                <p-button class="m-1" label="Cancel" (click)="hideVisible()" styleClass="p-button-outlined"></p-button>
+                <p-button [disabled]="disableButton" *ngIf="isActiveRPfield" class="m-1" label="Save" (click)="confirmSave($event)"></p-button>
+                <p-button [disabled]="disableButton" *ngIf="!isActiveRPfield" class="m-1" label="Save" (click)="save()"></p-button>
+            </div>
+        </div>
+    </p-footer>
+</p-dialog>
+<!--copia actividad-->
+<p-dialog header="Duplicate Activity Form" [(visible)]="visibleCopy" [modal]="true" [maximizable]="true"
+    (onHide)="hideVisible()">
+    <ng-template pTemplate="content">
+        <div class="grid" [formGroup]="activityForm">
+            <!--inicia modificacion-->
+             <div class="grid col-12">
+            <div class="col-12 md:col-3">
+                <span class="p-float-label">
+                    <p-dropdown [options]="rpnumbers" formControlName="p_idrpnumber" placeholder="Select RP number"
+                        optionLabel="RP_Number" optionValue="idrpnumber"></p-dropdown>
+                    <label>Select RP</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idrpnumber')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            </div>
+            <div class="col-12 md:col-2">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_Ca_o_pex"
+                        (onChange)="typeAccountSelected($event)" [options]="cities"
+                        placeholder="Select Capex Or Opex Accounts" optionLabel="name" optionValue="code"
+                        inputId="float-label"></p-dropdown>
+                    <label>Select Capex Or Opex Accounts</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Ca_o_pex')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4" *ngIf="typeAccounts == 1">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_idcapexsubaccount"
+                        [options]="CuentasCapex" placeholder="Select Capex Account" optionLabel="concepto"
+                        optionValue="idcapexsubaccount" [filter]="true"></p-dropdown>
+                    <label>Select Capex Account</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idcapexsubaccount')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4" *ngIf="typeAccounts == 2">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" formControlName="p_idopexsubaccount" [options]="CuentasOpex"
+                        placeholder="Select Opex Account" optionLabel="concepto" optionValue="idopexsubaccount"
+                        [filter]="true"></p-dropdown>
+                    <label>Select Opex Account</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idopexsubaccount')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" appendTo="body" formControlName="p_idactivitiesprojects"
+                        [options]="activitiesCt" placeholder="Select Activity" optionLabel="projectsactivities"
+                        optionValue="idactivitiesprojects" [filter]="true"></p-dropdown>
+                    <label>Select Activity</label>
+                </span>
+                <div *ngIf="activityForm.get('p_idactivitiesprojects')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+                <div *ngIf="activitySelected && !activitySelected.idactivitiesprojects">
+                    <small>Preview Name: {{activitySelected.NombreActividad}}</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <!-- <p-dropdown [style]="{'width':'100%'}" formControlName="p_Ods" [options]="Ods" placeholder="Select ODS" (onChange)="catchODS($event)" [tooltip]="odsSelected" optionLabel="ShortDescriptionODSs" optionValue="Idglobalgoals"></p-dropdown> -->
+
+                    <p-multiSelect [style]="{'width':'100%'}" [options]="Ods" formControlName="p_Ods"
+                        defaultLabel="Select ODS" (onChange)="onSelectionChange($event)" [tooltip]="odsSelected"
+                        optionLabel="ShortDescriptionODSs"></p-multiSelect>
+                    <label>Select ODS</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Ods')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [style]="{'width':'100%'}" appendTo="body" formControlName="p_Idsop" [options]="SOPs"
+                        placeholder="Select SOP" optionLabel="ShortDescriptionSOP" optionValue="Idsop"
+                        [filter]="true"></p-dropdown>
+                    <label>Select SOP</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Idsop')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-inputNumber class="w-full" [style]="{'flex': '1'}" formControlName="p_Estimado" mode="decimal"
+                        [maxFractionDigits]="2" [minFractionDigits]="2"></p-inputNumber>
+                    <label>Budget Estimated (USD)</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Estimado')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar formControlName="p_fechaPeriodostart" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                        appendTo="body" [showIcon]="true"></p-calendar>
+                    <label>Date period Start</label>
+                </span>
+                <div *ngIf="activityForm.get('p_fechaPeriodostart')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar formControlName="p_fechaPeriodoend" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                        appendTo="body" [showIcon]="true"></p-calendar>
+                    <label>Date period End</label>
+                </span>
+                <div *ngIf="activityForm.get('p_fechaPeriodoend')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="p_objetivo" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label>Objective</label>
+                </span>
+                <div *ngIf="activityForm.get('p_objetivo')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <!--generador nuevos datos Quantitative indicators-->
+            <div class="col-12 md:col-12 plus-card">
+                <div class="mb-2 font-bold">
+                    <small>Quantitative indicators</small>
+                </div>
+                <div formArrayName="IndCuantitativos">
+                    <div *ngFor="let item of IndCuantitativos.controls; let i = index" [formGroupName]="i">
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="p-inputgroup" *ngIf="indicadorcuantitativoadd == false">
+                                    <p-dropdown [style]="{'width':'100%'}" [options]="IndicadoresCuantitativos"
+                                        formControlName="indicadorId" placeholder="Quantitative Indicator"
+                                        optionLabel="nombre" optionValue="Idcuantitativo" [filter]="true"></p-dropdown>
+                                    <button type="button" pButton icon="pi pi-plus"
+                                        (click)="indicadorcuantitativoadd = true;"
+                                        styleClass="p-button-warn p-button-lg"></button>
+                                </div>
+                                <div class="p-inputgroup" *ngIf="indicadorcuantitativoadd == true  && i === 0">
+                                    <input type="text" [(ngModel)]="indicadorName" maxlength="54"
+                                        [ngModelOptions]="{standalone: true}"
+                                        (keydown.enter)="saveIndicadorCuantitativo()" pInputText
+                                        placeholder="Write User Name" pTooltip="Enter key to save User" />
+                                    <button type="button" pButton label="cancel" (click)="hideindicadorcuantiv()"
+                                        styleClass="p-button-danger p-button-lg"></button>
+                                </div>
+                                <div *ngIf="item.get('indicadorId')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <span class="p-float-label">
+                                    <p-dropdown [options]="Metricas" formControlName="metrica" placeholder="KPI"
+                                        optionLabel="Metrica" optionValue="Idmetrica"></p-dropdown>
+                                    <label for="">Select KPI</label>
+                                </span>
+                                <div *ngIf="item.get('metrica')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p-inputNumber [style]="{'width':'100% !important'}"
+                                    formControlName="cantidad"></p-inputNumber>
+                                <div *ngIf="item.get('cantidad')?.invalid && formValidate">
+                                    <small class="p-error">This field is required</small>
+                                </div>
+                            </div>
+                            <!-- <div [style]="{'width':'100%'}" class="m-1">
+                                <p *ngIf="this.metricaLabel[i]">{{this.metricaLabel[i].Metrica}}</p>
+                            </div> -->
+                            <div class="col-12 md:col-1">
+                                <p-button styleClass="p-button-danger p-button-rounded" icon="pi pi-trash"
+                                    (click)="removeItem(i); deleteIndicators(item.value)"></p-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="IndCuantitativos.length == 0 && formValidate">
+                    <small class="p-error">Please, add 1 quantitative indicator</small>
+                </div>
+                <div class="text-center col-12">
+                    <p-button icon="pi pi-plus" (click)="addItem()"></p-button>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="p_Cualitativos" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label>Qualitative Indicators</label>
+                </span>
+                <div *ngIf="activityForm.get('p_Cualitativos')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-12 plus-card">
+                <div class="mb-2 font-bold">
+                    <small>Reporting</small>
+                </div>
+
+                <div formArrayName="Reporteo" class="col-12 md:col-12">
+                    <div class="grid" *ngFor="let item of Reporteo.controls; let i = index" [formGroupName]="i">
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input type="text" formControlName="quien" pInputText>
+                                <label>Who?</label>
+                            </span>
+                            <div *ngIf="item.get('quien')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <span class="p-float-label">
+                                <input type="text" formControlName="como" pInputText>
+                                <label>How?</label>
+                            </span>
+                            <div *ngIf="item.get('quien')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-3">
+                            <span class="p-float-label">
+                                <p-calendar formControlName="cuando" dateFormat="dd/mm/yy" [style]="{'width':'100%'}"
+                                    appendTo="body" [showIcon]="true"></p-calendar>
+                                <label>When?</label>
+                            </span>
+                            <div *ngIf="item.get('cuando')?.invalid && formValidate">
+                                <small class="p-error">This field is required</small>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-1">
+                            <p-button styleClass="p-button-danger p-button-rounded" icon="pi pi-trash"
+                                (click)="removeReporteo(i); deleteReporting(item.value);"></p-button>
+                        </div>
+                    </div>
+                    <div *ngIf="Reporteo.length == 0 && formValidate">
+                        <small class="p-error">Please, add 1 quantitative indicator</small>
+                    </div>
+                </div>
+                <div class="text-center col-12">
+                    <p-button icon="pi pi-plus" label="Add row" (click)="addReporteo()"></p-button>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2 font-bold">
+                <p-divider></p-divider>
+                <small>Roles</small>
+            </div>
+
+            <div class="col-12 md:col-4">
+                <div class="p-inputgroup" *ngIf="seguimientoadd == false">
+                    <p-dropdown appendTo="body" [style]="{'width':'100%'}" [options]="seguimiento"
+                        formControlName="p_IDUserSeguimiento" placeholder="Select Follow-up"
+                        optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <button type="button" pButton icon="pi pi-plus" (click)="seguimientoadd = true;"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div class="p-inputgroup" *ngIf="seguimientoadd == true">
+                    <input type="text" [(ngModel)]="usuarioName" maxlength="54" [ngModelOptions]="{standalone: true}"
+                        (keydown.enter)="saveUsuarioName(7)" pInputText placeholder="Write User Name"
+                        pTooltip="Enter key to save User" />
+                    <button type="button" pButton label="cancel" (click)="hideseguimiento()"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div *ngIf="activityForm.get('p_IDUserSeguimiento')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <div class="p-inputgroup" *ngIf="coordinadoradd == false">
+                    <p-dropdown appendTo="body" [style]="{'width':'100%'}" [options]="Coordinadores"
+                        formControlName="p_IDUserCoordinador" placeholder="Select Coordinator"
+                        optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <button type="button" pButton icon="pi pi-plus" (click)="coordinadoradd = true;"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div class="p-inputgroup" *ngIf="coordinadoradd == true">
+                    <input type="text" [(ngModel)]="usuarioName" maxlength="54" [ngModelOptions]="{standalone: true}"
+                        (keydown.enter)="saveUsuarioName(2)" pInputText placeholder="Write User Name"
+                        pTooltip="Enter key to save User" />
+                    <button type="button" pButton icon="pi pi-trash" label="cancel" (click)="hidecoordinador()"
+                        styleClass="p-button-warn"></button>
+                </div>
+                <div *ngIf="activityForm.get('p_IDUserCoordinador')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input type="text" pInputText formControlName="p_UserEjecutordeCampo">
+                    <label>Field manager</label>
+                </span>
+                <div *ngIf="activityForm.get('p_UserEjecutordeCampo')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input type="text" pInputText formControlName="p_UserSupervisor">
+                    <label>Supervisor</label>
+                </span>
+                <div *ngIf="activityForm.get('p_UserSupervisor')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown appendTo="body" [options]="evaluador" formControlName="p_IDUserEvaluador"
+                        placeholder="Select Evaluation" optionValue="Idusuariosname" optionLabel="Name"></p-dropdown>
+                    <label>Evaluator</label>
+                </span>
+                <div *ngIf="activityForm.get('p_IDUserEvaluador')?.invalid && formValidate">
+                    <small class="p-error">This field is required</small>
+                </div>
+            </div>
+
+            <!--termina modificacion-->
+
+            <div class="upload col-4 flex justify-content-between align-content-center flex-wrap">
+                <div>
+                    <div class="flex align-items-center ">
+                        <small *ngIf="!uploadedFiles && !activitySelected">Upload your evidence, photo, document,
+                            or image.</small>
+                    </div>
+                    <div class="flex align-items-center " *ngIf="activitySelected">
+                        <img *ngIf="activitySelected.linkdelarchivo && !uploadedFiles" class="ml-5"
+                            [src]="url + activitySelected.linkdelarchivo" width="300px">
+                        <small *ngIf="!activitySelected.linkdelarchivo">Upload your evidence, photo, document,
+                            or image.</small>
+                    </div>
+                    <div>
+                        <p *ngIf="uploadedFiles">{{uploadedFiles?.name}}</p>
+                    </div>
+                </div>
+                <div>
+                    <p-fileUpload *ngIf="!uploadedFiles" mode="basic" pTooltip="Choose your file location"
+                        tooltipPosition="top" chooseIcon="pi pi-cloud-upload" name="demo[]" [auto]="true"
+                        accept="image/*" [maxFileSize]="1000000" (onSelect)="onUpload($event)"></p-fileUpload>
+                    <p-button styleClass="p-button-danger" *ngIf="uploadedFiles" icon="pi pi-trash"
+                        pTooltip="Delete Attachment" tooltipPosition="top" (onClick)="onClear()"></p-button>
+                </div>
+            </div>
+
+        </div>
+
+    </ng-template>
+    <p-footer>
+        <div class="flex justify-content-between">
+            <div>
+
+            </div>
+            <div>
+                <p-button class="m-1" label="Cancel" (click)="hideVisible()" styleClass="p-button-outlined"></p-button>
+                <p-button [disabled]="disableButton" class="m-1" label="Save" (click)="confirmSave($event)"
+                    icon="pi pi-save"></p-button>
+            </div>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<p-dialog header="Confirm generate new Annual Plan" [(visible)]="visibleConfirm" [style]="{width: '50vw'}"
+    (onHide)="hideConfirmVisible()">
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <div class="text-left text-bold text-2xl">RP selected: {{RPselected}}</div>
+            </div>
+            <div class="col-12 md:col-12">
+                <p-table [value]="selectedCopyActivities" [tableStyle]="{ 'min-width': '50rem' }">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>RP</th>
+                            <th>Account</th>
+                            <th>Activity</th>
+                            <th>Planned</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-activity>
+                        <tr>
+                            <td>{{ activity.idrpnumber }}</td>
+                            <td>{{ activity.capexsubaccount || activity.opexsubaccount }}</td>
+                            <td>{{ activity.Actividad }}</td>
+                            <td class="text-right">{{ activity.EstimadoUSD | currency}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="5">No activities found.</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td colspan="3">Total:</td>
+                            <td class="text-right">{{ getTotalActivitiesSelected(selectedCopyActivities) | currency }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" rows="5" cols="30" [(ngModel)]="description" pInputTextarea></textarea>
+                    <label for="float-input">Description</label>
+                </span>
+            </div>
+        </div>
+    </ng-template>
+    <p-footer>
+        <p-button class="m-1" label="Cancel" (click)="hideConfirmVisible()" styleClass="p-button-outlined"></p-button>
+        <p-button class="m-1" label="Generate" (click)="generateAnnualPlan()"></p-button>
+    </p-footer>
+</p-dialog>
