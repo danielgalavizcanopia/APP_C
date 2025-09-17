@@ -43,9 +43,4 @@ export class SettlementCatalogsService {
         return this._apiService.sendPostTokenRequest(data, url, token);
     }
 
-    setDeletePrePaymentDeduction(data: any, token: string = ''): Observable<any[]>{
-        const url = this.url + "settlementCatalogs/deletePrePaymentDeduction/" + data.Idprepaymentdeduction;
-        return this._apiService.sendDeleteRequest(url, token);
-    }
-
 }

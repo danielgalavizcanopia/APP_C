@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { ByTransaction } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
+import { ByTransaction, DateRangesByProject } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { CustomerService } from 'src/app/services/customer.service';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
@@ -25,6 +25,8 @@ export class ByTransactionComponent {
     
     @Output() evento = new EventEmitter<string>();
 
+    dateRanges!: DateRangesByProject;
+  
     constructor(
         private MonitoringCatalogService: MonCatalogService,
         public _authGuardService: authGuardService,
@@ -71,9 +73,20 @@ export class ByTransactionComponent {
       })
     }
 
+    getRangeRPByDates(){
+      this.MonitoringCatalogService.getRangeRPByDates(this.rpSelected.join(','), this.proyectoSelected?.idprojects, this.token?.access_token).subscribe((response: any) => {
+        if(response.valido === 1){
+            this.dateRanges = response.result[0];
+        } else {
+            console.error("No se pudo traer la información de getFinancialTracker", response.message)
+        }
+      })
+    }
+
     changeRP(){
       if(this.rpSelected){
           this.getTransactionTracker();
+          this.getRangeRPByDates();
         } else {
           this.loading = false;
         }

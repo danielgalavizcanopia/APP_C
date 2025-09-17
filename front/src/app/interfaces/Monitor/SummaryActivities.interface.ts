@@ -96,3 +96,12 @@ export interface ByTransaction {
     accounts:    Account[];
 }
 
+export interface DateRangesByProject {
+    Resultado:              string;
+    Reporting_period_start: Date;
+    Reporting_period_end:   Date;
+    Min_idrpnumber:         number;
+    Max_idrpnumber:         number;
+}
+
+

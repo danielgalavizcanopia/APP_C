@@ -91,6 +91,9 @@ export class MonCatalogService {
         return this._apiService.sendGetRequest(this.url + `MonitorSummary/getTransactionTracker/${idProyecto}/${rpnumber}`, token);
     }
 
+    getRangeRPByDates(rpnumber: number, idProyecto: number = 0, token: string): Observable<any[]> {
+        return this._apiService.sendGetRequest(this.url + `MonitorSummary/getRangeRPByDates/${idProyecto}/${rpnumber}`, token);
+    }
 
     setStatusReporteoactivities(data: any, token: string = ''): Observable<any[]>{
         const url = this.url + "MonitorActivities/setStatusReporteoactivities";

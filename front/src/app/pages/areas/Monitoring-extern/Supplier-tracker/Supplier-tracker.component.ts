@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
-import { BenefitTracker } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
+import { BenefitTracker, DateRangesByProject } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
 import { ObservableService } from 'src/app/services/Observables/observableProject.service';
@@ -35,6 +35,9 @@ export class SupplierTrackerComponent {
   }
 
   @Output() evento = new EventEmitter<string>();
+
+  dateRanges!: DateRangesByProject;
+
   
   constructor(
     public _authGuardService: authGuardService,
@@ -74,6 +77,7 @@ export class SupplierTrackerComponent {
   changeRP(){
     if(this.rpSelected){
       this.getFinancialTracker();
+      this.getRangeRPByDates();
     } else {
       this.BenefitTrackerData = [];
       this.totalsFinancial = {
@@ -93,6 +97,16 @@ export class SupplierTrackerComponent {
           this.BenefitTrackerData = response.result;
           this.getCatchTotals();
           this.loading = false;
+      } else {
+          console.error("No se pudo traer la información de getFinancialTracker", response.message)
+      }
+    })
+  }
+
+  getRangeRPByDates(){
+    this.MonitoringCatalogService.getRangeRPByDates(this.rpSelected.join(','), this.proyectoSelected?.idprojects, this.token?.access_token).subscribe((response: any) => {
+      if(response.valido === 1){
+          this.dateRanges = response.result[0];
       } else {
           console.error("No se pudo traer la información de getFinancialTracker", response.message)
       }

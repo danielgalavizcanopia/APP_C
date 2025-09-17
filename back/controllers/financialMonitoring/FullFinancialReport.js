@@ -9,9 +9,9 @@ const { ejecutarStoredProcedure } = require('../../queries/projects')
 
 async function getRangeRPByDates(req, res){
     try {
-        const capexPaid = await ejecutarStoredProcedure('sp_GetDateRangeByRPList',[parseInt(req.params.idprojects), req.params.rpnumber ]);
-        if(capexPaid){
-        CapexPaid = capexPaid[0]
+        const resultados = await ejecutarStoredProcedure('sp_GetDateRangeByRPList',[parseInt(req.params.idprojects), req.params.rpnumber ]);
+        if(resultados.length > 0){
+          res.status(201).json({valido: 1, result: resultados[0]});
         }
     } catch (error) {
         

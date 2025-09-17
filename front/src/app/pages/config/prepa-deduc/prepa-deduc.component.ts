@@ -175,39 +175,39 @@ export class PrepaDeducComponent implements OnInit {
     });
   }
 
-    deleteRecord(record: any) {
-    const deleteData = {
-        Idprepaymentdeduction: record.Idprepaymentdeduction,
-        Descripprepaymentdeduction: "" 
-    };
+deleteRecord(record: any) {
+  const deleteData = {
+    Idprepaymentdeduction: record.Idprepaymentdeduction,
+    Descripprepaymentdeduction: "", 
+  };
 
-    this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
-        next: (resp: any) => {
-        if(resp.valido == 1){
-            this.messageService.add({ 
-            severity: 'success', 
-            summary: 'Éxito', 
-            detail: "Registro eliminado correctamente"
-            });
-            this.loadPrePaymentDeductions(); 
-        } else {
-            this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: "No se pudo eliminar el registro"
-            });
-        }
-        },
-        error: (error: any) => {
-        console.error('Error deleting record:', error);
+  this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
+    next: (resp: any) => {
+      if(resp.valido == 1){
         this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'Error al eliminar el registro' 
+          severity: 'success', 
+          summary: 'Éxito', 
+          detail: "Registro eliminado correctamente"
         });
-        }
-    });
+        this.loadPrePaymentDeductions(); 
+      } else {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: "No se pudo eliminar el registro"
+        });
+      }
+    },
+    error: (error: any) => {
+      console.error('Error deleting record:', error);
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Error al eliminar el registro' 
+      });
     }
+  });
+}
 
   cancelDialog() {
     this.visible = false;

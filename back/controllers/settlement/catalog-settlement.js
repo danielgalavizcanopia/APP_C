@@ -126,10 +126,9 @@ async function deletePrePaymentDeduction(req, res){
         let IDUser = await catchUserLogged(req);
         const idToDelete = req.params.id; 
         
-        // Enviar descripción VACÍA para eliminar (según tu jefe)
         const resultados = await ejecutarStoredProcedure('sp_Setct_prepayment_deduction', [
             idToDelete,
-            "", // VACÍO en lugar de "DELETED"
+            "", 
             IDUser.IDUser
         ]);
         

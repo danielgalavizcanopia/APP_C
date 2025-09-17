@@ -3,6 +3,9 @@
             <div>
                 <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
                     optionValue="idrpnumber" (onChange)="changeRP(); enviarRPs();"></p-selectButton>
+                    <div class="mt-2 font-bold" *ngIf="dateRanges">
+                        {{dateRanges.Reporting_period_start | date: 'dd/MM/yyyy': 'UTC'}} - {{dateRanges.Reporting_period_end | date: 'dd/MM/yyyy': 'UTC'}}
+                    </div>
             </div>
         </div>
         <div>

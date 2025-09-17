@@ -19,6 +19,5 @@ router.get('/getPercentageByProject/:id', authMiddleware, getPercentageByProject
 router.get('/getStatusSettlement', authMiddleware, getStatusSettlement);
 router.get('/getPrePaymentDeductions', authMiddleware, getPrePaymentDeductions);
 router.post('/setPrePaymentDeductions', authMiddleware, setPrePaymentDeductions);
-router.delete('/deletePrePaymentDeduction/:id', authMiddleware, deletePrePaymentDeduction);
 
 module.exports = router;

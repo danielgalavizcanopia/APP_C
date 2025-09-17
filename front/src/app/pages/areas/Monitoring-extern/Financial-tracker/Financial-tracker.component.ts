@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
-import { FinancialTracker } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
+import { DateRangesByProject, FinancialTracker } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
 import { ObservableService } from 'src/app/services/Observables/observableProject.service';
@@ -33,6 +33,8 @@ export class FinancialTrackerComponent {
 
     loading: boolean = true;
     @Output() evento = new EventEmitter<string>();
+
+    dateRanges!: DateRangesByProject;
 
     constructor(
       public _authGuardService: authGuardService,
@@ -70,6 +72,7 @@ export class FinancialTrackerComponent {
     changeRP(){
       if(this.rpSelected){
         this.getFinancialTracker();
+        this.getRangeRPByDates();
       } else {
         this.FinancialTrackerData = [];
         this.totalsFinancial = {
@@ -92,6 +95,16 @@ export class FinancialTrackerComponent {
             this.UpdatePaid(); /** OBTIENE LA FECHA DE CORTE DE LA COLUMNA ACTUAL */
             this.UpdateProvisional(); /** OBTIENE LA FECHA DE CORTE DE LA COLUMNA PROVISIONAL, ESTA SE ACTUALIZA A DIARIO */
             this.loading = false;
+        } else {
+            console.error("No se pudo traer la información de getFinancialTracker", response.message)
+        }
+      })
+    }
+
+    getRangeRPByDates(){
+      this.MonitoringCatalogService.getRangeRPByDates(this.rpSelected.join(','), this.proyectoSelected?.idprojects, this.token?.access_token).subscribe((response: any) => {
+        if(response.valido === 1){
+            this.dateRanges = response.result[0];
         } else {
             console.error("No se pudo traer la información de getFinancialTracker", response.message)
         }

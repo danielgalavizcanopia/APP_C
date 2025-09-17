@@ -31,7 +31,8 @@ const {
 } = require('../../controllers/financialMonitoring/ByTransaction');
 
 const {
-    getFullFinancialMonitoringReport
+    getFullFinancialMonitoringReport,
+    getRangeRPByDates
 } = require('../../controllers/financialMonitoring/FullFinancialReport');
 
 /** BY ACTIVITIES CONTROLLERS */
@@ -55,6 +56,7 @@ router.get('/getProvisionalXlsx/:folioProject/:idProject/:rpnumbers', authMiddle
 
 /** ENDPOINT FULL FINANCIAL MONITOR REPORT */
 router.get('/getFullFinancialMonitoringReport/:idprojects/:rpnumber', authMiddleware, getFullFinancialMonitoringReport);
+router.get('/getRangeRPByDates/:idprojects/:rpnumber', authMiddleware, getRangeRPByDates);
 
 /*
     router.get('/getBearerToken', authMiddleware, getBearerToken);
