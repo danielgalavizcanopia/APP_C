@@ -120,6 +120,40 @@ async function getPrePaymentDeductions(req, res){
             console.log(error);
         }
 }
+
+async function deletePrePaymentDeduction(req, res){
+    try {
+        let IDUser = await catchUserLogged(req);
+        const idToDelete = req.params.id; 
+        
+        const resultados = await ejecutarStoredProcedure('sp_Setct_prepayment_deduction', [
+            idToDelete,
+            "DELETED", 
+            IDUser.IDUser
+        ]);
+        
+        if(resultados.length > 0){
+            res.status(200).json({
+                valido: 1, 
+                result: resultados[0],
+                message: "Registro eliminado correctamente"
+            });
+        } else {
+            res.status(500).json({
+                valido: 0, 
+                message: "No se pudo eliminar el registro - no results"
+            });
+        }
+
+    } catch (error) {
+        console.log('🔍 Backend delete error:', error);
+        res.status(500).json({
+            valido: 0, 
+            message: "Error interno del servidor", 
+            error: error.message
+        });
+    }
+}
 module.exports = { 
     getSettlementCurrency,
     getPaymentType,
@@ -127,5 +161,6 @@ module.exports = {
     getPercentageByProject,
     getStatusSettlement,
     getPrePaymentDeductions,
-    setPrePaymentDeductions
+    setPrePaymentDeductions,
+    deletePrePaymentDeduction
 }

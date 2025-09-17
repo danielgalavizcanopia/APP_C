@@ -34,4 +34,13 @@ export class SettlementCatalogsService {
         return this._apiService.sendGetRequest(this.url + "settlementCatalogs/getStatusSettlement/", token);
     }
 
+    getPrePaymentDeductions(token: string = ''): Observable<any[]>{
+        return this._apiService.sendGetRequest(this.url + "settlementCatalogs/getPrePaymentDeductions/", token);
+    }
+
+    setPrePaymentDeductions(data: any, token: string = ''): Observable<any[]>{
+        const url = this.url + "settlementCatalogs/setPrePaymentDeductions";
+        return this._apiService.sendPostTokenRequest(data, url, token);
+    }
+
 }
