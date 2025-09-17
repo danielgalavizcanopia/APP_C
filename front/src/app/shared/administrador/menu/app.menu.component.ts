@@ -318,6 +318,11 @@ export class AppMenuComponent implements OnInit, OnDestroy {
               routerLink: ["/opex-accounts"]
             },
             {
+              label: 'Prepayment Deduction',
+              icon: 'pi pi-wallet',
+              routerLink: ["/prepadeduc"]
+            },
+            {
               label: 'Project Log Catalogs',
               icon: 'pi pi-fw pi-cog',
               routerLink: ["/bitacora-catalogs"]
@@ -337,7 +342,6 @@ export class AppMenuComponent implements OnInit, OnDestroy {
               icon: 'pi pi-fw pi-file-edit',
               routerLink: ["/ActivitiesCatalog"]
             }
-
           ],
         }
       )

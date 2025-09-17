@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import { FinancialTracker } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
@@ -32,6 +32,7 @@ export class FinancialTrackerComponent {
     messageProvisionalReport: string = 'This transactional report has not been validated by Finance.';
 
     loading: boolean = true;
+    @Output() evento = new EventEmitter<string>();
 
     constructor(
       public _authGuardService: authGuardService,
@@ -144,4 +145,8 @@ export class FinancialTrackerComponent {
     exportProvisionalReport() {
       this.MonitoringCatalogService.downloadProvisionalReport(this.proyectoSelected?.Folio_project, this.proyectoSelected?.ProjectName, this.proyectoSelected?.idprojects, this.rpSelected.join(','), this.token?.access_token)
     }
+
+  enviarRPs() {
+    this.evento.emit(this.rpSelected.join(','));
+  }
  }

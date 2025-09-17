@@ -2,7 +2,7 @@
     <div>
         <div>
             <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
-                optionValue="idrpnumber" (onChange)="changeRP()"></p-selectButton>
+                optionValue="idrpnumber" (onChange)="changeRP(); enviarRPs();"></p-selectButton>
         </div>
     </div>
     <div>

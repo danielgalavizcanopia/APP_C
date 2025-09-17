@@ -46,6 +46,7 @@ import { Dashboard2Component } from './pages/administrador/dashboard2/dashboard2
 import { MarketingComponent } from './pages/commercialisation/marketing/marketing.component';
 import { AnnualPlanningComponent } from './pages/management/AnnualPlanning/AnnualPlanning.component';
 import { SettlementComponent } from './pages/settlement/settlement.component';
+import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
 
 @NgModule({
     imports: [RouterModule.forRoot([
@@ -235,6 +236,10 @@ import { SettlementComponent } from './pages/settlement/settlement.component';
                 {
                     path: 'ActivitiesCatalog',
                     component: ActivitiesCatalogComponent
+                },
+                  {
+                    path: 'prepadeduc',
+                    component: PrepaDeducComponent
                 },
                 //menu de settlement
                 {

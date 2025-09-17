@@ -492,7 +492,203 @@ async function getByActivitiesReport(req, res){
     });
   }
 
+async function getByActivitiesByFullReport(idProject, rpnumbers){
+try {
+  const resultados = await ejecutarStoredProcedure('sp_GetBudgetTrackerByProjectRP',[parseInt(idProject), rpnumbers]);
+  if(resultados){
+    let Accounts = [];
+    let CapexSnd
+    let OpexSnd
+    let CapexPaid
+    let OpexPaid
+
+    const capexSigned = await ejecutarStoredProcedure('sp_GetFirmadoCapexByProyecto',[parseInt(idProject)]);
+    if(capexSigned){
+      CapexSnd = capexSigned[0][0];
+    }
+    
+    const opexSigned = await ejecutarStoredProcedure('sp_GetFirmadoOpexGroupedByRpnumber',[rpnumbers, parseInt(idProject)]);
+    if(opexSigned){
+      OpexSnd = opexSigned[0][0];
+    }
+
+    const capexPaid = await ejecutarStoredProcedure('sp_GetCapexPagadoByprojectRP',[parseInt(idProject), rpnumbers ]);
+    if(capexPaid){
+      CapexPaid = capexPaid[0]
+    }
+
+    const opexPaid = await ejecutarStoredProcedure('sp_GetOpexWithActivities',[parseInt(idProject), rpnumbers]);
+    if(opexPaid){
+      OpexPaid = opexPaid[0];
+    }
+
+    Accounts = resultados[0];
+
+    const FolioProject = CapexSnd ? CapexSnd.Folio_Project : null;
+    let SharepointInitialRows
+    if(FolioProject){
+      SharepointInitialRows = await getSharepointRegisters(FolioProject);
+    } else {
+      SharepointInitialRows = [];
+    }
+    /** CONSEGUIMOS EL 1ER DÍA DEL MES ANTERIOR Y EL DÍA ACTUAL */
+    const primerDiaMesAnterior = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+    const unaSemanaAntes = new Date(primerDiaMesAnterior);
+    unaSemanaAntes.setDate(primerDiaMesAnterior.getDate() - process.env.DAYS_TIME);
+    const fechaActual = new Date();
+    /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
+    const SharepointFinalRows = SharepointInitialRows.filter(registro => {
+      return registro.fields.Created >= unaSemanaAntes.toISOString() && registro.fields.Created <= fechaActual.toISOString() && registro.fields.Title == "Pago Directo a Proveedor";
+    });
+
+    let PlannedTotalCpx = 0;
+    let PaidTotalCpx = 0;
+    let PlannedTotalOpx = 0;
+    let PaidTotalCOpx = 0;
+    let ProvisionalTotalCpx = 0;
+    let ProvisionalTotalCOpx = 0;
+
+    let CapexAccounts = []
+    let OpexAccounts = []
+    let FinalAccounts = [];
+
+    /** NUEVO CÓDIGO */
+      /**
+      * Esto une lo pagado con lo planeado en CAPEX
+      */
+    for(let CpxPaid of CapexPaid){
+      if(CpxPaid.idcapexsubaccount){
+        let plannedActivity = Accounts.find(x => x.Ca_o_pex === 1 && x.idcapexsubaccount === CpxPaid.idcapexsubaccount && x.idactivitiesprojects === CpxPaid.idactivitiesprojects && x.idrpnumber == CpxPaid.idrpnumber);
+        let shareMonto = 0;
+        let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(CpxPaid.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == CpxPaid.idrpnumber && x.fields?.IDAct == CpxPaid.idactivitiesprojects);
+          if(provisionalRow.length >= 0){
+              for(let prov of provisionalRow){
+                shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
+              }
+          }
+        CapexAccounts.push({
+          type: 'Capex',
+          idcapexsubaccount: CpxPaid.idcapexsubaccount,
+          idrpnumber: CpxPaid.idrpnumber,
+          idactivitiesprojects: CpxPaid.idactivitiesprojects,
+          NombreActividad: CpxPaid.Actividad,
+          AccountNum: CpxPaid.cuentacompaq,
+          Planned: plannedActivity ? parseFloat(plannedActivity.EstimadoUSD) : 0,
+          Actual: CpxPaid.Presupuesto_Pagado,
+          Provisional: shareMonto,
+        });
+
+        PlannedTotalCpx += plannedActivity ? parseFloat(plannedActivity.EstimadoUSD) : 0;
+        PaidTotalCpx += CpxPaid.Presupuesto_Pagado;
+        ProvisionalTotalCpx += shareMonto;
+      }
+    }
+    
+    /**
+     * Esto une el resto de lo planeado de capex con lo pagado
+     */
+    for (let account of Accounts) {
+      if (account.Ca_o_pex == 1) {
+        let existing = CapexAccounts.find(x => x.idcapexsubaccount == account.idcapexsubaccount && x.idactivitiesprojects == account.idactivitiesprojects && x.idrpnumber == account.idrpnumber);
+        if(!existing){
+          CapexAccounts.push({
+            type: 'Capex',
+            idcapexsubaccount: account.idcapexsubaccount,
+            idactivitiesprojects:  account.idactivitiesprojects,
+            NombreActividad: account.Actividad || account.NombreActividad,
+            AccountNum: account.Cuenta_Compaq || '',
+            Planned: account ? parseFloat(account.EstimadoUSD) : 0,
+            Actual: 0,
+            Provisional: 0,
+          });
+          PlannedTotalCpx += account ? parseFloat(account.EstimadoUSD) : 0;
+        }
+      }
+    }
+
+    /**
+     * Esto une lo pagado con lo planeado en OPEX
+     */
+    for (let opexPagado of OpexPaid) {
+      if(opexPagado.idopexsubaccount){
+        let plannedActivity = Accounts.find(x => x.Ca_o_pex === 2 && x.idopexsubaccount === opexPagado.idopexsubaccount && x.idactivitiesprojects === opexPagado.idactivitiesprojects);
+        let shareMonto = 0;
+        let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(opexPagado.cuentacompaq) && opexPagado.idactivitiesprojects && opexPagado.idactivitiesprojects == x.fields?.IDAct)
+        if(provisionalRow.length >= 0){
+            for(let prov of provisionalRow){
+              shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
+            }
+        }
+        OpexAccounts.push({
+          type: 'Opex',
+          idopexsubaccount: opexPagado.idopexsubaccount,
+          idactivitiesprojects:  opexPagado.idactivitiesprojects,
+          NombreActividad: opexPagado.Actividad,
+          AccountNum: opexPagado.Cuenta_Compaq || '',
+          Planned: plannedActivity ? parseFloat(plannedActivity.EstimadoUSD) : 0,
+          Actual: opexPagado.Presupuesto_Pagado ? parseFloat(opexPagado.Presupuesto_Pagado) : 0,
+          Provisional: shareMonto
+        });
+
+        PlannedTotalOpx += plannedActivity ? parseFloat(plannedActivity.EstimadoUSD) : 0;
+        PaidTotalCOpx += opexPagado.Presupuesto_Pagado ? parseFloat(opexPagado.Presupuesto_Pagado) : 0;
+        ProvisionalTotalCOpx += shareMonto;
+      }
+    }
+
+    /**
+     * Esto une el resto de lo planeado de opex con lo pagado
+     */
+    for (let account of Accounts) {
+      if (account.Ca_o_pex == 2) {
+        let existing = OpexAccounts.find(x => x.idopexsubaccount === account.idopexsubaccount && x.idactivitiesprojects === account.idactivitiesprojects);
+        if(!existing){
+          OpexAccounts.push({
+            type: 'Opex',
+            idopexsubaccount: account.idopexsubaccount,
+            idactivitiesprojects:  account.idactivitiesprojects,
+            NombreActividad: account.Actividad || account.NombreActividad,
+            AccountNum: account.Cuenta_Compaq || '',
+            Planned: account ? parseFloat(account.EstimadoUSD) : 0,
+            Actual: 0,
+            Provisional: 0,
+          });
+          PlannedTotalOpx += account ? parseFloat(account.EstimadoUSD) : 0;
+        }
+      }
+    }
+
+    FinalAccounts = [
+      {
+        id: 1,
+        Name: 'Capex Accounts',
+        Approved: CapexSnd?.total,
+        PlannedTotal: PlannedTotalCpx,
+        PaidTotal: PaidTotalCpx,
+        ProvisionalTotal: ProvisionalTotalCpx,
+        Accounts: CapexAccounts,
+      },
+      {
+        id: 2,
+        Name: 'Opex Accounts',
+        Approved: OpexSnd?.valor,
+        PlannedTotal: PlannedTotalOpx,
+        PaidTotal: PaidTotalCOpx,
+        ProvisionalTotal: ProvisionalTotalCOpx,
+        Accounts: OpexAccounts,
+      }
+    ]
+
+    return FinalAccounts;
+  }
+} catch (error) {
+  
+}
+}
+
 module.exports = {
     getByActivitiesReport,
     getByActivitiesReportXLSX,
+    /** function full financial report */
+    getByActivitiesByFullReport,
 }

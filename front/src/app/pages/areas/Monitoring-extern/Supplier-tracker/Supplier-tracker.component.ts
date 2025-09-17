@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import { BenefitTracker } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
@@ -34,6 +34,8 @@ export class SupplierTrackerComponent {
     return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
   }
 
+  @Output() evento = new EventEmitter<string>();
+  
   constructor(
     public _authGuardService: authGuardService,
     private productService: ProductService,
@@ -114,5 +116,9 @@ export class SupplierTrackerComponent {
 
   exportBDTToExcel() {
     this.MonitoringCatalogService.downloadBenefitMonitorExcel(this.proyectoSelected?.idprojects ,this.rpSelected.join(','), this.proyectoSelected?.ProjectName, this.token?.access_token)
+  }
+
+  enviarRPs() {
+    this.evento.emit(this.rpSelected.join(','));
   }
 }

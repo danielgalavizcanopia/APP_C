@@ -171,12 +171,13 @@ import { IncidenceCatalogsServices } from './services/Incidences/Incidence-catal
 import { DashboarProjectDetailService } from './services/dashboards/dashboarProjectDetail.service';
 import { SettlementService } from './services/settlement/settlement.service';
 import { SettlementCatalogsService } from './services/settlement/settlement-catalogs.service';
+import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
 
 // Registrar la localización es-MX
 registerLocaleData(localeEsMx);
 @NgModule({
     declarations: [
-        
+
         AppComponent,
         RegisterComponent,
         NewPasswordComponent,
@@ -218,7 +219,8 @@ registerLocaleData(localeEsMx);
         TabplanComponent,
         UsuariosComponent,
         ActivitiesCatalogComponent,
-        
+        PrepaDeducComponent,
+
     ],
     imports: [
         AppRoutingModule,
@@ -310,22 +312,22 @@ registerLocaleData(localeEsMx);
         TreeModule,
         TreeTableModule,
         VirtualScrollerModule,
-        FormsModule, 
+        FormsModule,
         ReactiveFormsModule,
-        
-        
+
+
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         CustomerService, NodeService,
-        PhotoService, ProductService, MenuService,UtilApiService, MessageService,authGuardService,
+        PhotoService, ProductService, MenuService, UtilApiService, MessageService, authGuardService,
         ItemService, ObservableService, ConfirmationService, DatePipe, MRVCatalogsService, MRVService,
-        LegalService, LegalCatalogsService, BitacoraCatalogsService, BitacoraService, ReportingPeriodsService,CostsService,
+        LegalService, LegalCatalogsService, BitacoraCatalogsService, BitacoraService, ReportingPeriodsService, CostsService,
         CapexOpexAccountsService, BitacoraAdminCtService, RPCatalogsService, DesarrolloCtService, desarrolloService, MonSummaryService,
         EncryptionService, ImplementacionService, ImplementationCatalogsService, SOPCatalogService, ActivitiesService,
-        IncidenceService, IncidenceCatalogsServices,DashboarProjectDetailService, SettlementService, SettlementCatalogsService
+        IncidenceService, IncidenceCatalogsServices, DashboarProjectDetailService, SettlementService, SettlementCatalogsService
     ],
-   
+
     bootstrap: [AppComponent]
 })
 export class AppModule { }

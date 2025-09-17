@@ -30,6 +30,9 @@ const {
     getTransactionTrackerXLSX
 } = require('../../controllers/financialMonitoring/ByTransaction');
 
+const {
+    getFullFinancialMonitoringReport
+} = require('../../controllers/financialMonitoring/FullFinancialReport');
 
 /** BY ACTIVITIES CONTROLLERS */
 router.get('/getBudgetTrackerByProjectRP/:idprojects/:rpnumber', authMiddleware, getByActivitiesReport);
@@ -50,8 +53,11 @@ router.get('/getTransactionTrackerXLSX/:idprojects/:rpnumber', authMiddleware, g
 /** SHAREPOINT ENDPOINTS */
 router.get('/getProvisionalXlsx/:folioProject/:idProject/:rpnumbers', authMiddleware, getProvisionalXlsx);
 
+/** ENDPOINT FULL FINANCIAL MONITOR REPORT */
+router.get('/getFullFinancialMonitoringReport/:idprojects/:rpnumber', authMiddleware, getFullFinancialMonitoringReport);
+
 /*
-router.get('/getBearerToken', authMiddleware, getBearerToken);
-router.get('/getBudgetTrackerSharepoint', authMiddleware, getBudgetTrackerSharepoint);
+    router.get('/getBearerToken', authMiddleware, getBearerToken);
+    router.get('/getBudgetTrackerSharepoint', authMiddleware, getBudgetTrackerSharepoint);
 */
 module.exports = router;

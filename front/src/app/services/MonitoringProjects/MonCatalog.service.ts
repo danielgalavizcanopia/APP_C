@@ -271,5 +271,25 @@ export class MonCatalogService {
           console.error('Error al descargar el Excel', error);
         });
     }
+
+    downloadFullFinancialReport(idProyecto: any, rpnumber: number = 0, ProjectName: string = '', token: string) {
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        this.http.get(this.url + `MonitorSummary/getFullFinancialMonitoringReport/${idProyecto}/${rpnumber}`, {
+          headers,
+          responseType: 'blob',
+        }).subscribe((blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = ProjectName + '_FullFinancialMonitoring_Report-' + this.DateDownload.toISOString().split('T')[0] + '.xlsx';
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }, (error) => {
+          console.error('Error al descargar el Excel', error);
+        });
+    }
     
 }

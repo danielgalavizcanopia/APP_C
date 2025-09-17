@@ -1,4 +1,19 @@
 const { getCatalogs, OriginationPercentage } = require('../../queries/catalogs');
+const { ejecutarStoredProcedure } = require('../../queries/projects')
+const { ejecutarVistaTools } = require('../../queries/executeViews')
+const jwt = require('jsonwebtoken');
+
+function catchUserLogged(req) {
+    return new Promise(function (resolve, reject){
+        const token = req.header('Authorization').split(" ")[1];
+        if(!token){
+            resolve({error: "no hay usuario logueado"})
+        } else {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            resolve({IDUser: decoded.IDUser});
+        }
+    }); 
+};
 
 function getSettlementCurrency(req, res){
     return new Promise(async (resolve, reject) => {
@@ -74,10 +89,43 @@ function getPercentageByProject(req, res){
     });
 }
 
+
+async function setPrePaymentDeductions(req, res){
+    try {
+        let IDUser = await catchUserLogged(req);
+        const body = req.body;
+        const resultados = await ejecutarStoredProcedure('sp_Setct_prepayment_deduction', [
+            body.Idprepaymentdeduction,
+            body.Descripprepaymentdeduction,
+            IDUser.IDUser
+        ]);
+        if(resultados.length > 0){
+            res.status(200).json({valido: 1, result: resultados[0]});
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function getPrePaymentDeductions(req, res){
+        try {
+            const resultados = await ejecutarVistaTools('vw_prepayment_deduction');
+            if(resultados.length > 0){
+                res.status(201).json({valido: 1, result: resultados});
+            } else {
+                res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+            }
+        } catch (error) {
+            console.log(error);
+        }
+}
 module.exports = { 
     getSettlementCurrency,
     getPaymentType,
     getDeductionType,
     getPercentageByProject,
     getStatusSettlement,
+    getPrePaymentDeductions,
+    setPrePaymentDeductions
 }

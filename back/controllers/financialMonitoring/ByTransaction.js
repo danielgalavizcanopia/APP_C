@@ -93,7 +93,7 @@ async function getTransactionTracker(req, res) {
 
 async function getTransactionTrackerXLSX(req, res) {
     try {
-                let transactions = [];
+        let transactions = [];
         const transaction = await ejecutarStoredProcedure('sp_GetTransaction', [parseInt(req.params.idprojects), req.params.rpnumber]);
         if( transaction && transaction.length > 0) {
             transactions = transaction[0];
@@ -159,7 +159,7 @@ async function getTransactionTrackerXLSX(req, res) {
         ]
 
         const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('By Activities Tracker', {
+        const sheet = workbook.addWorksheet('By Transaction Tracker', {
         properties: { tabColor: { argb: 'FF0000' } }
         });
 
@@ -237,7 +237,82 @@ async function getTransactionTrackerXLSX(req, res) {
     }
 }
 
+async function getByTransactionByFullReport(idProject, rpnumbers){
+    try {
+        let transactions = [];
+        const transaction = await ejecutarStoredProcedure('sp_GetTransaction', [parseInt(idProject), rpnumbers]);
+        if( transaction && transaction.length > 0) {
+            transactions = transaction[0];
+        }
+
+        let CapexAccounts = [];
+        let totalCapex = 0;
+
+        let OpexAccounts = [];
+        let totalOpex = 0;
+
+        for(let i = 0; i < transactions.length; i++) {
+            const transactionItem = transactions[i];
+
+            if(transactionItem.Ledger === 'Capex') {
+                CapexAccounts.push({
+                    idrpnumber: transactionItem.idrpnumber,
+                    principalAccount: transactionItem.capexaccounts,
+                    idTransaction: transactionItem.IdP_R_Estructurada,
+                    accountName: transactionItem.subcuentacapex,
+                    Actividad: transactionItem.Actividad,
+                    typeofBeneficiary: transactionItem.typeofBeneficiary,
+                    typeofSupplier: transactionItem.typeofSupplier,
+                    Amount_USD: transactionItem.Amount_USD,
+                    createdAt: transactionItem.Created,
+                    // recipient: transactionItem.Recipient
+                });
+
+                totalCapex += parseFloat(transactionItem.Amount_USD);
+            }
+
+            if(transactionItem.Ledger === 'Opex' || transactionItem.Ledger === 'opex') {
+                OpexAccounts.push({
+                    idrpnumber: transactionItem.idrpnumber,
+                    principalAccount: transactionItem.opexaccounts,
+                    idTransaction: transactionItem.IdP_R_Estructurada,
+                    accountName: transactionItem.subcuentaopex,
+                    Actividad: transactionItem.Actividad,
+                    typeofBeneficiary: transactionItem.typeofBeneficiary,
+                    typeofSupplier: transactionItem.typeofSupplier,
+                    Amount_USD: transactionItem.Amount_USD,
+                    createdAt: transactionItem.Created,
+                    // recipient: transactionItem.Recipient
+                });
+
+                totalOpex += parseFloat(transactionItem.Amount_USD);
+            }
+        }
+
+        const FinalAccounts = [
+            {
+                id:1,
+                accountType: 'Capex',
+                total: totalCapex,
+                accounts: CapexAccounts
+            },
+            {
+                id:2,
+                accountType: 'Opex',
+                total: totalOpex,
+                accounts: OpexAccounts
+            }
+        ]
+        
+        return FinalAccounts;
+    } catch (error) {
+        
+    }
+}
+
 module.exports = {
     getTransactionTracker,
-    getTransactionTrackerXLSX
+    getTransactionTrackerXLSX,
+    /** function full final report */
+    getByTransactionByFullReport,
 };

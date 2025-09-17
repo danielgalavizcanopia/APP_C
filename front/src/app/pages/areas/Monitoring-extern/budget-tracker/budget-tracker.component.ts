@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { BudgetTrackerData } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
@@ -43,6 +43,8 @@ export class BudgetTrackerComponent {
   rpSelected: any;
 
   loading: boolean = true;
+
+  @Output() evento = new EventEmitter<string>();
 
   constructor(
     private MonitoringCatalogService: MonCatalogService,
@@ -148,5 +150,8 @@ export class BudgetTrackerComponent {
     const anio = lastDay.getFullYear();
 
     this.LastUpdatePaid = `Last update: ${dia}/${mes}/${anio}`;
+  }
+  enviarRPs() {
+    this.evento.emit(this.rpSelected.join(','));
   }
 }

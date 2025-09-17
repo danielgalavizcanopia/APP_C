@@ -535,7 +535,7 @@ async function getByBenefitDistribution(req, res){
       ];
       
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Financial Tracker', {
+    const sheet = workbook.addWorksheet('By benefit Tracker', {
       properties: { tabColor: { argb: 'FF0000' } }
     });
   
@@ -628,7 +628,272 @@ async function getByBenefitDistribution(req, res){
     })
   }
 
+async function getByBenefitDistributionByFullReport(idProject, rpnumbers){
+  try {
+            let PlannedAccounts = [];
+  
+        let capexBenefitPaid = [];
+        let opexBenefitPaid = [];
+  
+        let typeSupplierCt = [];
+        let typeBenefitCt = [];
+
+        let CapexSnd
+        let OpexSnd
+        const capexSigned = await ejecutarStoredProcedure('sp_GetFirmadoCapexByProyecto',[parseInt(idProject)]);
+        if(capexSigned){
+          CapexSnd = capexSigned[0][0];
+        }
+        
+        const opexSigned = await ejecutarStoredProcedure('sp_GetFirmadoOpexGroupedByRpnumber',[rpnumbers, parseInt(idProject)]);
+        if(opexSigned){
+          OpexSnd = opexSigned[0][0];
+        }
+  
+        const plannedAccounts = await ejecutarStoredProcedure('sp_GetPlannedBenefitbyprojectRP',[parseInt(idProject), rpnumbers]);
+        if(plannedAccounts){
+          PlannedAccounts = plannedAccounts[0];
+        }
+  
+        const capexBenefitpgdo = await ejecutarStoredProcedure('mon_GetFinCapexTypeBenefByRP',[parseInt(idProject), rpnumbers]);
+        if(capexBenefitpgdo){
+          capexBenefitPaid = capexBenefitpgdo[0];
+        }
+        const opexBenefitpgdo = await ejecutarStoredProcedure('mon_GetFinOpexTypeBenefByRP',[parseInt(idProject), rpnumbers]);
+        if(opexBenefitpgdo){
+          opexBenefitPaid = opexBenefitpgdo[0];
+        }
+  
+        const typeBenefit = await getCatalogs('ct_TypeofBeneficiary');
+        if(typeBenefit.length > 0){
+          typeBenefitCt = typeBenefit;
+        }
+  
+        const typeSupplier = await getCatalogs('ct_typeofsupplier');
+        if(typeSupplier.length > 0){
+          typeSupplierCt = typeSupplier;
+        }
+  
+  
+      var BenefitsRow = [];
+      for(let i=0;i<typeBenefitCt.length;i++){
+        let ben = typeBenefitCt[i];
+        var supplierRow = [];
+        for(let j=0;j<typeSupplierCt.length;j++){
+          let supplier = typeSupplierCt[j];
+          var Rows = [];
+          totalPlanned = 0;
+          total = 0;
+          if(supplier.Status == ben.IdtypeofBeneficiary){
+            for(let x=0;x<capexBenefitPaid.length;x++) {
+              let rowCapex = capexBenefitPaid[x]
+              if(rowCapex.IdtypeofSupplier == supplier.IdtypeofSupplier){
+
+                let plannedRow;
+                plannedRow = PlannedAccounts.find(x => x.LedgerType == "CAPEX" && x.idcapexsubaccount == rowCapex.idcapexsubaccount && x.idrpnumber == rowCapex.idrpnumber && x.idactivitiesprojects == rowCapex.idactivitiesprojects)
+                
+                const existingDuplicate = Rows.find(x => x.IdActividaddata === plannedRow?.IdActividaddata && x.idactivitiesprojects === plannedRow.idactivitiesprojects && x.idrpnumber === plannedRow.idrpnumber && x.idcapexsubaccount === plannedRow.idcapexsubaccount)
+                if(existingDuplicate){
+                  plannedRow = PlannedAccounts.find(x =>  x.LedgerType == "CAPEX" && x.idcapexsubaccount == rowCapex.idcapexsubaccount && x.idrpnumber == rowCapex.idrpnumber && x.idactivitiesprojects == rowCapex.idactivitiesprojects && x.IdActividaddata != existingDuplicate.IdActividaddata)
+                }
+                Rows.push({
+                  id: x,
+                  Type: rowCapex.Type_of_Supplier,
+                  idactivitiesprojects: rowCapex.idactivitiesprojects,
+                  idrpnumber: rowCapex.idrpnumber,
+                  idcapexsubaccount: rowCapex.idcapexsubaccount,
+                  activity: plannedRow ? plannedRow.Actividad : '', // '',
+                  IdActividaddata: plannedRow?.IdActividaddata || 0,
+                  concept: rowCapex.capexconcepto,
+                  planned: plannedRow ? parseFloat(plannedRow.EstimadoUSD) : 0, // 0,
+                  paid: rowCapex.Amount_USD
+                })
+                totalPlanned +=  plannedRow ? parseFloat(plannedRow.EstimadoUSD) : 0, //0
+                total += rowCapex.Amount_USD
+              }
+            }
+            
+            for(let planned=0;planned<PlannedAccounts.length;planned++){
+              let plannedCapex = PlannedAccounts[planned];
+              if(plannedCapex.LedgerType == "CAPEX"){
+                if(plannedCapex.IdtypeofSupplier == supplier.IdtypeofSupplier){
+                  let existingCapexPaid = Rows.find(x => x.IdActividaddata === plannedCapex.IdActividaddata || x.IdActividaddata === plannedCapex.IdActividaddata && x.idcapexsubaccount == plannedCapex.idcapexsubaccount && x.idactivitiesprojects == plannedCapex.idactivitiesprojects && x.idrpnumber == plannedCapex.idrpnumber)
+                  if(!existingCapexPaid){
+                    Rows.push({
+                      id: planned,
+                      Type: plannedCapex.Supplier,
+                      idrpnumber: plannedCapex.idrpnumber,
+                      idcapexsubaccount: plannedCapex.idcapexsubaccount,
+                      idactivitiesprojects: plannedCapex.idactivitiesprojects,
+                      activity: plannedCapex.Actividad, // '',
+                      concept: plannedCapex.CapexConcept,
+                      planned: plannedCapex.EstimadoUSD, // 0,
+                      paid: 0
+                    })
+                    totalPlanned += parseFloat(plannedCapex.EstimadoUSD);
+                  }
+                }
+              }
+            }
+
+            /** */
+            supplierRow.push({
+              id:j,
+              name: supplier.ShortDescription,
+              totalPlanned: totalPlanned,
+              totalPaid: total,
+              rows: Rows,
+            })
+          }
+        }
+  
+        let sumaTotalPlanned = 0;
+        let sumaTotal = 0;
+        for(let sum of supplierRow){
+          sumaTotalPlanned += sum.totalPlanned;
+          sumaTotal += sum.totalPaid;
+        }
+        
+        BenefitsRow.push({
+          id: i,
+          name: ben.ShortDescription,
+          totalPlanned: sumaTotalPlanned,
+          totalPaid: sumaTotal,
+          rows: supplierRow,
+        });
+      }
+  
+      /** OPEX ARMADO */
+      var BenefitsRowOpex = [];
+      for(let i=0;i<typeBenefitCt.length;i++){
+        let ben = typeBenefitCt[i];
+        var supplierRow = [];
+        for(let j=0;j<typeSupplierCt.length;j++){
+          let supplier = typeSupplierCt[j];
+          var Rows = [];
+          totalPlanned = 0;
+          total = 0;
+          if(supplier.Status == ben.IdtypeofBeneficiary){
+            for(let x=0;x<opexBenefitPaid.length;x++) {
+              let rowCapex = opexBenefitPaid[x]
+              if(rowCapex.IdtypeofSupplier == supplier.IdtypeofSupplier){
+                let plannedRow;
+                plannedRow = PlannedAccounts.find(x => x.LedgerType == "OPEX" && x.idopexsubaccount == rowCapex.idopexsubaccount && x.idrpnumber == rowCapex.idrpnumber && x.idactivitiesprojects == rowCapex.idactivitiesprojects)
+                
+                const existingDuplicate = Rows.find(x => x.IdActividaddata === plannedRow?.IdActividaddata && x.idactivitiesprojects === plannedRow.idactivitiesprojects && x.idrpnumber === plannedRow.idrpnumber && x.idcapexsubaccount === plannedRow.idcapexsubaccount)
+                if(existingDuplicate){
+                  plannedRow = PlannedAccounts.find(x => x.LedgerType == "OPEX" && x.idopexsubaccount == rowCapex.idopexsubaccount && x.idrpnumber == rowCapex.idrpnumber && x.idactivitiesprojects == rowCapex.idactivitiesprojects && x.IdActividaddata != existingDuplicate.IdActividaddata)
+                }
+
+                Rows.push({
+                  id: x,
+                  Type: rowCapex.Type_of_Supplier,
+                  idactivitiesprojects: rowCapex.idactivitiesprojects,
+                  idopexsubaccount: rowCapex.idopexsubaccount,
+                  idrpnumber: rowCapex.idrpnumber,
+                  IdActividaddata: plannedRow?.IdActividaddata || 0,
+                  activity: plannedRow ? plannedRow.Actividad : '', //'',
+                  concept: rowCapex.Opexconcepto,
+                  planned: plannedRow ? parseFloat(plannedRow.EstimadoUSD) : 0, //0,
+                  paid: rowCapex.Amount_USD
+                })
+                totalPlanned += plannedRow ? parseFloat(plannedRow.EstimadoUSD) : 0 //0
+                total += rowCapex.Amount_USD
+              }
+            }
+
+            for(let planned=0;planned<PlannedAccounts.length;planned++){
+              let plannedCapex = PlannedAccounts[planned];
+              if(plannedCapex.LedgerType == "OPEX"){
+                if(plannedCapex.IdtypeofSupplier == supplier.IdtypeofSupplier){
+                  let existingCapexPaid = Rows.find(x => x.IdActividaddata === plannedCapex.IdActividaddata || x.IdActividaddata === plannedCapex.IdActividaddata && x.idopexsubaccount == plannedCapex.idopexsubaccount && x.idactivitiesprojects == plannedCapex.idactivitiesprojects && x.idrpnumber == plannedCapex.idrpnumber)
+                  if(!existingCapexPaid){
+                    Rows.push({
+                      id: planned,
+                      Type: plannedCapex.Supplier,
+                      idrpnumber: plannedCapex.idrpnumber,
+                      idopexsubaccount: plannedCapex.idopexsubaccount,
+                      idactivitiesprojects: plannedCapex.idactivitiesprojects,
+                      activity: plannedCapex.Actividad, // '',
+                      concept: plannedCapex.CapexConcept,
+                      planned: plannedCapex.EstimadoUSD, // 0,
+                      paid: 0
+                    })
+                    totalPlanned += parseFloat(plannedCapex.EstimadoUSD);
+                  }
+                }
+              }
+            }
+            supplierRow.push({
+              id:j,
+              name: supplier.ShortDescription,
+              totalPlanned: totalPlanned,
+              totalPaid: total,
+              rows: Rows,
+            })
+          }
+        }
+  
+        let sumaTotal = 0;
+        let sumaTotalP = 0;
+        for(let sum of supplierRow){
+          sumaTotalP += sum.totalPlanned;
+          sumaTotal += sum.totalPaid;
+        }
+        
+        BenefitsRowOpex.push({
+          id:i,
+          name: ben.ShortDescription,
+          totalPlanned: sumaTotalP,
+          totalPaid: sumaTotal,
+          rows: supplierRow,
+        });
+      }
+  
+      let sumaCapex = 0;
+      let sumaPCapex = 0;
+      let sumaOpex = 0;
+      let sumaPOpex = 0;
+  
+      for(let sum of BenefitsRow){
+        sumaPCapex += sum.totalPlanned;
+        sumaCapex += sum.totalPaid;
+      }
+  
+      for(let sum of BenefitsRowOpex){
+        sumaPOpex += sum.totalPlanned
+        sumaOpex += sum.totalPaid;
+      }
+  
+      let FinalAccounts = [
+        {
+          id: 1,
+          Name: 'Capex Accounts',
+          Approved: CapexSnd?.total,
+          Planned: sumaPCapex,
+          Paid: sumaCapex,
+          Accounts: BenefitsRow
+        },
+        {
+          id: 2,
+          Name: 'Opex Accounts',
+          Approved: OpexSnd?.valor,
+          Planned: sumaPOpex,
+          Paid: sumaOpex,
+          Accounts: BenefitsRowOpex
+        },
+      ];
+
+      return FinalAccounts;
+  } catch (error) {
+    console.log(error);
+     
+  }
+}
+
 module.exports = {
     getByBenefitDistribution,
     getByBenefitDistributionXLSX,
+    /** function full report */
+    getByBenefitDistributionByFullReport
 }

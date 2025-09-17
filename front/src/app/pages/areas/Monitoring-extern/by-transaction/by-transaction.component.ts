@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ByTransaction } from 'src/app/interfaces/Monitor/SummaryActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { CustomerService } from 'src/app/services/customer.service';
@@ -23,6 +23,8 @@ export class ByTransactionComponent {
     byTransactionData: ByTransaction[] = [];
     totalAmount: number = 0;
     
+    @Output() evento = new EventEmitter<string>();
+
     constructor(
         private MonitoringCatalogService: MonCatalogService,
         public _authGuardService: authGuardService,
@@ -79,6 +81,10 @@ export class ByTransactionComponent {
 
     exportByTransactionExcel() {
       this.MonitoringCatalogService.downloadTransactionMonitor(this.proyectoSelected?.idprojects ,this.rpSelected.join(','), this.proyectoSelected?.ProjectName, this.token?.access_token)
+    }
+    
+    enviarRPs() {
+      this.evento.emit(this.rpSelected.join(','));
     }
 }
 
