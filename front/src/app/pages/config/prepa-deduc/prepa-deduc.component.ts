@@ -123,7 +123,6 @@ export class PrepaDeducComponent implements OnInit {
     if (this.prepaymentForm.valid) {
       const formData = this.prepaymentForm.value;
       
-      // Si es modo edición, mantener el ID; si es nuevo, enviar 0
       if (!this.isEditMode) {
         formData.Idprepaymentdeduction = 0;
       }
@@ -137,7 +136,7 @@ export class PrepaDeducComponent implements OnInit {
               detail: this.isEditMode ? 'Registro actualizado correctamente' : 'Registro creado correctamente' 
             });
             this.visible = false;
-            this.loadPrePaymentDeductions(); // Recargar la lista
+            this.loadPrePaymentDeductions(); 
             this.prepaymentForm.reset();
           } else {
             this.messageService.add({ 
@@ -176,40 +175,39 @@ export class PrepaDeducComponent implements OnInit {
     });
   }
 
-  deleteRecord(record: any) {
-    // Para eliminar, enviamos el ID del registro con descripción vacía o null
+    deleteRecord(record: any) {
     const deleteData = {
-      Idprepaymentdeduction: record.Idprepaymentdeduction,
-      Descripprepaymentdeduction: null
+        Idprepaymentdeduction: record.Idprepaymentdeduction,
+        Descripprepaymentdeduction: "" 
     };
 
     this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
-      next: (resp: any) => {
-        if (resp.valido === 1) {
-          this.messageService.add({ 
+        next: (resp: any) => {
+        if(resp.valido == 1){
+            this.messageService.add({ 
             severity: 'success', 
             summary: 'Éxito', 
-            detail: 'Registro eliminado correctamente' 
-          });
-          this.loadPrePaymentDeductions(); // Recargar la lista
+            detail: "Registro eliminado correctamente"
+            });
+            this.loadPrePaymentDeductions(); 
         } else {
-          this.messageService.add({ 
+            this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'No se pudo eliminar el registro' 
-          });
+            detail: "No se pudo eliminar el registro"
+            });
         }
-      },
-      error: (error: any) => {
+        },
+        error: (error: any) => {
         console.error('Error deleting record:', error);
         this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'Error al eliminar el registro' 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Error al eliminar el registro' 
         });
-      }
+        }
     });
-  }
+    }
 
   cancelDialog() {
     this.visible = false;

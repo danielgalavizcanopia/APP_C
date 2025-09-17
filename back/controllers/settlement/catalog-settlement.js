@@ -126,9 +126,10 @@ async function deletePrePaymentDeduction(req, res){
         let IDUser = await catchUserLogged(req);
         const idToDelete = req.params.id; 
         
+        // Enviar descripción VACÍA para eliminar (según tu jefe)
         const resultados = await ejecutarStoredProcedure('sp_Setct_prepayment_deduction', [
             idToDelete,
-            "DELETED", 
+            "", // VACÍO en lugar de "DELETED"
             IDUser.IDUser
         ]);
         
@@ -141,12 +142,12 @@ async function deletePrePaymentDeduction(req, res){
         } else {
             res.status(500).json({
                 valido: 0, 
-                message: "No se pudo eliminar el registro - no results"
+                message: "No se pudo eliminar el registro"
             });
         }
 
     } catch (error) {
-        console.log('🔍 Backend delete error:', error);
+        console.log('Backend delete error:', error);
         res.status(500).json({
             valido: 0, 
             message: "Error interno del servidor", 
@@ -154,6 +155,7 @@ async function deletePrePaymentDeduction(req, res){
         });
     }
 }
+
 module.exports = { 
     getSettlementCurrency,
     getPaymentType,

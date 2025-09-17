@@ -57,4 +57,12 @@ export class UtilApiService {
        // let headers = new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': ': ' + token + '' });
         return this._http.get<any>(url, { headers: headers });
     } 
+
+    public sendDeleteRequest(url: string, token: string = ''): Observable<any> {
+    const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    });
+    return this._http.delete<any>(url, { headers: headers });
+}
 }
