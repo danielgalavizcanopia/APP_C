@@ -271,6 +271,21 @@ async function getStatusProject(req, res){
     }
 }
 
+function getAccessUsersStatusProjects(req, res){
+    return new Promise(async function (resolve, reject){
+        try {            
+            const resultados = await ejecutarVistaTools('vw_usersuper');
+            if(resultados.length > 0){
+                res.status(200).json({valido: 1, result: resultados});
+            } else {
+                res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    })
+}
 function setProjectStatus(req, res){
     return new Promise(async function (resolve, reject){
         try {            
@@ -300,6 +315,7 @@ module.exports = {
     getMacroProcessCatalog,
     getKeyMilestonesByMacroprocess,
     getCountEvidencesNIncidences,
+    getAccessUsersStatusProjects,
     getStatusProject,
     setProjectStatus,
 }

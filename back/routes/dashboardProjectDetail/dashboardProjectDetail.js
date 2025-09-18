@@ -15,6 +15,7 @@ const {
     getMacroProcessCatalog,
     getKeyMilestonesByMacroprocess,
     getCountEvidencesNIncidences,
+    getAccessUsersStatusProjects,
     getStatusProject,
     setProjectStatus
  } = require('../../controllers/dashboardProjectDetail/dashboardProjectDetail');
@@ -31,6 +32,7 @@ router.get('/getActivitiesByProject/:id', authMiddleware, getActivitiesByProject
 router.get('/getMacroProcessCatalog', authMiddleware, getMacroProcessCatalog);
 router.get('/getKeyMilestonesByMacroprocess/:idp/:idm', authMiddleware, getKeyMilestonesByMacroprocess);
 router.get('/getCountEvidencesNIncidences/:id', authMiddleware, getCountEvidencesNIncidences);
+router.get('/getAccessUsersStatusProjects', authMiddleware, getAccessUsersStatusProjects);
 router.get('/getStatusProject', authMiddleware, getStatusProject);
 router.post('/setProjectStatus', authMiddleware, setProjectStatus);
 
