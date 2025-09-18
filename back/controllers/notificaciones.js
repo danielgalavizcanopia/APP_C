@@ -1,12 +1,13 @@
-const { ejecutarStoredProcedure } = require('../queries/projects')
+const { ejecutarStoredProcedure } = require('../queries/projects') 
+const { ejecutarVistaTools } = require('../queries/executeViews')
 
 
 function ctNotify(req, res){
     return new Promise(async function(resolve, reject){
         try {
-            const resultados = await ejecutarStoredProcedure('sp_GetroyectohistByStatusAu', []);
+            const resultados = await ejecutarVistaTools('sp_GetroyectohistByStatusAu');
             if(resultados.length > 0){
-                res.status(201).json({valido: 1, ctNotify: resultados[0]});
+                res.status(201).json({valido: 1, ctNotify: resultados});
             } else {
                 res.status(500).json({valido: 0, message: "Was an error, please, try again"});
             }

@@ -260,6 +260,33 @@ function getCountEvidencesNIncidences(req, res){
     })
 }
 
+async function getStatusProject(req, res){
+    try {
+        const statusByProject = await getCatalogs('ct_statusProject');
+        if(statusByProject.length > 0){
+            res.status(200).json({valido: 1, result: statusByProject});
+        }
+    } catch (error) {
+        
+    }
+}
+
+function setProjectStatus(req, res){
+    return new Promise(async function (resolve, reject){
+        try {            
+            const body = req.body;
+            const resultados = await ejecutarStoredProcedure('sp_SetProjectStatus',[
+                body.idprojects,
+                body.IdpstatusProject
+            ]);
+            if(resultados.length > 0){
+                res.status(200).json({valido: 1, result: resultados[0]});
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    })
+}
 module.exports = {
     getprojectOverview,
     getSummaryByActivitiesTracker,
@@ -273,4 +300,6 @@ module.exports = {
     getMacroProcessCatalog,
     getKeyMilestonesByMacroprocess,
     getCountEvidencesNIncidences,
+    getStatusProject,
+    setProjectStatus,
 }
