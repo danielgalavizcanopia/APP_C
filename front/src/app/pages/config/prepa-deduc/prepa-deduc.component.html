@@ -1,7 +1,7 @@
 <section class="m-5">
     <p-table #dt1 [value]="prepaymentDeductions" [rows]="10" [paginator]="true" styleClass="p-datatable-striped"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [rowsPerPageOptions]="[25, 50, 100]"
+        [rowsPerPageOptions]="[10, 25, 50]"
         [loading]="prepaymentDeductions.length === 0">
         <ng-template pTemplate="caption">
             <div class="flex justify-content-between">
@@ -31,13 +31,13 @@
                         pTooltip="Edit"
                         (click)="editRecord(record)">
                     </p-button>
-                    <p-button 
+                    <!-- <p-button 
                         class="m-1" 
                         icon="pi pi-trash" 
                         styleClass="p-button-rounded p-button-danger p-button-outlined"
                         pTooltip="Delete"
                         (click)="confirmDelete(record)">
-                    </p-button>
+                    </p-button> -->
                 </td>
             </tr>
         </ng-template>
@@ -90,7 +90,7 @@
                     icon="pi pi-trash" 
                     label="Delete" 
                     styleClass="p-button-danger"
-                    (click)="confirmDelete(currentRecord)">
+                    (click)="confirmDelete($event, currentRecord)">
                 </p-button>
             </div>
             <div class="flex gap-2">
@@ -111,4 +111,4 @@
 
 <!-- Messages and Confirmations -->
 <p-toast></p-toast>
-<p-confirmDialog></p-confirmDialog>
+<p-confirmPopup></p-confirmPopup>

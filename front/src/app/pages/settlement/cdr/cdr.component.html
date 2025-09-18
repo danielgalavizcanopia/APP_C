@@ -245,7 +245,7 @@
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 1">
                         <p-dropdown formControlName="idcapexsubaccount" [options]="CuentasCapex" placeholder="Select RP"
                             optionLabel="concepto" optionValue="idcapexsubaccount" inputId="float-label"></p-dropdown>
@@ -261,7 +261,17 @@
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="Idprepaymentdeduction" [options]="prePayments" placeholder="Select RP"
+                            optionLabel="Descripprepaymentdeduction" optionValue="Idprepaymentdeduction" inputId="float-label"></p-dropdown>
+                        <label for="float-label">PrePayment</label>
+                    </span>
+                    <div *ngIf="newDeduction.get('cost')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-2">
                     <span class="p-float-label">
                         <p-inputNumber formControlName="cost" class="w-full" inputId="minmaxfraction" mode="decimal"
                             [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
@@ -281,6 +291,7 @@
                         <tr>
                             <th class="text-sm">Type Deduction</th>
                             <th class="text-sm">Account</th>
+                            <th class="text-sm">PrePayment</th>
                             <th class="text-right text-sm">Cost USD</th>
                             <th class="text-sm"></th>
                         </tr>
@@ -288,8 +299,8 @@
                     <ng-template pTemplate="body" let-deduction let-i="rowIndex">
                         <tr>
                             <td>{{getNameDeduction(deduction.Idtypededuction)}}</td>
-                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount,
-                                deduction.Idtypededuction)}}</td>
+                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount, deduction.Idtypededuction)}}</td>
+                            <td>{{getNamePrePayment(deduction.Idprepaymentdeduction)}}</td>
                             <td class="text-right">{{deduction.cost | currency}}</td>
                             <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDeduction(i)"
                                     styleClass="p-button-text"></p-button></td>

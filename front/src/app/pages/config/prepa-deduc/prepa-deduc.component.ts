@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SettlementCatalogsService } from 'src/app/services/settlement/settlement-catalogs.service';
-import { LocalService } from 'src/app/services/Secret/local.service';
+import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 
 @Component({
   selector: 'app-prepa-deduc',
@@ -24,45 +24,19 @@ export class PrepaDeducComponent implements OnInit {
     private fb: FormBuilder,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private localService: LocalService
+    public _authGuardService: authGuardService  
   ) {
     this.initForm();
   }
 
   ngOnInit() {
-    console.log('🔍 ngOnInit started');
+    this.token = this._authGuardService.getToken();
     
-    // El proyecto usa LocalService que internamente usa sessionStorage
-    this.token = this.localService.getJsonValue('token');
-    console.log('🔍 Token from LocalService:', this.token);
-    
-    // Verificaciones adicionales
-    const sessionToken = sessionStorage.getItem('token');
-    const localToken = localStorage.getItem('token');
-    
-    console.log('🔍 sessionStorage token:', sessionToken);
-    console.log('🔍 localStorage token:', localToken);
-    
-    // Si no hay token en LocalService, intentar con sessionStorage directamente
-    if (!this.token) {
-      if (sessionToken) {
-        try {
-          this.token = JSON.parse(sessionToken);
-          console.log('🔍 Using sessionStorage token:', this.token);
-        } catch (error) {
-          console.error('🔍 Error parsing sessionStorage token:', error);
-        }
-      }
-    }
-    
-    console.log('🔍 Final token object:', this.token);
-    
-    // Solo cargar datos si hay token
     if (this.token && this.token.access_token) {
-      console.log('🔍 Token valid, loading data...');
+      console.log('Token valid, loading data...');
       this.loadPrePaymentDeductions();
     } else {
-      console.log('🔍 No valid token found');
+      console.log('No valid token found');
       this.messageService.add({
         severity: 'warn',
         summary: 'Authentication Required',
@@ -87,7 +61,7 @@ export class PrepaDeducComponent implements OnInit {
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'No se pudieron cargar las deducciones de prepago' 
+            detail: 'error loading' 
           });
         }
       },
@@ -96,7 +70,7 @@ export class PrepaDeducComponent implements OnInit {
         this.messageService.add({ 
           severity: 'error', 
           summary: 'Error', 
-          detail: 'Error al conectar con el servidor' 
+          detail: 'Error connecting to the server' 
         });
       }
     });
@@ -132,8 +106,8 @@ export class PrepaDeducComponent implements OnInit {
           if (resp.valido === 1) {
             this.messageService.add({ 
               severity: 'success', 
-              summary: 'Éxito', 
-              detail: this.isEditMode ? 'Registro actualizado correctamente' : 'Registro creado correctamente' 
+              summary: 'success', 
+              detail: this.isEditMode ? 'Registry updated successfully' : 'Registry created successfully' 
             });
             this.visible = false;
             this.loadPrePaymentDeductions(); 
@@ -142,7 +116,7 @@ export class PrepaDeducComponent implements OnInit {
             this.messageService.add({ 
               severity: 'error', 
               summary: 'Error', 
-              detail: 'No se pudo guardar el registro' 
+              detail: 'The record could not be saved' 
             });
           }
         },
@@ -151,63 +125,64 @@ export class PrepaDeducComponent implements OnInit {
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'Error al guardar el registro' 
+            detail: 'Error saving record' 
           });
         }
       });
     } else {
       this.messageService.add({ 
         severity: 'warn', 
-        summary: 'Campos Requeridos', 
-        detail: 'Por favor complete todos los campos obligatorios' 
+        summary: 'Required Fields', 
+        detail: 'complete all required fields' 
       });
     }
   }
 
-  confirmDelete(record: any) {
+  confirmDelete(event: any, record: any) {
     this.confirmationService.confirm({
-      message: '¿Está seguro de que desea eliminar este registro?',
-      header: 'Confirmar Eliminación',
+      target: event.target,
+      message: 'Are you sure you want to delete this record?',
+      header: 'Confirm deletion',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.deleteRecord(record);
-      }
+      } 
     });
-  }
-
-deleteRecord(record: any) {
-  const deleteData = {
-    Idprepaymentdeduction: record.Idprepaymentdeduction,
-    Descripprepaymentdeduction: "", 
-  };
-
-  this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
-    next: (resp: any) => {
-      if(resp.valido == 1){
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Éxito', 
-          detail: "Registro eliminado correctamente"
-        });
-        this.loadPrePaymentDeductions(); 
-      } else {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: "No se pudo eliminar el registro"
-        });
-      }
-    },
-    error: (error: any) => {
-      console.error('Error deleting record:', error);
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'Error al eliminar el registro' 
-      });
     }
-  });
-}
+    deleteRecord(record: any) {
+        const deleteData = {
+            Idprepaymentdeduction: record.Idprepaymentdeduction,
+            Descripprepaymentdeduction: "", 
+        };
+
+        this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
+            next: (resp: any) => {
+            if(resp.valido == 1){
+                this.messageService.add({ 
+                severity: 'success', 
+                summary: 'success', 
+                detail: "Registry deleted successfully"
+                });
+                this.loadPrePaymentDeductions();
+                this.cancelDialog()
+            } else {
+                this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: "The record could not be deleted"
+                });
+            }
+            },
+            error: (error: any) => {
+            console.error('Error deleting record:', error);
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Error deleting record' 
+            });
+            }
+        });
+    }
 
   cancelDialog() {
     this.visible = false;

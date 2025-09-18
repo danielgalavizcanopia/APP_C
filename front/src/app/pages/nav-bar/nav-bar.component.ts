@@ -260,7 +260,7 @@ export class NavBarComponent {
             icon: 'pi pi-fw pi-map',
             items: [
               {
-                label: 'Execution',
+                label: 'Settlement Planning',
                 icon: 'pi pi-briefcase',
                 routerLink: ["/settlement"]
               },

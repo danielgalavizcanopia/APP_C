@@ -63,6 +63,7 @@ export class CdrComponent {
   percentageMktByProject!: PercentageMktOrigination;
   CuentasCapex!: any[];
   CuentasOpex!: any[];
+  prePayments!: any[];
   statusSettlement!: any[];
 
   statusSelected: any;
@@ -85,6 +86,7 @@ export class CdrComponent {
     this.getStatusSettlement();
     this.getCuentasCapex();
     this.getCuentasOpex();
+    this.getPrePaymentDeductions();
     this.initFormulario();
     this.observaProjectSelected();
     this.productService.getProducts().then(response => {
@@ -128,6 +130,7 @@ export class CdrComponent {
         Idtypededuction: ['',[Validators.required]],
         idcapexsubaccount: ['',[Validators.required]],
         idopexsubaccount: ['',[Validators.required]],
+        Idprepaymentdeduction: ['',[Validators.required]],
         cost: [,[Validators.required]],
       }),
 
@@ -200,6 +203,7 @@ export class CdrComponent {
       Idtypededuction: [this.newDeduction.value.Idtypededuction],
       idcapexsubaccount: [this.newDeduction.value.idcapexsubaccount],
       idopexsubaccount: [this.newDeduction.value.idopexsubaccount],
+      Idprepaymentdeduction: [this.newDeduction.value.Idprepaymentdeduction],
       cost: [this.newDeduction.value.cost],
     }));
 
@@ -312,6 +316,16 @@ export class CdrComponent {
     })
   }
 
+  getPrePaymentDeductions(){
+    this._settlementeCatalogsService.getPrePaymentDeductions(this.token?.access_token).subscribe((response: any) => {
+      if(response.valido === 1){
+          this.prePayments = response.result;
+      } else {
+          console.error("No se pudo traer la información de getPrePaymentDeductions", response.message)
+      }
+    })
+  }
+
   getPaymentName(idPayment: number): string{
     const paymentName = this.paymentType.find(pt => pt.Idprepayment === idPayment)?.Descripprepayment;
     return paymentName ? paymentName : '';
@@ -339,6 +353,11 @@ export class CdrComponent {
   getNameDeduction(idTypeDeduction: number): string{
     const nameDeduction = this.deductionType.find(dt => dt.IdtypeDeduction === idTypeDeduction)?.typeDeduction;
     return nameDeduction ? nameDeduction : '';
+  }
+
+  getNamePrePayment(Idprepaymentdeduction: number): string{
+    const namePrepayment = this.prePayments.find(pre => pre.Idprepaymentdeduction === Idprepaymentdeduction)?.Descripprepaymentdeduction;
+    return namePrepayment;
   }
 
   getNameAccount(idAccount: number, typeAccount: number): string{
@@ -474,6 +493,7 @@ export class CdrComponent {
             Idtypededuction: [deduction.Idtypededuction],
             idcapexsubaccount: [deduction.idcapexsubaccount],
             idopexsubaccount: [deduction.idopexsubaccount],
+            Idprepaymentdeduction: [deduction.Idprepaymentdeduction],
             cost: [deduction.cost],
           }));
         }

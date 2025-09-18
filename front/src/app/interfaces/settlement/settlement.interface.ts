@@ -42,7 +42,8 @@ export interface SettlementDeductions {
     idrpnumber:        number;
     Idtypededuction:   number;
     idcapexsubaccount: number;
-    idopexsubaccount:  null;
+    idopexsubaccount:  number;
+    Idprepaymentdeduction: number;
     cost:              number;
     statusdeduction:   number;
 }

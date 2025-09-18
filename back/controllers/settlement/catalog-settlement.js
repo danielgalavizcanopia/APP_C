@@ -136,12 +136,12 @@ async function deletePrePaymentDeduction(req, res){
             res.status(200).json({
                 valido: 1, 
                 result: resultados[0],
-                message: "Registro eliminado correctamente"
+                message: "Registry deleted successfully"
             });
         } else {
             res.status(500).json({
                 valido: 0, 
-                message: "No se pudo eliminar el registro"
+                message: "The record could not be deleted"
             });
         }
 
@@ -149,7 +149,7 @@ async function deletePrePaymentDeduction(req, res){
         console.log('Backend delete error:', error);
         res.status(500).json({
             valido: 0, 
-            message: "Error interno del servidor", 
+            message: "Error Internal Server", 
             error: error.message
         });
     }
