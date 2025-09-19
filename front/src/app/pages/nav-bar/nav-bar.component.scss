@@ -2,3 +2,69 @@ section{
     background-color: #E3F0EA;
     padding: 16px 30px 0px;
 }
+
+// Status styles
+.status-live {
+  background-color: #4CAF50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: fit-content;
+}
+
+.status-evaluation {
+  background-color: #FF9800;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: fit-content;
+}
+
+.status-on-hold {
+  background-color: #FFC107;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: fit-content;
+}
+
+.status-cancelled {
+  background-color: #F44336;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: fit-content;
+}
+
+.status-unknown {
+  background-color: #9E9E9E;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: fit-content;
+}

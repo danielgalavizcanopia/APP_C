@@ -3,12 +3,13 @@ export interface Projects {
     Folio_project   : string; 
     ProjectName     : string; 
     Aggregation     : number;
-    idAggregation: number;
+    idAggregation   : number;
     Counterpart     : string; 
     NucleoAgrario   : string; 
     TipoPropiedad   : string; 
     Municipio       : string; 
     Estado          : string; 
-    Status           : number;
-    Id_ProyectoCAR  :number;
+    Status          : number;
+    IdpstatusProject: number;  
+    Id_ProyectoCAR  : number;
 }

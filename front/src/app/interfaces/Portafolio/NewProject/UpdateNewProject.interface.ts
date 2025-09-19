@@ -4,4 +4,5 @@ export interface UpdateProjects {
     Aggregation     : number; 
     Counterpart     : string; 
     NucleoAgrario   : string; 
+    IdpstatusProject: number;
 }

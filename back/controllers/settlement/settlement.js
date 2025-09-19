@@ -240,6 +240,15 @@ function sendStatusSettlement(settlementRow){
 
     return statusMessage;
 }
+
+
+async function getSettlementXLSXByRegister(req, res){
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 module.exports = { 
     setSettlement,
     getSettlement,

@@ -18,6 +18,8 @@ export class PrepaDeducComponent implements OnInit {
   isEditMode: boolean = false;
   currentRecord: any = null;
   token: any;
+  
+  isLoading: boolean = true;
 
   constructor(
     private settlementCatalogsService: SettlementCatalogsService,
@@ -37,6 +39,7 @@ export class PrepaDeducComponent implements OnInit {
       this.loadPrePaymentDeductions();
     } else {
       console.log('No valid token found');
+      this.isLoading = false; 
       this.messageService.add({
         severity: 'warn',
         summary: 'Authentication Required',
@@ -53,19 +56,28 @@ export class PrepaDeducComponent implements OnInit {
   }
 
   loadPrePaymentDeductions() {
+    this.isLoading = true; 
+    
     this.settlementCatalogsService.getPrePaymentDeductions(this.token?.access_token).subscribe({
       next: (resp: any) => {
+        this.isLoading = false; 
+        
         if (resp.valido === 1) {
-          this.prepaymentDeductions = resp.result;
+          this.prepaymentDeductions = resp.result || []; 
+          console.log('Prepayment deductions loaded:', this.prepaymentDeductions.length);
         } else {
+          this.prepaymentDeductions = []; 
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'error loading' 
+            detail: 'Error loading data' 
           });
         }
       },
       error: (error) => {
+        this.isLoading = false; 
+        this.prepaymentDeductions = []; 
+        
         console.error('Error loading prepayment deductions:', error);
         this.messageService.add({ 
           severity: 'error', 
@@ -106,7 +118,7 @@ export class PrepaDeducComponent implements OnInit {
           if (resp.valido === 1) {
             this.messageService.add({ 
               severity: 'success', 
-              summary: 'success', 
+              summary: 'Success', 
               detail: this.isEditMode ? 'Registry updated successfully' : 'Registry created successfully' 
             });
             this.visible = false;
@@ -133,7 +145,7 @@ export class PrepaDeducComponent implements OnInit {
       this.messageService.add({ 
         severity: 'warn', 
         summary: 'Required Fields', 
-        detail: 'complete all required fields' 
+        detail: 'Complete all required fields' 
       });
     }
   }
@@ -148,41 +160,42 @@ export class PrepaDeducComponent implements OnInit {
         this.deleteRecord(record);
       } 
     });
-    }
-    deleteRecord(record: any) {
-        const deleteData = {
-            Idprepaymentdeduction: record.Idprepaymentdeduction,
-            Descripprepaymentdeduction: "", 
-        };
+  }
 
-        this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
-            next: (resp: any) => {
-            if(resp.valido == 1){
-                this.messageService.add({ 
-                severity: 'success', 
-                summary: 'success', 
-                detail: "Registry deleted successfully"
-                });
-                this.loadPrePaymentDeductions();
-                this.cancelDialog()
-            } else {
-                this.messageService.add({ 
-                severity: 'error', 
-                summary: 'Error', 
-                detail: "The record could not be deleted"
-                });
-            }
-            },
-            error: (error: any) => {
-            console.error('Error deleting record:', error);
-            this.messageService.add({ 
-                severity: 'error', 
-                summary: 'Error', 
-                detail: 'Error deleting record' 
-            });
-            }
+  deleteRecord(record: any) {
+    const deleteData = {
+      Idprepaymentdeduction: record.Idprepaymentdeduction,
+      Descripprepaymentdeduction: "", 
+    };
+
+    this.settlementCatalogsService.setPrePaymentDeductions(deleteData, this.token?.access_token).subscribe({
+      next: (resp: any) => {
+        if(resp.valido == 1){
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: "Registry deleted successfully"
+          });
+          this.loadPrePaymentDeductions(); 
+          this.cancelDialog();
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: "The record could not be deleted"
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error('Error deleting record:', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Error deleting record' 
         });
-    }
+      }
+    });
+  }
 
   cancelDialog() {
     this.visible = false;

@@ -1,4 +1,39 @@
 <section class="container">
+    <div class="grid mb-4" *ngIf="proyectoSelected && userHasStatusPermission && !loadingPermissions">
+        <div class="col-12">
+            <p-fieldset legend="PROJECT STATUS">
+                <div class="flex align-items-center gap-3">
+                    <label for="statusDropdown" class="font-semibold">Current Status:</label>
+                    <p-dropdown 
+                        id="statusDropdown"
+                        [options]="statusOptions" 
+                        [(ngModel)]="selectedStatus" 
+                        optionLabel="label" 
+                        optionValue="value" 
+                        placeholder="Select Status"
+                        (onChange)="onStatusChange($event)"
+                        [style]="{'min-width': '150px'}">
+                    </p-dropdown>
+                    <button 
+                        pButton 
+                        type="button" 
+                        label="Save Changes" 
+                        icon="pi pi-check"
+                        class="p-button-success"
+                        [disabled]="!statusChanged || updatingStatus"
+                        [loading]="updatingStatus"
+                        (click)="updateProjectStatus()">
+                    </button>
+                    <span *ngIf="statusUpdateMessage" 
+                          [class]="statusUpdateSuccess ? 'text-green-600' : 'text-red-600'" 
+                          class="font-semibold">
+                        {{ statusUpdateMessage }}
+                    </span>
+                </div>
+            </p-fieldset>
+        </div>
+    </div>
+    
     <div class="grid">
         <div class="col-12 md:col-12">
             <p-fieldset legend="PROJECT OVERVIEW">

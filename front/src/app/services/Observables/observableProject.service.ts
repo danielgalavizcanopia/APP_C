@@ -3,19 +3,20 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Projects } from '../../interfaces/Portafolio/NewProject/Newproject.interface';
 
 
-const initProyecto  : Projects =  {
-    idprojects      : 0 ,
+const initProyecto: Projects = {
+    idprojects      : 0,
     Folio_project   : '', 
     ProjectName     : '', 
     Aggregation     : 0, 
-    idAggregation: 0,
+    idAggregation   : 0,
     Counterpart     : '', 
     NucleoAgrario   : '', 
     TipoPropiedad   : '', 
     Municipio       : '', 
     Estado          : '', 
-    Status           : 0,
-    Id_ProyectoCAR  :0,
+    Status          : 0,
+    IdpstatusProject: 0,  
+    Id_ProyectoCAR  : 0,
 }
 
 @Injectable({

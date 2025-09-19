@@ -23,6 +23,9 @@ export class CdrComponent {
   products: any[] = [];
   showDialog() {
     this.visible = true;
+    console.log(this.settlementApproved);
+    
+    // this.settlementApproved = false;
   }
 
   onHide(){
@@ -222,6 +225,8 @@ export class CdrComponent {
       this.newDeduction.get('idopexsubaccount')?.reset()
       this.newDeduction.get('idcapexsubaccount')?.setValidators([Validators.required])
       this.newDeduction.get('idcapexsubaccount')?.updateValueAndValidity()
+      this.newDeduction.get('Idprepaymentdeduction')?.removeValidators([Validators.required])
+      this.newDeduction.get('Idprepaymentdeduction')?.reset()
     }
 
     if(value == 2){
@@ -229,6 +234,17 @@ export class CdrComponent {
       this.newDeduction.get('idcapexsubaccount')?.reset()
       this.newDeduction.get('idopexsubaccount')?.setValidators([Validators.required])
       this.newDeduction.get('idopexsubaccount')?.updateValueAndValidity()
+      this.newDeduction.get('Idprepaymentdeduction')?.removeValidators([Validators.required])
+      this.newDeduction.get('Idprepaymentdeduction')?.reset()
+    }
+
+    if(value == 3){
+      this.newDeduction.get('Idprepaymentdeduction')?.setValidators([Validators.required])
+      this.newDeduction.get('Idprepaymentdeduction')?.updateValueAndValidity()
+      this.newDeduction.get('idcapexsubaccount')?.removeValidators([Validators.required])
+      this.newDeduction.get('idcapexsubaccount')?.reset()
+      this.newDeduction.get('idopexsubaccount')?.removeValidators([Validators.required])
+      this.newDeduction.get('idopexsubaccount')?.reset()
     }
   }
 
@@ -364,9 +380,10 @@ export class CdrComponent {
     let nameAccount = '';
     if(typeAccount == 1){
       nameAccount = this.CuentasCapex.find(c => c.idcapexsubaccount === idAccount)?.concepto;
-    }
-    else if(typeAccount == 2){
+    } else if(typeAccount == 2){
       nameAccount = this.CuentasOpex.find(c => c.idopexsubaccount === idAccount)?.concepto;
+    } else if(typeAccount == 3){
+      nameAccount = this.prePayments.find(p => p.Idprepaymentdeduction === idAccount)?.Descripprepaymentdeduction;
     }
     return nameAccount ? nameAccount : '';
   }
@@ -461,7 +478,12 @@ export class CdrComponent {
   getRPCountByProject(){
     this.settlementService.getRPCountByProject(this.proyectoSelected?.idprojects, this.token?.access_token).subscribe((resp: any) => {
       if(resp.valido == 1){
-        this.rpCountByproject = resp.result[0];
+        if(resp.result.length > 0){
+          this.rpCountByproject = resp.result[0];
+        } else {
+          const defaultValue = {idprojects: 0, rp_count: 0}
+          this.rpCountByproject = defaultValue
+        }
       }
     })
   }

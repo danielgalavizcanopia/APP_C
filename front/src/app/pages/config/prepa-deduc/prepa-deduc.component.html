@@ -2,7 +2,8 @@
     <p-table #dt1 [value]="prepaymentDeductions" [rows]="10" [paginator]="true" styleClass="p-datatable-striped"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[10, 25, 50]"
-        [loading]="prepaymentDeductions.length === 0">
+        [loading]="isLoading">
+        <!-- ↑ CAMBIO: Usar isLoading en lugar de prepaymentDeductions.length === 0 -->
         <ng-template pTemplate="caption">
             <div class="flex justify-content-between">
                 <p><strong>Prepayment Deductions</strong></p>
@@ -31,21 +32,26 @@
                         pTooltip="Edit"
                         (click)="editRecord(record)">
                     </p-button>
-                    <!-- <p-button 
-                        class="m-1" 
-                        icon="pi pi-trash" 
-                        styleClass="p-button-rounded p-button-danger p-button-outlined"
-                        pTooltip="Delete"
-                        (click)="confirmDelete(record)">
-                    </p-button> -->
                 </td>
             </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="3" class="text-center">
-                    <p>No records found</p>
-                    <p><small>Total records in array: {{ prepaymentDeductions?.length || 0 }}</small></p>
+                <td colspan="3" class="text-center py-4">
+                    <div class="flex flex-column align-items-center gap-3">
+                        <i class="pi pi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                        <div>
+                            <h4 class="m-0 mb-2">No Prepayment Deductions Found</h4>
+                            <p class="text-color-secondary m-0">
+                                Get started by creating your first prepayment deduction.
+                            </p>
+                        </div>
+                        <button pButton label="Create First Record" 
+                                class="p-button-outlined" 
+                                icon="pi pi-plus"
+                                (click)="showDialog()">
+                        </button>
+                    </div>
                 </td>
             </tr>
         </ng-template>

@@ -113,19 +113,20 @@ export class AppTopbarComponent {
     logOut(){
         sessionStorage.clear()
         this.serviceObsProject$.setProject({
-          idprojects      : 0 ,
-          Folio_project   : '', 
-          ProjectName     : '', 
-          Aggregation     : 0, 
-          idAggregation: 0,
-          Counterpart     : '', 
-          NucleoAgrario   : '', 
-          TipoPropiedad   : '', 
-          Municipio       : '', 
-          Estado          : '', 
-          Status           : 0,
-          Id_ProyectoCAR  : 0
-      });
+            idprojects      : 0 ,
+            Folio_project   : '', 
+            ProjectName     : '', 
+            Aggregation     : 0, 
+            idAggregation   : 0,
+            Counterpart     : '', 
+            NucleoAgrario   : '', 
+            TipoPropiedad   : '', 
+            Municipio       : '', 
+            Estado          : '', 
+            Status          : 0,
+            IdpstatusProject: 0,  
+            Id_ProyectoCAR  : 0
+        });
 
         this.router.navigate(['/']);
       }

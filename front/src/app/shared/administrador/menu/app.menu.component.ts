@@ -47,27 +47,29 @@ export class AppMenuComponent implements OnInit, OnDestroy {
       this.itemSubscription.unsubscribe();
     }
   }
-  observaProjectSelected() {
-    /*** Este sirve para saber que proyecto ha sido seleccionado y se copia este bloque */
+// En app.menu.component.ts, MODIFICA la función observaProjectSelected:
+
+observaProjectSelected() {
     this.serviceObsProject$.selectedProject$.subscribe((project: Projects) => {
-      this.proyectoSelected = project;
+        this.proyectoSelected = project;
 
-      if (this.isSelectedProject == false) {
-        // this.model[0].items.push(this.obtenMenuProjectDetalle()[0]);
-
-        // Encontrar el objeto con la etiqueta 'Proyectos' y agregarle la propiedad 'item'
-        var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
-        if (proyectosIndex !== -1) {
-          this.model[0].items[proyectosIndex].items = [];
-          for (let key in this.menuProject) {
-            this.model[0]?.items[3].items.push(this.menuProject[key]);
-          }
+        if(this.isSelectedProject == false && project){
+            // Verificar que this.model existe y tiene la estructura correcta
+            if(this.model && this.model[0] && this.model[0].items){
+                var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
+                if (proyectosIndex !== -1 && this.model[0].items[proyectosIndex] && this.model[0].items[proyectosIndex].items) {
+                    this.model[0].items[proyectosIndex].items = [];
+                    for (let key in this.menuProject) {
+                        if(this.model[0].items[3] && this.model[0].items[3].items){
+                            this.model[0].items[3].items.push(this.menuProject[key]);
+                        }
+                    }
+                }
+            }
+            this.isSelectedProject = true;
         }
-        this.isSelectedProject = true;
-      }
-    })
-    /*** TERMINA EL BLOQUE DE  proyecto */
-  }
+    });
+}
 
   menuProjectDefinition() {
     this.menuProject = [

@@ -236,7 +236,7 @@
                 <div class="col-4">
                     <span class="p-float-label">
                         <p-dropdown formControlName="Idtypededuction" [options]="deductionType"
-                            (onChange)="typeAccountSelected($event.value)" placeholder="Select RP"
+                            (onChange)="typeAccountSelected($event.value)" placeholder="Type Deduction"
                             optionLabel="typeDeduction" optionValue="IdtypeDeduction"
                             inputId="float-label"></p-dropdown>
                         <label for="float-label">Type Deduction</label>
@@ -245,7 +245,7 @@
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                     <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 1">
                         <p-dropdown formControlName="idcapexsubaccount" [options]="CuentasCapex" placeholder="Select RP"
                             optionLabel="concepto" optionValue="idcapexsubaccount" inputId="float-label"></p-dropdown>
@@ -256,22 +256,17 @@
                             optionLabel="concepto" optionValue="idopexsubaccount" inputId="float-label"></p-dropdown>
                         <label for="float-label">Account</label>
                     </span>
+                    <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 3">
+                        <p-dropdown formControlName="Idprepaymentdeduction" [options]="prePayments" placeholder="Select RP"
+                            optionLabel="Descripprepaymentdeduction" optionValue="Idprepaymentdeduction" inputId="float-label"></p-dropdown>
+                        <label for="float-label">PrePayment</label>
+                    </span>
                     <div
                         *ngIf="newDeduction.get('idcapexsubaccount')?.invalid && deductionsV || newDeduction.get('idopexsubaccount')?.invalid && deductionsV">
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
-                <div class="col-2">
-                    <span class="p-float-label">
-                        <p-dropdown formControlName="Idprepaymentdeduction" [options]="prePayments" placeholder="Select RP"
-                            optionLabel="Descripprepaymentdeduction" optionValue="Idprepaymentdeduction" inputId="float-label"></p-dropdown>
-                        <label for="float-label">PrePayment</label>
-                    </span>
-                    <div *ngIf="newDeduction.get('cost')?.invalid && deductionsV">
-                        <small class="p-error">This field is required</small>
-                    </div>
-                </div>
-                <div class="col-2">
+                <div class="col-3">
                     <span class="p-float-label">
                         <p-inputNumber formControlName="cost" class="w-full" inputId="minmaxfraction" mode="decimal"
                             [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
@@ -299,8 +294,7 @@
                     <ng-template pTemplate="body" let-deduction let-i="rowIndex">
                         <tr>
                             <td>{{getNameDeduction(deduction.Idtypededuction)}}</td>
-                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount, deduction.Idtypededuction)}}</td>
-                            <td>{{getNamePrePayment(deduction.Idprepaymentdeduction)}}</td>
+                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount || deduction.Idprepaymentdeduction, deduction.Idtypededuction)}}</td>
                             <td class="text-right">{{deduction.cost | currency}}</td>
                             <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDeduction(i)"
                                     styleClass="p-button-text"></p-button></td>
@@ -420,7 +414,6 @@
                     styleClass="p-button-danger"></p-button>
             </div>
             <div class="inline-flex" *ngIf="!settlementApproved">
-
                 <div class="pl-5">
                     <p-button (click)="onHide()" label="Cancel" styleClass="p-button-outlined"></p-button>
                     <p-button (click)="save()" label="Save"></p-button>

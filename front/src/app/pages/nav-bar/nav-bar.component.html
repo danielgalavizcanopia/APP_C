@@ -11,31 +11,37 @@
       </div>
     </div>
     <div class="col-12 md:col-6">
-      <div class="flex justify-content-center">
-        <div class="p-2 text-center">
-          <small>STATE</small>
-          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Estado }}</p>
+      <div class="flex justify-content-end align-items-center gap-3">
+        <div class="text-center">
+          <small class="block">STATE</small>
+          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Estado }}</p>
         </div>
-        <div class="p-2 text-center">
-          <small>AGGREGATION</small>
-          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Aggregation }}</p>
+        <div class="text-center">
+          <small class="block">AGGREGATION</small>
+          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Aggregation }}</p>
         </div>
-        <div class="p-2 text-center">
-          <small>MUNICIPALITY</small>
-          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.Municipio }}</p>
+        <div class="text-center">
+          <small class="block">MUNICIPALITY</small>
+          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Municipio }}</p>
         </div>
-        <div class="p-2 text-center">
-          <small>CORE</small>
-          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.NucleoAgrario }}</p>
+        <div class="text-center">
+          <small class="block">CORE</small>
+          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.NucleoAgrario }}</p>
         </div>
-        <div class="p-2 text-center">
-          <small>KIND OF PROPERTY</small>
-          <p class="m-0 font-semibold">{{ (selectedProject$ | async)?.TipoPropiedad }}</p>
+        <div class="text-center">
+          <small class="block">KIND OF PROPERTY</small>
+          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.TipoPropiedad }}</p>
+        </div>
+        <div class="text-center">
+          <small class="block">STATUS</small>
+          <p class="m-0 font-semibold">
+            <span [class]="getStatusClass((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0)">
+              {{ getStatusText((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0) }}
+            </span>
+          </p>
         </div>
       </div>
-
     </div>
-
   </div>
   <div class="py-2">
     <p-menubar [model]="items"></p-menubar>

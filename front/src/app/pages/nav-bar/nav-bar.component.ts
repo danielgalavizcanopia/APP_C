@@ -11,7 +11,6 @@ import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 
 })
 export class NavBarComponent {
-
   token: any;
   items!: MenuItem[];
   model: any[] = [];
@@ -19,6 +18,13 @@ export class NavBarComponent {
     menuProject = new Array();
     isSelectedProject: boolean = false;
     selectedProject$ = this.serviceObsProject$.selectedProject$;
+
+  statusMapping: { [key: number]: string } = {
+    1: 'Live',
+    2: 'Evaluation', 
+    3: 'On Hold',
+    4: 'Cancelled'
+  };
     constructor(
       public _authGuardService: authGuardService,
       private readonly serviceObsProject$: ObservableService, ) {
@@ -286,23 +292,39 @@ export class NavBarComponent {
       ];
     }
   }
+  getStatusText(statusNumber: number): string {
+    return this.statusMapping[statusNumber] || 'Unknown';
+  }
+
+  getStatusClass(statusNumber: number): string {
+    switch (statusNumber) {
+      case 1: return 'status-live'; 
+      case 2: return 'status-evaluation'; 
+      case 3: return 'status-on-hold'; 
+      case 4: return 'status-cancelled'; 
+      default: return 'status-unknown';
+    }
+    }
+
   observaProjectSelected() {
-    /*** Este sirve para saber que proyecto ha sido seleccionado y se copia este bloque */
-    this.serviceObsProject$.selectedProject$.subscribe((project: Projects) => {
+      /*** Este sirve para saber que proyecto ha sido seleccionado y se copia este bloque */
+      this.serviceObsProject$.selectedProject$.subscribe((project: Projects) => {
         this.proyectoSelected = project;
 
-        if(this.isSelectedProject == false){
-            var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
-            if (proyectosIndex !== -1) {
-                this.model[0].items[proyectosIndex].items = [];
-                for (let key in this.menuProject) {
-                    this.model[0]?.items[3].items.push(this.menuProject[key]);
-                }
+        if(this.isSelectedProject == false && this.model && this.model[0] && this.model[0].items){
+          var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
+          if (proyectosIndex !== -1 && this.model[0].items[proyectosIndex].items) {
+            this.model[0].items[proyectosIndex].items = [];
+            for (let key in this.menuProject) {
+              this.model[0].items[3].items.push(this.menuProject[key]);
             }
-            this.isSelectedProject = true;
+          }
+          this.isSelectedProject = true;
         }
-    })
-    /*** TERMINA EL BLOQUE DE  proyecto */
-}
+      })
+      /*** TERMINA EL BLOQUE DE  proyecto */
+  }
+
+
 }
 
