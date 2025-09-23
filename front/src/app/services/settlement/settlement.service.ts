@@ -69,4 +69,25 @@ export class SettlementService {
         console.error('Error al descargar el Excel', error);
       });
   }
+
+  downloadSettlementByID(settlementId: number, idrpnumber: number, folioRow: string, params: any, token: string) {
+      const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+      });
+
+      this.http.get(this.url + `settlement/getSettlementXLSXByRegister/${settlementId}/${idrpnumber}`, {
+        headers,
+        params,
+        responseType: 'blob',
+      }).subscribe((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `SettlementReport${folioRow}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }, (error) => {
+        console.error('Error al descargar el Excel', error);
+      });
+  }
 }

@@ -10,6 +10,7 @@ import { RPCatalogsService } from 'src/app/services/ReportingPeriods/RPCatalogs.
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 import { SettlementCatalogsService } from 'src/app/services/settlement/settlement-catalogs.service';
 import { SettlementService } from 'src/app/services/settlement/settlement.service';
+import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccounts.service';
 
 @Component({
   selector: 'app-cdr',
@@ -18,14 +19,13 @@ import { SettlementService } from 'src/app/services/settlement/settlement.servic
 })
 export class CdrComponent {
 
+     checked: boolean = false;
+
   cities!: any[];
   visible!: boolean;
   products: any[] = [];
   showDialog() {
     this.visible = true;
-    console.log(this.settlementApproved);
-    
-    // this.settlementApproved = false;
   }
 
   onHide(){
@@ -77,7 +77,7 @@ export class CdrComponent {
   constructor(private productService: ProductService, private RPcatalogsService: RPCatalogsService, private settlementService: SettlementService,
     public _authGuardService: authGuardService, private readonly serviceObsProject$: ObservableService, private _fb: FormBuilder,
     private _settlementeCatalogsService: SettlementCatalogsService, private _implementationCatalogsService: ImplementationCatalogsService,
-    private messageService: MessageService, private confirmationService: ConfirmationService,
+    private messageService: MessageService, private confirmationService: ConfirmationService, private capexAccountService: CapexOpexAccountsService
   ) {
 
     this.token = this._authGuardService.getToken();
@@ -131,8 +131,8 @@ export class CdrComponent {
       newDeduction: this._fb.group({
         idrpnumber: [''],
         Idtypededuction: ['',[Validators.required]],
-        idcapexsubaccount: ['',[Validators.required]],
-        idopexsubaccount: ['',[Validators.required]],
+        idcapexaccounts: ['',[Validators.required]],
+        idopexaccounts: ['',[Validators.required]],
         Idprepaymentdeduction: ['',[Validators.required]],
         cost: [,[Validators.required]],
       }),
@@ -204,8 +204,8 @@ export class CdrComponent {
     this.deductions.push(this._fb.group({
       idrpnumber: [this.settlementForm.value.idrpnumber_main],
       Idtypededuction: [this.newDeduction.value.Idtypededuction],
-      idcapexsubaccount: [this.newDeduction.value.idcapexsubaccount],
-      idopexsubaccount: [this.newDeduction.value.idopexsubaccount],
+      idcapexaccounts: [this.newDeduction.value.idcapexaccounts],
+      idopexaccounts: [this.newDeduction.value.idopexaccounts],
       Idprepaymentdeduction: [this.newDeduction.value.Idprepaymentdeduction],
       cost: [this.newDeduction.value.cost],
     }));
@@ -221,19 +221,19 @@ export class CdrComponent {
 
   typeAccountSelected(value: any){
     if(value == 1){
-      this.newDeduction.get('idopexsubaccount')?.removeValidators([Validators.required])
-      this.newDeduction.get('idopexsubaccount')?.reset()
-      this.newDeduction.get('idcapexsubaccount')?.setValidators([Validators.required])
-      this.newDeduction.get('idcapexsubaccount')?.updateValueAndValidity()
+      this.newDeduction.get('idopexaccounts')?.removeValidators([Validators.required])
+      this.newDeduction.get('idopexaccounts')?.reset()
+      this.newDeduction.get('idcapexaccounts')?.setValidators([Validators.required])
+      this.newDeduction.get('idcapexaccounts')?.updateValueAndValidity()
       this.newDeduction.get('Idprepaymentdeduction')?.removeValidators([Validators.required])
       this.newDeduction.get('Idprepaymentdeduction')?.reset()
     }
 
     if(value == 2){
-      this.newDeduction.get('idcapexsubaccount')?.removeValidators([Validators.required])
-      this.newDeduction.get('idcapexsubaccount')?.reset()
-      this.newDeduction.get('idopexsubaccount')?.setValidators([Validators.required])
-      this.newDeduction.get('idopexsubaccount')?.updateValueAndValidity()
+      this.newDeduction.get('idcapexaccounts')?.removeValidators([Validators.required])
+      this.newDeduction.get('idcapexaccounts')?.reset()
+      this.newDeduction.get('idopexaccounts')?.setValidators([Validators.required])
+      this.newDeduction.get('idopexaccounts')?.updateValueAndValidity()
       this.newDeduction.get('Idprepaymentdeduction')?.removeValidators([Validators.required])
       this.newDeduction.get('Idprepaymentdeduction')?.reset()
     }
@@ -241,10 +241,10 @@ export class CdrComponent {
     if(value == 3){
       this.newDeduction.get('Idprepaymentdeduction')?.setValidators([Validators.required])
       this.newDeduction.get('Idprepaymentdeduction')?.updateValueAndValidity()
-      this.newDeduction.get('idcapexsubaccount')?.removeValidators([Validators.required])
-      this.newDeduction.get('idcapexsubaccount')?.reset()
-      this.newDeduction.get('idopexsubaccount')?.removeValidators([Validators.required])
-      this.newDeduction.get('idopexsubaccount')?.reset()
+      this.newDeduction.get('idcapexaccounts')?.removeValidators([Validators.required])
+      this.newDeduction.get('idcapexaccounts')?.reset()
+      this.newDeduction.get('idopexaccounts')?.removeValidators([Validators.required])
+      this.newDeduction.get('idopexaccounts')?.reset()
     }
   }
 
@@ -313,23 +313,19 @@ export class CdrComponent {
   }
 
   getCuentasCapex(){
-    this._implementationCatalogsService.getCapexSubAccounts(this.token?.access_token).subscribe((response: any) => {
-      if(response.valido === 1){
-          this.CuentasCapex = response.result;
-      } else {
-          console.error("No se pudo traer la información de getCuentasCapex", response.message)
-      }
-    })
+    this.capexAccountService.getCapexAccounts(this.token?.access_token).subscribe((resp: any) => {
+        if(resp.valido == 1) {
+            this.CuentasCapex = resp.result
+        }
+    });
   }
 
   getCuentasOpex(){
-    this._implementationCatalogsService.getOpexSubAccounts(this.token?.access_token).subscribe((response: any) => {
-      if(response.valido === 1){
-          this.CuentasOpex = response.result;
-      } else {
-          console.error("No se pudo traer la información de getCuentasOpex", response.message)
-      }
-    })
+    this.capexAccountService.getOpexAccounts(this.token?.access_token).subscribe((resp: any) => {
+        if(resp.valido == 1) {
+            this.CuentasOpex = resp.result;
+        }
+    });
   }
 
   getPrePaymentDeductions(){
@@ -379,9 +375,9 @@ export class CdrComponent {
   getNameAccount(idAccount: number, typeAccount: number): string{
     let nameAccount = '';
     if(typeAccount == 1){
-      nameAccount = this.CuentasCapex.find(c => c.idcapexsubaccount === idAccount)?.concepto;
+      nameAccount = this.CuentasCapex.find(c => c.idcapexaccounts === idAccount)?.concepto;
     } else if(typeAccount == 2){
-      nameAccount = this.CuentasOpex.find(c => c.idopexsubaccount === idAccount)?.concepto;
+      nameAccount = this.CuentasOpex.find(c => c.idopexaccounts === idAccount)?.concepto;
     } else if(typeAccount == 3){
       nameAccount = this.prePayments.find(p => p.Idprepaymentdeduction === idAccount)?.Descripprepaymentdeduction;
     }
@@ -438,11 +434,21 @@ export class CdrComponent {
   getCompareTotal(total: number): string{
     let ngclass = ''
     if(total > this.TotalApprovedByAssembly?.Total_byRP_EstimadoUSD){
-      ngclass = 'font-bold mr-2 status-warn'
+      ngclass = 'font-bold pl-3 status-warn'
     } else {
-      ngclass = 'font-bold mr-2 status-nowarn'
+      ngclass = 'font-bold pl-3 status-nowarn'
     }
     return ngclass;
+  }
+
+  getCompareTotalActivateIcon(total: number): string{
+    let condition = 'desactivate'
+    if(total > this.TotalApprovedByAssembly?.Total_byRP_EstimadoUSD){
+      condition = 'activate'
+    } else {
+      condition = 'desactivate'
+    }
+    return condition;
   }
 
   getCatchStatus(idstatus: number): string{
@@ -513,8 +519,8 @@ export class CdrComponent {
           this.deductions.push(this._fb.group({
             idrpnumber: [deduction.idrpnumber],
             Idtypededuction: [deduction.Idtypededuction],
-            idcapexsubaccount: [deduction.idcapexsubaccount],
-            idopexsubaccount: [deduction.idopexsubaccount],
+            idcapexaccounts: [deduction.idcapexaccounts],
+            idopexaccounts: [deduction.idopexaccounts],
             Idprepaymentdeduction: [deduction.Idprepaymentdeduction],
             cost: [deduction.cost],
           }));
@@ -550,14 +556,17 @@ export class CdrComponent {
 
     if(!this.settlementForm.valid){
       this.formV = true;
+      this.blockPetitions = false;
       return this.messageService.add({ severity: 'error', summary: 'Fields Required', detail: 'All fields is required'});
     }
 
     if(this.details.length == 0){
+      this.blockPetitions = false;
       return this.messageService.add({ severity: 'error', summary: 'Details Required', detail: 'At least one detail is required'});
     }
 
     if(this.deductions.length == 0){
+      this.blockPetitions = false;
       return this.messageService.add({ severity: 'error', summary: 'Deductions Required', detail: 'At least one deduction is required'});
     }
 
@@ -647,5 +656,18 @@ export class CdrComponent {
 
   downloadSettlementReport(){
     this.settlementService.downloadSettlementReport(this.proyectoSelected?.ProjectName ,this.proyectoSelected?.idprojects ,this.RPselected, this.token?.access_token)
+  }
+
+  downloadSettlementByID(settlementId: number, idrpnumber: number, folio: string, registryDate: string) {
+    let data = {
+      folio: folio,
+      carId: this.proyectoSelected?.Id_ProyectoCAR,
+      idprojects: this.proyectoSelected?.idprojects,
+      projectCounter: this.proyectoSelected?.Counterpart,
+      projectName: this.proyectoSelected?.ProjectName,
+      registryDate: registryDate,
+      rp_count: this.settlementSelected?.rp_count ? this.settlementSelected.rp_count : this.rpCountByproject.rp_count
+    }
+    this.settlementService.downloadSettlementByID(settlementId , idrpnumber, folio, data, this.token?.access_token)
   }
 }

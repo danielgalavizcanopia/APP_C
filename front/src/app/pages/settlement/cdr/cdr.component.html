@@ -12,7 +12,8 @@
             </span>
         </div>
         <div>
-            <p-button label="Download Settlement" (onClick)="downloadSettlementReport()" styleClass="p-button-outlined mr-3"></p-button>
+            <p-button label="Download Settlement" (onClick)="downloadSettlementReport()"
+                styleClass="p-button-outlined mr-3"></p-button>
             <p-button label="New Settlement" styleClass="p-button-success" (click)="showDialog()"></p-button>
         </div>
     </div>
@@ -76,13 +77,15 @@
                         <span class="status-double-denied"
                             *ngIf="settlement.status == 3 && settlement.statusdirection == 3">Denied 2 of 2</span>
                     </td>
-                    <td>
+                    <td class="inline-flex">
                         <p-button *ngIf="settlement.status != 2 || settlement.statusdirection != 2 " icon="pi pi-pencil"
-                            styleClass="p-button-rounded"
+                            styleClass="p-button-rounded p-button-text"
                             (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
-                        <!-- <p-button icon="pi pi-cloud-download" styleClass="p-button-rounded"></p-button> -->
+                        <p-button *ngIf="settlement.status == 2 && settlement.statusdirection == 2"
+                            icon="pi pi-cloud-download" styleClass="p-button-rounded p-button-sucess p-button-text"
+                            (onClick)="downloadSettlementByID(settlement.Idsettlement, settlement.idrpnumber, settlement.folio, settlement.DateCreate)"></p-button>
                         <p-button *ngIf="settlement.status == 2 && settlement.statusdirection == 2" icon="pi pi-eye"
-                            styleClass="p-button-rounded"
+                            styleClass="p-button-rounded p-button-text p-button-secondary"
                             (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
                     </td>
                 </tr>
@@ -121,8 +124,8 @@
                     <span class="p-float-label"
                         *ngIf="settlementSelected && position.includes('Direction') || settlementSelected && position.includes('Operations')">
                         <p-dropdown [options]="statusSettlement" [(ngModel)]="statusSelected"
-                            placeholder="Select Status" optionLabel="status"
-                            optionValue="IdstatusSettlement" [ngModelOptions]="{standalone: true}"></p-dropdown>
+                            placeholder="Select Status" optionLabel="status" optionValue="IdstatusSettlement"
+                            [ngModelOptions]="{standalone: true}"></p-dropdown>
                         <label for="float-label">Status</label>
                     </span>
                 </div>
@@ -147,7 +150,7 @@
                 <div class="col-3">
                     <span class="p-float-label">
                         <p-inputNumber formControlName="settlement_volume" placeholder="" class="w-full" mode="decimal"
-                            [maxFractionDigits]="2" [minFractionDigits]="2" [useGrouping]="false"></p-inputNumber>
+                            [useGrouping]="false"></p-inputNumber>
                         <label htmlFor="username">Settlement Volume</label>
                     </span>
                     <div *ngIf="newDetail.get('settlement_volume')?.invalid && detailsV">
@@ -194,14 +197,22 @@
                 <p-table [value]="details.value" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
-                            <th class="text-sm">Settlement Volume</th>
-                            <th class="text-sm">Vintage</th>
-                            <th class="text-sm">Payment Type</th>
-                            <th class="text-sm">Mtk Price USD</th>
-                            <th class="text-sm">Mtk price %</th>
-                            <th class="text-sm">Price Canopia</th>
-                            <th class="text-sm">Total</th>
-                            <th class="text-sm"></th>
+                            <th width="12%" class="text-sm">Settlement Volume</th>
+                            <th width="12%" class="text-sm">Vintage</th>
+                            <th width="12%" class="text-sm">Payment Type</th>
+                            <th width="12%" class="text-sm text-right">Mtk Price USD</th>
+                            <th width="12%" class="text-sm text-right">Mtk price %</th>
+                            <th width="16%" class="text-sm text-right">
+                                <div class="flex align-content-center flex-wrap justify-content-end">
+                                    <div class="flex align-items-center pr-4">
+                                        Price Canopia
+                                    </div>
+                                    <p-toggleButton [(ngModel)]="checked" onLabel=".0000"
+                                        offLabel=".00"></p-toggleButton>
+                                </div>
+                            </th>
+                            <th width="16%" class="text-sm text-right">Total</th>
+                            <th width="8%" class="text-sm"></th>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="body" let-detail let-i="rowIndex">
@@ -210,9 +221,9 @@
                             <td>{{detail.vintage }}</td>
                             <td>{{getPaymentName(detail.Idprepayment)}}</td>
                             <td>{{detail.markert_price | currency}}</td>
-                            <td>{{settlementSelected ? settlementSelected.PercentageMktPrice_avg :
+                            <td class="text-right">{{settlementSelected ? settlementSelected.PercentageMktPrice_avg :
                                 percentageMktByProject.PercentageMktPrice}}%</td>
-                            <td>{{getPriceCanopia(detail.markert_price) | currency}}</td>
+                            <td class="text-right">{{getPriceCanopia(detail.markert_price) | currency}}</td>
                             <td class="text-right">{{getTotalHorizontal(detail.settlement_volume, i) | currency}}</td>
                             <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDetail(i)"
                                     styleClass="p-button-text" pTooltip="Delete row"></p-button></td>
@@ -247,18 +258,19 @@
                 </div>
                 <div class="col-4">
                     <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 1">
-                        <p-dropdown formControlName="idcapexsubaccount" [options]="CuentasCapex" placeholder="Select RP"
-                            optionLabel="concepto" optionValue="idcapexsubaccount" inputId="float-label"></p-dropdown>
+                        <p-dropdown formControlName="idcapexaccounts" [options]="CuentasCapex" placeholder="Account"
+                            optionLabel="concepto" optionValue="idcapexaccounts" inputId="float-label"></p-dropdown>
                         <label for="float-label">Account</label>
                     </span>
                     <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 2">
-                        <p-dropdown formControlName="idopexsubaccount" [options]="CuentasOpex" placeholder="Select RP"
-                            optionLabel="concepto" optionValue="idopexsubaccount" inputId="float-label"></p-dropdown>
+                        <p-dropdown formControlName="idopexaccounts" [options]="CuentasOpex" placeholder="Account"
+                            optionLabel="concepto" optionValue="idopexaccounts" inputId="float-label"></p-dropdown>
                         <label for="float-label">Account</label>
                     </span>
                     <span class="p-float-label" *ngIf="newDeduction.value.Idtypededuction == 3">
-                        <p-dropdown formControlName="Idprepaymentdeduction" [options]="prePayments" placeholder="Select RP"
-                            optionLabel="Descripprepaymentdeduction" optionValue="Idprepaymentdeduction" inputId="float-label"></p-dropdown>
+                        <p-dropdown formControlName="Idprepaymentdeduction" [options]="prePayments"
+                            placeholder="Select RP" optionLabel="Descripprepaymentdeduction"
+                            optionValue="Idprepaymentdeduction" inputId="float-label"></p-dropdown>
                         <label for="float-label">PrePayment</label>
                     </span>
                     <div
@@ -286,7 +298,6 @@
                         <tr>
                             <th class="text-sm">Type Deduction</th>
                             <th class="text-sm">Account</th>
-                            <th class="text-sm">PrePayment</th>
                             <th class="text-right text-sm">Cost USD</th>
                             <th class="text-sm"></th>
                         </tr>
@@ -294,7 +305,8 @@
                     <ng-template pTemplate="body" let-deduction let-i="rowIndex">
                         <tr>
                             <td>{{getNameDeduction(deduction.Idtypededuction)}}</td>
-                            <td>{{getNameAccount(deduction.idcapexsubaccount || deduction.idopexsubaccount || deduction.Idprepaymentdeduction, deduction.Idtypededuction)}}</td>
+                            <td>{{getNameAccount(deduction.idcapexaccounts || deduction.idopexaccounts ||
+                                deduction.Idprepaymentdeduction, deduction.Idtypededuction)}}</td>
                             <td class="text-right">{{deduction.cost | currency}}</td>
                             <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDeduction(i)"
                                     styleClass="p-button-text"></p-button></td>
@@ -313,7 +325,11 @@
                             <td class="text-right">
                                 <p [ngClass]="getCompareTotal(getTotalOpex())">{{getTotalOpex() | currency}}</p>
                             </td>
-                            <td></td>
+                            <td>
+                                <i *ngIf="getCompareTotalActivateIcon(getTotalOpex()) == 'activate'"
+                                    class="pi pi-exclamation-triangle status-warn"
+                                    [pTooltip]="'In Approved by Assembly is $'+this.TotalApprovedByAssembly.Total_byRP_EstimadoUSD"></i>
+                            </td>
                         </tr>
                     </ng-template>
                 </p-table>

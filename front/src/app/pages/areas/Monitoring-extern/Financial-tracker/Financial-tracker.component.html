@@ -1,142 +1,285 @@
- <div class="flex justify-content-between mb-5">
+<div class="flex justify-content-between mb-5">
+    <div>
         <div>
-            <div>
-                <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
-                    optionValue="idrpnumber" (onChange)="changeRP(); enviarRPs();"></p-selectButton>
-                    <div class="mt-2 font-bold" *ngIf="dateRanges">
-                        {{dateRanges.Reporting_period_start | date: 'dd/MM/yyyy': 'UTC'}} - {{dateRanges.Reporting_period_end | date: 'dd/MM/yyyy': 'UTC'}}
-                    </div>
+            <p-selectButton [options]="rpnumbers" [multiple]="true" [(ngModel)]="rpSelected" optionLabel="RP_Number"
+                optionValue="idrpnumber" (onChange)="changeRP(); enviarRPs();"></p-selectButton>
+            <div class="mt-2 font-bold" *ngIf="dateRanges">
+                {{dateRanges.Reporting_period_start | date: 'dd/MM/yyyy': 'UTC'}} - {{dateRanges.Reporting_period_end |
+                date: 'dd/MM/yyyy': 'UTC'}}
             </div>
         </div>
-        <div>
-            <p-button label="Download by accounts" (onClick)="exportFTToExcel()" styleClass="p-button-outlined"
-                class="m-1" icon="pi pi-file-excel"></p-button>
-            <p-button label="Provisional MXN Ledger" (onClick)="exportProvisionalReport()"
-                [pTooltip]="messageProvisionalReport" tooltipPosition="top" styleClass="p-button-outlined" class="m-1"
-                icon="pi pi-file-excel"></p-button>
+    </div>
+    <div>
+        <p-button label="Download by accounts" (onClick)="exportFTToExcel()" styleClass="p-button-outlined" class="m-1"
+            icon="pi pi-file-excel"></p-button>
+        <p-button label="Provisional MXN Ledger" (onClick)="exportProvisionalReport()"
+            [pTooltip]="messageProvisionalReport" tooltipPosition="top" styleClass="p-button-outlined" class="m-1"
+            icon="pi pi-file-excel"></p-button>
+    </div>
+</div>
+<p-table [loading]="loading" paginatorDropdownAppendTo="body" dataKey="id" [value]="FinancialTrackerData" [rows]="5"
+    [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [lazy]="true"
+    [rowsPerPageOptions]="[10, 25, 50]">
+    <ng-template pTemplate="header">
+        <tr>
+            <th width="27.5%">Account Type</th>
+            <th width="12.5%" class="text-right">ERPA Approved</th>
+            <th width="12.5%" class="text-center">Approved by assembly</th>
+            <th width="12.5%" class="text-right">Planned</th>
+            <th width="12.5%" class="text-right">Actual<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+                    [pTooltip]="LastUpdatePaid"></i></th>
+            <th width="12.5%" class="text-right">Provisional<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+                    [pTooltip]="LastUpdateProvisional"></i></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-yourRowVaraible let-expanded="expanded">
+        <tr>
+            <td><strong>{{yourRowVaraible.Name}}</strong></td>
+            <td class="text-right"><strong>{{yourRowVaraible.Approved | currency}} USD</strong></td>
+            <td class="text-right"><strong>{{yourRowVaraible.Assembly | currency}} USD</strong></td>
+            <td class="text-right"><strong>{{yourRowVaraible.Planned | currency}} USD</strong></td>
+            <td class="text-right"><strong>{{yourRowVaraible.Paid | currency}} USD</strong></td>
+            <td class="text-right"><strong>{{yourRowVaraible.Provisional | currency}} MXN</strong></td>
+            <td>
+                <button type="button" pButton pRipple [pRowToggler]="yourRowVaraible"
+                    class="p-button-text p-button-rounded p-button-plain"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-product>
+        <tr>
+            <td colspan="7">
+                <div class="p-0">
+                    <p-table [value]="product.Accounts" dataKey="id">
+                        <ng-template pTemplate="header">
+        <tr>
+            <th width="65%">Account Name</th>
+            <th width="12.5%" class="text-right">Planned</th>
+            <th width="12.5%" class="text-right">Actual</th>
+            <th width="12.5%" class="text-right">Provisional</th>
+            <th width="10%"></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-order let-expa="expanded">
+        <tr>
+            <td>{{ order.AccountName }}</td>
+            <td class="text-right">{{ order.Planned | currency }} USD</td>
+            <td class="text-right">{{ order.Paid | currency }} USD</td>
+            <td class="text-right">{{ order.Provisional | currency }} MXN</td>
+            <td>
+                <button type="button" pButton pRipple [pRowToggler]="order"
+                    class="p-button-text p-button-rounded p-button-plain"
+                    [icon]="expa ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-subaccount>
+        <tr>
+            <td colspan="5">
+                <div class="p-0">
+                    <p-table [value]="subaccount.subAccounts">
+                        <ng-template pTemplate="header">
+        <tr>
+            <th width="25%">Activity Name</th>
+            <th width="25%">Sub Account Name</th>
+            <th width="12.5%">RP</th>
+            <th width="12.5%" class="text-right">Planned</th>
+            <th width="12.5%" class="text-right">Actual</th>
+            <th width="12.5%" class="text-right">Provisional</th>
+            <th width="10%" class="text-center">Actions</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-data let-expanded="expanded">
+        <tr>
+            <td>{{data.Name}}</td>
+            <td>{{data.account || data.accountWA}}</td>
+            <td>{{data.idrpnumber ? 'RP' + data.idrpnumber : ' '}}</td>
+            <td class="text-right">{{data.planned | currency}} USD</td>
+            <td class="text-right">{{data.paid | currency}} USD</td>
+            <td class="text-right">{{data.provisional | currency}} MXN</td>
+            <td class="text-center">
+                <button *ngIf="data.paid > 0" type="button" pButton pRipple icon="pi pi-search"
+                    class="p-button-rounded p-button-text p-button-sm" (click)="openSubAccountModal(data)"
+                    pTooltip="Ver detalles de transacciones" tooltipPosition="top">
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7">There are no subaccounts avaiable.</td>
+        </tr>
+    </ng-template>
+</p-table>
+</div>
+</td>
+</tr>
+</ng-template>
+<ng-template pTemplate="emptymessage">
+    <tr>
+        <td colspan="5">There are no summary in this activity.</td>
+    </tr>
+</ng-template>
+</p-table>
+</div>
+</td>
+</tr>
+</ng-template>
+<ng-template pTemplate="emptymessage">
+    <tr>
+        <td colspan="6">There are no data avaiable.</td>
+    </tr>
+</ng-template>
+<ng-template pTemplate="footer">
+    <tr>
+        <td width="40%" class="text-right">Total</td>
+        <td width="12.5%" class="text-right">{{totalsFinancial.totalApproved | currency}} USD</td>
+        <td width="12.5%" class="text-right">{{totalsFinancial.totalAssembly | currency}} USD</td>
+        <td width="12.5%" class="text-right">{{totalsFinancial.totalPlanned | currency}} USD</td>
+        <td width="12.5%" class="text-right">{{totalsFinancial.totalPaid | currency}} USD</td>
+        <td width="12.5%" class="text-right">{{totalsFinancial.totalProvisional | currency}} MXN</td>
+    </tr>
+</ng-template>
+</p-table>
+
+<!-- Modal para mostrar detalles de la subcuenta -->
+<p-dialog header="New Actual Expenses" [(visible)]="showSubAccountModal" [modal]="true" [maximizable]="true"
+    [draggable]="false" [resizable]="true" styleClass="revision-modal">
+
+    <div *ngIf="selectedSubAccount" class="revision-content">
+        <!-- Panel de información de cuenta -->
+
+        <div class="grid info-sub">
+            <div class="col-1">
+                <small>Type</small>
+                <p class="font-bold">{{selectedSubAccount.type}}</p>
+            </div>
+            <div class="col-1">
+                <small>RP</small>
+                <p class="font-bold">{{selectedSubAccount.idrpnumber ? 'RP ' +
+                    selectedSubAccount.idrpnumber : '01'}}</p>
+            </div>
+            <div class="col">
+                <small>Account</small>
+                <p class="font-bold">{{selectedSubAccount.account || selectedSubAccount.accountWA}}
+                </p>
+            </div>
+            <div class="col">
+                <small>SubAccount</small>
+                <p class="font-bold">{{selectedSubAccount.Name}}</p>
+            </div>
+            <div class="col">
+                <small>Actual total</small>
+                <p class="font-bold">{{selectedSubAccount.paid | currency}} USD</p>
+            </div>
+        </div>
+        <hr>
+        <div class="grid">
+
+            <!-- Columna izquierda - Tabla de transacciones -->
+            <div class="col-4">
+                <p> <span class="font-bold">Step 1:</span> Select the ones to be reassigned to an RP, sub-account, or
+                    both. The ones you don't select will not be sent for review.</p>
+
+                <p-table [value]="transactionList" styleClass="p-datatable-sm" [rowsPerPageOptions]="[10, 25, 50]"
+                    [paginator]="true" [rows]="5">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 4rem">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th>Transaction ID</th>
+                            <th>Payment Date</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-transaction>
+                        <tr [ngClass]="{'p-highlight': transaction.selected}">
+                            <td>
+                                <p-tableCheckbox [value]="transactionList" [(ngModel)]="transaction.selected"
+                                    (onChange)="updateSelectedTotal()"></p-tableCheckbox>
+
+                            </td>
+                            <td>
+                                <p>{{transaction.id || '98'}}</p>
+                            </td>
+                            <td>
+                                <p>{{transaction.paymentDate || '28/04/2023'}}</p>
+                            </td>
+                            <td class="text-right">
+                                <p>{{transaction.amount || '$0.00'}}</p>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td colspan="3" class="text-right">TOTAL [selected]</td>
+                            <td class="text-right">${{totalSelected.toFixed(2)}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <p class="p-3">No transactions available</p>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <!-- Columna derecha - Información y formulario -->
+            <div class="col-8">
+                <!-- Formulario de reasignación -->
+                <p> <span class="font-bold">Step 2:</span> Make the Reassignment</p>
+                <div class="grid">
+                    <div class="col">
+                        <small>Selected Transactions</small>
+                        <p>3</p>
+                        <!--
+                               <input id="selected-count" type="text" pInputText
+                                [value]="getSelectedTransactionsCount() + ' transaction' + (getSelectedTransactionsCount() !== 1 ? 's' : '')"
+                                [readonly]="true" class="w-full">
+                                -->
+                    </div>
+                    <div class="col">
+                        <span class="p-float-label">
+                            <p-dropdown id="new-rp" [options]="rpOptions" [(ngModel)]="newRP" optionLabel="label"
+                                optionValue="value" placeholder="Select RP" inputId="float-label"></p-dropdown>
+                            <label for="float-label">RP</label>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <span class="p-float-label">
+                            <p-dropdown id="new-subaccount" [options]="subAccountOptions" [(ngModel)]="newSubAccount"
+                                optionValue="value" placeholder="Select SubAccount" inputId="float-label"></p-dropdown>
+                            <label for="float-label">SubAccount</label>
+                        </span>
+                    </div>
+                </div>
+                <hr>
+                <div class="grid">
+                    <div class="col-12">
+                        <p><span class="font-bold">Step 3:</span> Provide a strong justification to prevent your request
+                            from being rejected.</p>
+                        <span class="p-float-label">
+                            <textarea id="justification" pInputTextarea [(ngModel)]="justification" [rows]="6"
+                                [autoResize]="true" placeholder="Enter your detailed justification here..."
+                                class="w-full">
+                            </textarea>
+                            <label for="float-label">Justification</label>
+                        </span>
+                    </div>
+                    <p>The finance department and the technical director will review your request in detail.</p>
+                </div>
+            </div>
         </div>
     </div>
-    <p-table [loading]="loading" paginatorDropdownAppendTo="body" dataKey="id" [value]="FinancialTrackerData"
-        [rows]="5" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [lazy]="true"
-        [rowsPerPageOptions]="[10, 25, 50]">
-        <ng-template pTemplate="header">
-            <tr>
 
-                <th width="27.5%">Account Type</th>
-                <th width="12.5%" class="text-right">ERPA Approved</th>
-                <th width="12.5%" class="text-center">Approved by assembly</th>
-                <th width="12.5%" class="text-right">Planned</th>
-                <th width="12.5%" class="text-right">Actual<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
-                        [pTooltip]="LastUpdatePaid"></i></th>
-                <th width="12.5%" class="text-right">Provisional<i class="pi pi-calendar-times ml-2"
-                        style="font-size: 1rem" [pTooltip]="LastUpdateProvisional"></i></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-yourRowVaraible let-expanded="expanded">
-            <tr>
-
-                <td><strong>{{yourRowVaraible.Name}}</strong></td>
-                <td class="text-right"><strong>{{yourRowVaraible.Approved | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{yourRowVaraible.Assembly | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{yourRowVaraible.Planned | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{yourRowVaraible.Paid | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{yourRowVaraible.Provisional | currency}} MXN</strong></td>
-                <td>
-                    <button type="button" pButton pRipple [pRowToggler]="yourRowVaraible"
-                        class="p-button-text p-button-rounded p-button-plain"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-product>
-            <tr>
-                <td colspan="7">
-                    <div class="p-0">
-                        <p-table [value]="product.Accounts" dataKey="id">
-                            <ng-template pTemplate="header">
-            <tr>
-                <th width="65%">Account Name</th>
-                <th width="12.5%" class="text-right">Planned</th>
-                <th width="12.5%" class="text-right">Actual</th>
-                <th width="12.5%" class="text-right">Provisional</th>
-                <th width="10%"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-order let-expa="expanded">
-            <tr>
-
-                <td>{{ order.AccountName }}</td>
-                <td class="text-right">{{ order.Planned | currency }} USD</td>
-                <td class="text-right">{{ order.Paid | currency }} USD</td>
-                <td class="text-right">{{ order.Provisional | currency }} MXN</td>
-                <td>
-                    <button type="button" pButton pRipple [pRowToggler]="order"
-                        class="p-button-text p-button-rounded p-button-plain"
-                        [icon]="expa ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-subaccount>
-            <tr>
-                <td colspan="7">
-                    <div class="p-0">
-                        <p-table [value]="subaccount.subAccounts">
-                            <ng-template pTemplate="header">
-            <tr>
-                <th width="25%">Activity Name</th>
-                <th width="25%">Sub Account Name</th>
-                <th width="12.5%">RP</th>
-                <th width="12.5%" class="text-right">Planned</th>
-                <th width="12.5%" class="text-right">Actual</th>
-                <th width="12.5%" class="text-right">Provisional</th>
-                <th width="10%"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-data let-expanded="expanded">
-            <tr>
-                <td>{{data.Name}}</td>
-                <td>{{data.account || data.accountWA}}</td>
-                <td>{{data.idrpnumber ? 'RP' + data.idrpnumber : ' '}}</td>
-                <td class="text-right">{{data.planned | currency}} USD</td>
-                <td class="text-right">{{data.paid | currency}} USD</td>
-                <td class="text-right">{{data.provisional | currency}} MXN</td>
-                <td></td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="5">There are no subaccounts avaiable.</td>
-            </tr>
-        </ng-template>
-    </p-table>
-    </div>
-    </td>
-    </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-        <tr>
-            <td colspan="6">There are no summary in this activity.</td>
-        </tr>
-    </ng-template>
-    </p-table>
-    </div>
-    </td>
-    </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-        <tr>
-            <td colspan="5">There are no data avaiable.</td>
-        </tr>
-    </ng-template>
     <ng-template pTemplate="footer">
-        <tr>
-            <td width="40%" class="text-right">Total</td>
-            <td width="12.5%" class="text-right">{{totalsFinancial.totalApproved | currency}} USD</td>
-            <td width="12.5%" class="text-right">{{totalsFinancial.totalAssembly | currency}} USD</td>
-            <td width="12.5%" class="text-right">{{totalsFinancial.totalPlanned | currency}} USD</td>
-            <td width="12.5%" class="text-right">{{totalsFinancial.totalPaid | currency}} USD</td>
-            <td width="12.5%" class="text-right">{{totalsFinancial.totalProvisional | currency}} MXN</td>
-        </tr>
+        <p-button label="Cancel" styleClass="p-button-outlined" (click)="closeRevisionModal()"></p-button>
+        <p-button label="Send" (click)="sendRevisionRequest()"></p-button>
     </ng-template>
-    </p-table>
+</p-dialog>

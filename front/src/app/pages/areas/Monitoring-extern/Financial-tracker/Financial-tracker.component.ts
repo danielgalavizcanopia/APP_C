@@ -12,6 +12,30 @@ import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
   styleUrls: ['./Financial-tracker.component.css'],
 })
 export class FinancialTrackerComponent {
+  // Nuevas propiedades para el modal
+    showSubAccountModal: boolean = false;
+    selectedSubAccount: any = null;
+    subAccountTransactions: any[] = []; // Para almacenar las transacciones detalladas
+    
+
+    // Propiedades para las transacciones
+    transactionList: any[] = [];
+    totalSelected: number = 0;
+    
+    // Propiedades para los dropdowns
+    transactionOptions: any[] = [];
+    rpOptions: any[] = [];
+    subAccountOptions: any[] = [];
+    
+    // Propiedades para los valores seleccionados
+    selectedTransaction: string = '';
+    newRP: string = '';
+    newSubAccount: string = '';
+    justification: string = '';
+
+
+
+
 
     token: any;
     proyectoSelected: Projects | null = null;
@@ -162,4 +186,100 @@ export class FinancialTrackerComponent {
   enviarRPs() {
     this.evento.emit(this.rpSelected.join(','));
   }
+
+
+     /**
+     * Abre el modal de solicitud de revision
+     * @param subAccount - Datos de la subcuenta seleccionada
+     */
+    openSubAccountModal(subAccount: any) {
+        this.selectedSubAccount = subAccount;
+        this.showSubAccountModal = true;
+        
+        // Cargar datos de ejemplo (reemplaza con tu llamada al backend)
+        // this.loadTransactionData();
+        this.loadDropdownOptions();
+        this.resetFormData();
+    }
+
+    /**
+     * Carga los datos de las transacciones
+     */
+    // loadTransactionData() {
+
+    /**
+     * Carga las opciones para los dropdowns
+     */
+    loadDropdownOptions() {
+        // cargar transaciones selecionadas
+    }
+
+    /**
+     * Actualiza el total de las transacciones seleccionadas
+     */
+    updateSelectedTotal() {
+        this.totalSelected = this.transactionList
+            .filter(transaction => transaction.selected)
+            .reduce((total, transaction) => {
+                const amount = parseFloat(transaction.amount.replace(', '));
+                return total + amount;
+            }, 0);
+    }
+    
+    getSelectedTransactionsCount(): number {
+        return this.transactionList.filter(transaction => transaction.selected).length;
+    }
+
+
+    /**
+     * Resetea los datos del formulario
+     */
+    resetFormData() {
+        this.selectedTransaction = '';
+        this.newRP = '';
+        this.newSubAccount = '';
+        this.justification = '';
+        this.totalSelected = 0;
+    }
+
+    /**
+     * Cierra el modal y limpia los datos
+     */
+    closeRevisionModal() {
+        this.showSubAccountModal = false;
+        this.selectedSubAccount = null;
+        this.transactionList = [];
+        this.resetFormData();
+    }
+
+    /**
+     * Envía la solicitud de revision
+     */
+    sendRevisionRequest() {
+        const selectedTransactions = this.transactionList.filter(t => t.selected);
+        
+        if (selectedTransactions.length === 0) {
+            console.warn('No transactions selected');
+            return;
+        }
+
+        if (!this.justification.trim()) {
+            console.warn('Justification is required');
+            return;
+        }
+
+        const requestData = {
+            subAccount: this.selectedSubAccount,
+            selectedTransactions: selectedTransactions,
+            newRP: this.newRP,
+            newSubAccount: this.newSubAccount,
+            justification: this.justification,
+            totalAmount: this.totalSelected
+        };
+
+
+        
+
+        this.closeRevisionModal();
+    }
  }
