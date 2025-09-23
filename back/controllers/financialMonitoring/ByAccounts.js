@@ -1,4 +1,6 @@
-const { ejecutarStoredProcedure } = require('../../queries/projects'); 
+const { ejecutarStoredProcedure } = require('../../queries/projects');
+const { ejecutarVistaTools } = require('../../queries/executeViews')
+
 const { getCatalogs } = require('../../queries/catalogs'); 
 const { getSharepointRegisters } = require('./Sharepoint');
 const ExcelJS = require('exceljs');
@@ -34,6 +36,7 @@ async function getByAccountsReport(req, res){
         let OpexSnd
   
         let OpexPaid
+        let lastDate;
   
         const FinancialAccounts = await ejecutarStoredProcedure('sp_GetCuentsActivitiesbyprojectandRP',[parseInt(req.params.idprojects), req.params.rpnumber]);
         if(FinancialAccounts){
@@ -75,22 +78,27 @@ async function getByAccountsReport(req, res){
           OpexPrincipalAccounts = resOpex;
         }
 
+        const getLastDate = await ejecutarVistaTools('vw_dateprovisional'); /** OBTENEMOS LA ULTIMA FECHA DEL LEDGER CARGADO */
+        if(getLastDate.length > 0){
+          lastDate = getLastDate[0];
+        }
+
         const FolioProject = CapexSnd ? CapexSnd.Folio_Project : null;
-        let SharepointInitialRows
+        let SharepointInitialRows = []
         if(FolioProject){
           SharepointInitialRows = await getSharepointRegisters(FolioProject);
         } else {
           SharepointInitialRows = [];
         }
         
-        /** CONSEGUIMOS EL 1ER DÍA DEL MES ANTERIOR Y EL DÍA ACTUAL */
-        const primerDiaMesAnterior = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-        const unaSemanaAntes = new Date(primerDiaMesAnterior);
-        unaSemanaAntes.setDate(primerDiaMesAnterior.getDate() - process.env.DAYS_TIME);
-        const fechaActual = new Date();
+        const diaLedged = lastDate.Created; /** ASIGNAMOS LA FECHA DEL ULTIMO LEDGER CARGADO EN BD */
+        const diaDespues = new Date(diaLedged);
+        diaDespues.setDate(diaLedged.getDate() + parseInt(process.env.DAYS_TIME)); /** SE LE SUMA UN DÍA, PARA LLENAR EL VACÍO EN LO QUE SE CARGA LA NUEVA DATA */
+        const fechaActual = new Date(); /* SE OBTIENE LA FECHA DEL DÍA DE HOY PARA HACER UN CORTE */
+        const titulosPermitidos = ["Pago Directo a Proveedor", "Reembolso", "Comprobación"]; /** LOS TIPOS DE TITULO QUE DEBEN DE TENER LOS REGISTROS DENTRO DE SHAREPOINT */
         /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
         const SharepointFinalRows = SharepointInitialRows.filter(registro => {
-          return registro.fields.Created >= unaSemanaAntes.toISOString() && registro.fields.Created <= fechaActual.toISOString() && registro.fields.Title == "Pago Directo a Proveedor";
+          return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
         });
         
         let CapexAccounts = [];
@@ -333,6 +341,8 @@ function getByAccountsReportXLSX(req, res){
     let OpexSnd
 
     let OpexPaid
+    let lastDate;
+
 
             const FinancialAccounts = await ejecutarStoredProcedure('sp_GetCuentsActivitiesbyprojectandRP',[parseInt(req.params.idprojects), req.params.rpnumber]);
         if(FinancialAccounts){
@@ -374,22 +384,27 @@ function getByAccountsReportXLSX(req, res){
           OpexPrincipalAccounts = resOpex;
         }
 
+        const getLastDate = await ejecutarVistaTools('vw_dateprovisional'); /** OBTENEMOS LA ULTIMA FECHA DEL LEDGER CARGADO */
+        if(getLastDate.length > 0){
+          lastDate = getLastDate[0];
+        }
+
         const FolioProject = CapexSnd ? CapexSnd.Folio_Project : null;
-        let SharepointInitialRows
+        let SharepointInitialRows = []
         if(FolioProject){
           SharepointInitialRows = await getSharepointRegisters(FolioProject);
         } else {
           SharepointInitialRows = [];
         }
         
-        /** CONSEGUIMOS EL 1ER DÍA DEL MES ANTERIOR Y EL DÍA ACTUAL */
-        const primerDiaMesAnterior = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-        const unaSemanaAntes = new Date(primerDiaMesAnterior);
-        unaSemanaAntes.setDate(primerDiaMesAnterior.getDate() - process.env.DAYS_TIME);
-        const fechaActual = new Date();
+        const diaLedged = lastDate.Created; /** ASIGNAMOS LA FECHA DEL ULTIMO LEDGER CARGADO EN BD */
+        const diaDespues = new Date(diaLedged);
+        diaDespues.setDate(diaLedged.getDate() + parseInt(process.env.DAYS_TIME)); /** SE LE SUMA UN DÍA, PARA LLENAR EL VACÍO EN LO QUE SE CARGA LA NUEVA DATA */
+        const fechaActual = new Date(); /* SE OBTIENE LA FECHA DEL DÍA DE HOY PARA HACER UN CORTE */
+        const titulosPermitidos = ["Pago Directo a Proveedor", "Reembolso", "Comprobación"]; /** LOS TIPOS DE TITULO QUE DEBEN DE TENER LOS REGISTROS DENTRO DE SHAREPOINT */
         /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
         const SharepointFinalRows = SharepointInitialRows.filter(registro => {
-          return registro.fields.Created >= unaSemanaAntes.toISOString() && registro.fields.Created <= fechaActual.toISOString() && registro.fields.Title == "Pago Directo a Proveedor";
+          return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
         });
         
         let CapexAccounts = [];
@@ -509,6 +524,7 @@ function getByAccountsReportXLSX(req, res){
                 opexplan = CapexPlanned.find(x => x.idopexsubaccount == account.idopexsubaccount && x.Ca_o_pex == 2 && x.idrpnumber == account.idrpnumber &&  x.idactivitiesprojects == account.idactivitiesprojects)
                 let shareMonto = 0;
                 let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+
                 if(provisionalRow.length >= 0){
                    for(let prov of provisionalRow){
                      shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
@@ -729,6 +745,7 @@ async function getByAccountByFullReport(idProject, rpnumbers){
       let OpexSnd
 
       let OpexPaid
+      let lastDate;
 
       const FinancialAccounts = await ejecutarStoredProcedure('sp_GetCuentsActivitiesbyprojectandRP',[parseInt(idProject), rpnumbers]);
       if(FinancialAccounts){
@@ -770,6 +787,11 @@ async function getByAccountByFullReport(idProject, rpnumbers){
         OpexPrincipalAccounts = resOpex;
       }
 
+      const getLastDate = await ejecutarVistaTools('vw_dateprovisional'); /** OBTENEMOS LA ULTIMA FECHA DEL LEDGER CARGADO */
+      if(getLastDate.length > 0){
+        lastDate = getLastDate[0];
+      }
+
       const FolioProject = CapexSnd ? CapexSnd.Folio_Project : null;
       let SharepointInitialRows
       if(FolioProject){
@@ -779,13 +801,14 @@ async function getByAccountByFullReport(idProject, rpnumbers){
       }
         
       /** CONSEGUIMOS EL 1ER DÍA DEL MES ANTERIOR Y EL DÍA ACTUAL */
-      const primerDiaMesAnterior = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-      const unaSemanaAntes = new Date(primerDiaMesAnterior);
-      unaSemanaAntes.setDate(primerDiaMesAnterior.getDate() - process.env.DAYS_TIME);
-      const fechaActual = new Date();
+      const diaLedged = lastDate.Created; /** ASIGNAMOS LA FECHA DEL ULTIMO LEDGER CARGADO EN BD */
+      const diaDespues = new Date(diaLedged);
+      diaDespues.setDate(diaLedged.getDate() + parseInt(process.env.DAYS_TIME)); /** SE LE SUMA UN DÍA, PARA LLENAR EL VACÍO EN LO QUE SE CARGA LA NUEVA DATA */
+      const fechaActual = new Date(); /* SE OBTIENE LA FECHA DEL DÍA DE HOY PARA HACER UN CORTE */
+      const titulosPermitidos = ["Pago Directo a Proveedor", "Reembolso", "Comprobación"]; /** LOS TIPOS DE TITULO QUE DEBEN DE TENER LOS REGISTROS DENTRO DE SHAREPOINT */
       /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
       const SharepointFinalRows = SharepointInitialRows.filter(registro => {
-        return registro.fields.Created >= unaSemanaAntes.toISOString() && registro.fields.Created <= fechaActual.toISOString() && registro.fields.Title == "Pago Directo a Proveedor";
+        return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
       });
       
       let CapexAccounts = [];

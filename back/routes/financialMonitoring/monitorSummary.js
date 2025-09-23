@@ -35,6 +35,12 @@ const {
     getRangeRPByDates
 } = require('../../controllers/financialMonitoring/FullFinancialReport');
 
+const {
+    getByAccountDetails,
+} = require('../../controllers/financialMonitoring/changeRequest/changeRequest');
+
+router.post('/getByAccountDetails', authMiddleware, getByAccountDetails);
+
 /** BY ACTIVITIES CONTROLLERS */
 router.get('/getBudgetTrackerByProjectRP/:idprojects/:rpnumber', authMiddleware, getByActivitiesReport);
 router.get('/generateXLSXBT/:idprojects/:rpnumber', authMiddleware, getByActivitiesReportXLSX);
@@ -58,8 +64,5 @@ router.get('/getProvisionalXlsx/:folioProject/:idProject/:rpnumbers', authMiddle
 router.get('/getFullFinancialMonitoringReport/:idprojects/:rpnumber', authMiddleware, getFullFinancialMonitoringReport);
 router.get('/getRangeRPByDates/:idprojects/:rpnumber', authMiddleware, getRangeRPByDates);
 
-/*
-    router.get('/getBearerToken', authMiddleware, getBearerToken);
-    router.get('/getBudgetTrackerSharepoint', authMiddleware, getBudgetTrackerSharepoint);
-*/
+
 module.exports = router;

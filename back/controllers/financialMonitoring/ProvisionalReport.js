@@ -1,13 +1,15 @@
 const { getSharepointRegisters } = require('./Sharepoint');
 const { ejecutarStoredProcedure } = require('../../queries/projects'); 
+const { ejecutarVistaTools } = require('../../queries/executeViews')
+
 const ExcelJS = require('exceljs');
 
 async function getProvisionalXlsx(req, res){
     try {
-        let ArrayActual = [];
 
         let capexActual = [];
         let opexActual = [];
+        let lastDate;
 
         const capex = await ejecutarStoredProcedure('sp_GetCuentsActivitiesbyprojectandRP', [parseInt(req.params.idProject), req.params.rpnumbers]);
         if(capex.length > 0){
@@ -16,7 +18,12 @@ async function getProvisionalXlsx(req, res){
         const opex = await ejecutarStoredProcedure('sp_GetOpexWithActivities', [parseInt(req.params.idProject), req.params.rpnumbers]);
         if(opex.length > 0){
             opexActual = opex[0];
-        } 
+        }
+
+        const getLastDate = await ejecutarVistaTools('vw_dateprovisional'); /** OBTENEMOS LA ULTIMA FECHA DEL LEDGER CARGADO */
+        if(getLastDate.length > 0){
+          lastDate = getLastDate[0];
+        }
 
         const FolioProject = req.params.folioProject
         let SharepointInitialRows
@@ -25,10 +32,15 @@ async function getProvisionalXlsx(req, res){
         } else {
           SharepointInitialRows = [];
         }
-        const primerDiaMesAnterior = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-        const fechaActual = new Date();
+
+        const diaLedged = lastDate.Created; /** ASIGNAMOS LA FECHA DEL ULTIMO LEDGER CARGADO EN BD */
+        const diaDespues = new Date(diaLedged);
+        diaDespues.setDate(diaLedged.getDate() + parseInt(process.env.DAYS_TIME)); /** SE LE SUMA UN DÍA, PARA LLENAR EL VACÍO EN LO QUE SE CARGA LA NUEVA DATA */
+        const fechaActual = new Date(); /* SE OBTIENE LA FECHA DEL DÍA DE HOY PARA HACER UN CORTE */
+        const titulosPermitidos = ["Pago Directo a Proveedor", "Reembolso", "Comprobación"]; /** LOS TIPOS DE TITULO QUE DEBEN DE TENER LOS REGISTROS DENTRO DE SHAREPOINT */
+        /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
         const SharepointFinalRows = SharepointInitialRows.filter(registro => {
-          return registro.fields.Created >= primerDiaMesAnterior.toISOString() && registro.fields.Created <= fechaActual.toISOString() && registro.fields.Title == "Pago Directo a Proveedor";
+          return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
         });
 
 

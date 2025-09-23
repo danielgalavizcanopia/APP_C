@@ -11,7 +11,8 @@ const {
     setStatusSettlement,
     getTotalApprovedByAssembly,
     setDeleteSettlement,
-    getSettlementXLSX
+    getSettlementXLSX,
+    getSettlementXLSXByRegister,
  } = require('../../controllers/settlement/settlement');
 
 router.post('/setSettlement', authMiddleware, setSettlement);
@@ -23,5 +24,6 @@ router.post('/setStatusSettlement', authMiddleware, setStatusSettlement);
 router.get('/getTotalApprovedByAssembly/:id/:idrpnumber', authMiddleware, getTotalApprovedByAssembly);
 router.post('/setDeleteSettlement', authMiddleware, setDeleteSettlement);
 router.get('/getSettlementXLSX/:id/:idrpnumber', authMiddleware, getSettlementXLSX);
+router.get('/getSettlementXLSXByRegister/:id/:idrpnumber', authMiddleware, getSettlementXLSXByRegister);
 
 module.exports = router;
