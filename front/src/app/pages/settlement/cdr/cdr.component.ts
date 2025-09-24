@@ -19,7 +19,7 @@ import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccoun
 })
 export class CdrComponent {
 
-     checked: boolean = false;
+  decimalType!: string;
 
   cities!: any[];
   visible!: boolean;
@@ -37,6 +37,7 @@ export class CdrComponent {
     this.settlementApproved = false;
     this.statusSelected = '';
     this.settlementForm.get('idrpnumber_main')?.enable();
+    this.decimalType = '';
 
   }
 
@@ -126,6 +127,7 @@ export class CdrComponent {
         vintage: [''],
         Idprepayment: ['',[Validators.required]],
         markert_price: [,[Validators.required]],
+        pricecanopia: [],
       }),
 
       newDeduction: this._fb.group({
@@ -155,9 +157,9 @@ export class CdrComponent {
   }
 
   addDetail(){
-    if(this.settlementForm.get('idrpnumber_main')?.invalid){
+    if(this.settlementForm.get('idrpnumber_main')?.invalid || !this.decimalType){
       this.formV = true;
-      return this.messageService.add({ severity: 'error', summary: 'RP Number Required', detail: 'Please select a RP Number'});
+      return this.messageService.add({ severity: 'error', summary: 'RP Number and decimals required', detail: 'Please select an RP Number and a decimal precision (2, 3 or 4 decimals).'});
     }
 
     if(!this.newDetail.valid){
@@ -171,6 +173,7 @@ export class CdrComponent {
         vintage: [this.newDetail.value.vintage],
         Idprepayment: [this.newDetail.value.Idprepayment],
         markert_price: [this.newDetail.value.markert_price],
+        price_canopia: [this.getPriceCanopia(this.newDetail.value.markert_price)],
     }));
     this.detailsV = false;
     this.formV = false;
@@ -346,11 +349,24 @@ export class CdrComponent {
   getPriceCanopia(marketPrice: number): number{
     const percentage = this.settlementSelected?.PercentageMktPrice_avg ? this.settlementSelected?.PercentageMktPrice_avg : this.percentageMktByProject.PercentageMktPrice
     const calculatePrice = marketPrice * (percentage / 100);
-    return calculatePrice;
+    let decimals = 2;
+    if(this.decimalType == 'two'){
+      decimals = 2 
+    } else if(this.decimalType == 'three'){
+      decimals = 3
+    } else if(this.decimalType == 'four'){
+      decimals = 4
+    }
+    console.log(this.decimalType, decimals);
+    
+    return parseFloat(calculatePrice.toFixed(decimals));
   }
 
   getTotalHorizontal(volume: number, index: number): number{
-    const total = volume * this.getPriceCanopia(this.details.at(index).value.markert_price);
+    const priceCanopia = Number(this.getPriceCanopia(this.details.at(index).value.markert_price).toFixed(
+      this.decimalType == 'two' ? 2 : this.decimalType == 'three' ? 3 : this.decimalType == 'four' ? 4 : 2
+    ));
+    const total = volume * priceCanopia;
     return total;
   }
 
@@ -498,6 +514,7 @@ export class CdrComponent {
     this.settlementService.getSettlementDetails(idSettlement, idrpnumber, this.token?.access_token).subscribe((resp: any) => {
       if(resp.valido == 1){
         this.settlementDetails = resp.result;
+        this.countDecimals(this.settlementDetails[0]?.pricecanopia)
         for(let detail of this.settlementDetails){
           this.details.push(this._fb.group({
               idrpnumber: [detail.idrpnumber],
@@ -505,11 +522,39 @@ export class CdrComponent {
               vintage: [detail.vintage],
               Idprepayment: [detail.Idprepayment],
               markert_price: [detail.markert_price],
+              price_canopia: [this.getPriceCanopia(detail.markert_price).toFixed( this.decimalType == 'two' ? 2 : this.decimalType == 'three' ? 3 : this.decimalType == 'four' ? 4 : 2 )],
           }));
         }
       }
     });
   }
+
+  countDecimals(num: number): void {
+    const numStr = num.toString();
+    let count = 0;
+
+    if (numStr.includes('.')) {
+      count = numStr.split('.')[1].length;
+    }
+
+    switch (count) {
+      case 2:
+        this.decimalType = 'two';
+        break;
+      case 3:
+        this.decimalType = 'three';
+        break;
+      case 4:
+        this.decimalType = 'four';
+        break;
+      default:
+        this.decimalType = '';
+        break;
+    }
+    console.log(this.decimalType);
+    
+  }
+
 
   getSettlementDeductions(idSettlement: number, idrpnumber: number){
     this.settlementService.getSettlementDeductions(idSettlement, idrpnumber, this.token?.access_token).subscribe((resp: any) => {

@@ -114,6 +114,19 @@ export class MonCatalogService {
         return this._apiService.sendGetRequest(this.url + `MonitorActivities/getActivityPlan/${idProyecto}/`, token);
     }
 
+    getByAccountDetails(data: any, token: string): Observable<any[]> {
+      const url = this.url + "MonitorSummary/getByAccountDetails";
+      return this._apiService.sendPostTokenRequest(data, url, token);
+    }
+
+    getCapexSubAccounts(token: string): Observable<any[]> {
+      return this._apiService.sendGetRequest(this.url + "CapexOpexAccounts/getCapexSubaccounts", token);
+    }
+
+    getOpexSubAccounts(token: string): Observable<any[]> {
+      return this._apiService.sendGetRequest(this.url + "CapexOpexAccounts/getOpexSubaccounts", token);
+    }
+
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`,

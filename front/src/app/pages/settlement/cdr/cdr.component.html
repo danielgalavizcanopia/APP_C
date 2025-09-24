@@ -51,7 +51,7 @@
                     <td>{{settlement.typeofcurrency}}</td>
                     <td>{{settlement.settlement_volume}}</td>
                     <td>{{settlement.vintage_range}}</td>
-                    <td>{{settlement.pricecanopia | currency}}</td>
+                    <td>${{settlement.pricecanopia}}</td>
                     <td>{{settlement.project_gross_income | currency}}</td>
                     <td>{{settlement.Approved | currency}}</td>
                     <td>{{settlement.ACD | currency}}</td>
@@ -108,15 +108,39 @@
     [contentStyle]="{'height':'calc(100vh - 3.5rem)'}">
     <ng-template pTemplate="content" [formGroup]="settlementForm">
         <div class="flex justify-content-between flex-wrap pt-2">
-            <div class="col-2">
-                <span class="p-float-label">
-                    <p-dropdown formControlName="idrpnumber_main" (ngModelChange)="getTotalApprovedByAssembly($event)"
-                        [options]="rpnumbers" placeholder="Select RP" optionValue="idrpnumber" optionLabel="RP_Number"
-                        inputId="float-label"></p-dropdown>
-                    <label for="float-label">RP</label>
-                </span>
-                <div *ngIf="settlementForm.get('idrpnumber_main')?.invalid && formV">
-                    <small class="p-error">This field is required</small>
+            <div class="col-4 grid">
+                <div class="col-6">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="idrpnumber_main"
+                            (ngModelChange)="getTotalApprovedByAssembly($event)" [options]="rpnumbers"
+                            placeholder="Select RP" optionValue="idrpnumber" optionLabel="RP_Number"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">RP</label>
+                    </span>
+                    <div *ngIf="settlementForm.get('idrpnumber_main')?.invalid && formV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+
+                <div class="col-6 inline-flex" *ngIf="details.length == 0">
+                    <div class="flex align-items-center pr-4">
+                        <p-radioButton name="decimals" value="two" inputId="two"
+                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
+                        <label for="two" class="ml-2">Two Decimals <small>.00</small> </label>
+                    </div>
+
+                    <div class="flex align-items-center">
+                        <p-radioButton name="decimals" value="three" inputId="three"
+                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
+                        <label for="three" class="ml-2">Three Decimals <small>.000</small> </label>
+                    </div>
+
+                    <div class="flex align-items-center">
+                        <p-radioButton name="decimals" value="four" inputId="four"
+                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
+                        <label for="four" class="ml-2">Four Decimals <small>.0000</small> </label>
+                    </div>
+
                 </div>
             </div>
             <div class="flex inline-flex">
@@ -202,15 +226,7 @@
                             <th width="12%" class="text-sm">Payment Type</th>
                             <th width="12%" class="text-sm text-right">Mtk Price USD</th>
                             <th width="12%" class="text-sm text-right">Mtk price %</th>
-                            <th width="16%" class="text-sm text-right">
-                                <div class="flex align-content-center flex-wrap justify-content-end">
-                                    <div class="flex align-items-center pr-4">
-                                        Price Canopia
-                                    </div>
-                                    <p-toggleButton [(ngModel)]="checked" onLabel=".0000"
-                                        offLabel=".00"></p-toggleButton>
-                                </div>
-                            </th>
+                            <th width="16%" class="text-sm text-right">Price Canopia</th>
                             <th width="16%" class="text-sm text-right">Total</th>
                             <th width="8%" class="text-sm"></th>
                         </tr>
@@ -223,7 +239,7 @@
                             <td>{{detail.markert_price | currency}}</td>
                             <td class="text-right">{{settlementSelected ? settlementSelected.PercentageMktPrice_avg :
                                 percentageMktByProject.PercentageMktPrice}}%</td>
-                            <td class="text-right">{{getPriceCanopia(detail.markert_price) | currency}}</td>
+                            <td class="text-right">${{getPriceCanopia(detail.markert_price)}}</td>
                             <td class="text-right">{{getTotalHorizontal(detail.settlement_volume, i) | currency}}</td>
                             <td><p-button *ngIf="!settlementApproved" icon="pi pi-trash" (onClick)="removeDetail(i)"
                                     styleClass="p-button-text" pTooltip="Delete row"></p-button></td>
@@ -385,7 +401,7 @@
                         </ng-template>
                         <ng-template pTemplate="body" let-deduction let-i="rowIndex">
                             <tr *ngIf="deduction.Idtypededuction == 1">
-                                <td>{{getNameAccount(deduction.idcapexsubaccount, deduction.Idtypededuction)}}</td>
+                                <td>{{getNameAccount(deduction.idcapexaccounts, deduction.Idtypededuction)}}</td>
                                 <td class="text-right">{{deduction.cost | currency}}</td>
                             </tr>
                         </ng-template>
@@ -407,7 +423,7 @@
                         </ng-template>
                         <ng-template pTemplate="body" let-deduction let-i="rowIndex">
                             <tr *ngIf="deduction.Idtypededuction == 2">
-                                <td>{{getNameAccount(deduction.idopexsubaccount, deduction.Idtypededuction)}}</td>
+                                <td>{{getNameAccount(deduction.idopexaccounts, deduction.Idtypededuction)}}</td>
                                 <td class="text-right">{{deduction.cost | currency}}</td>
                             </tr>
                         </ng-template>

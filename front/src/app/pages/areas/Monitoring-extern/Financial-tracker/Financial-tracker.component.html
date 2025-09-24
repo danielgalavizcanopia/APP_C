@@ -27,9 +27,9 @@
             <th width="12.5%" class="text-right">ERPA Approved</th>
             <th width="12.5%" class="text-center">Approved by assembly</th>
             <th width="12.5%" class="text-right">Planned</th>
-            <th width="12.5%" class="text-right">Actual<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+            <th width="12.5%" class="text-right">Actual<i class="pi pi-calendar-times ml-2" 
                     [pTooltip]="LastUpdatePaid"></i></th>
-            <th width="12.5%" class="text-right">Provisional<i class="pi pi-calendar-times ml-2" style="font-size: 1rem"
+            <th width="12.5%" class="text-right">Provisional<i class="pi pi-calendar-times ml-2" 
                     [pTooltip]="LastUpdateProvisional"></i></th>
         </tr>
     </ng-template>
@@ -144,54 +144,60 @@
 </ng-template>
 </p-table>
 
-<!-- Modal para mostrar detalles de la subcuenta -->
+
 <p-dialog header="New Actual Expenses" [(visible)]="showSubAccountModal" [modal]="true" [maximizable]="true"
-    [draggable]="false" [resizable]="true" styleClass="revision-modal">
+    [draggable]="false" [resizable]="true" >
 
     <div *ngIf="selectedSubAccount" class="revision-content">
-        <!-- Panel de información de cuenta -->
 
         <div class="grid info-sub">
             <div class="col-1">
                 <small>Type</small>
-                <p class="font-bold">{{selectedSubAccount.type}}</p>
+                <p class="font-bold">{{selectedSubAccount.type || 'N/A'}}</p>
             </div>
             <div class="col-1">
                 <small>RP</small>
-                <p class="font-bold">{{selectedSubAccount.idrpnumber ? 'RP ' +
-                    selectedSubAccount.idrpnumber : '01'}}</p>
+                <p class="font-bold">{{selectedSubAccount.idrpnumber ? + selectedSubAccount.idrpnumber : '01'}}</p>
             </div>
             <div class="col">
                 <small>Account</small>
-                <p class="font-bold">{{selectedSubAccount.account || selectedSubAccount.accountWA}}
-                </p>
+                <p class="font-bold">{{selectedSubAccount.account || selectedSubAccount.accountWA}}</p>
             </div>
             <div class="col">
-                <small>SubAccount</small>
+                <small>Subaccount</small>
                 <p class="font-bold">{{selectedSubAccount.Name}}</p>
             </div>
             <div class="col">
-                <small>Actual total</small>
+                <small>Current total</small>
                 <p class="font-bold">{{selectedSubAccount.paid | currency}} USD</p>
+            </div>
+            <div class="col">
+                <small>Available transactions</small>
+                <p class="font-bold">{{transactionList.length}} transactions</p>
             </div>
         </div>
         <hr>
         <div class="grid">
 
-            <!-- Columna izquierda - Tabla de transacciones -->
             <div class="col-4">
                 <p> <span class="font-bold">Step 1:</span> Select the ones to be reassigned to an RP, sub-account, or
                     both. The ones you don't select will not be sent for review.</p>
 
-                <p-table [value]="transactionList" styleClass="p-datatable-sm" [rowsPerPageOptions]="[10, 25, 50]"
-                    [paginator]="true" [rows]="5">
+                <p-table [value]="transactionList" [rowsPerPageOptions]="[10, 25, 50]"
+                    [paginator]="true" [rows]="10">
                     <ng-template pTemplate="header">
                         <tr>
-                            <th style="width: 4rem">
-                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            <th>
+                                <p-checkbox 
+                                    [(ngModel)]="selectAllTransactions"
+                                    [binary]="true"
+                                    (onChange)="toggleAllTransactions()"
+                                    pTooltip="Select all transactions"
+                                    tooltipPosition="top">
+                                </p-checkbox>
                             </th>
                             <th>Transaction ID</th>
-                            <th>Payment Date</th>
+                            <th>Payment date</th>
                             <th class="text-right">Amount</th>
                         </tr>
                     </ng-template>
@@ -199,30 +205,32 @@
                     <ng-template pTemplate="body" let-transaction>
                         <tr [ngClass]="{'p-highlight': transaction.selected}">
                             <td>
-                                <p-tableCheckbox [value]="transactionList" [(ngModel)]="transaction.selected"
-                                    (onChange)="updateSelectedTotal()"></p-tableCheckbox>
-
+                                <p-checkbox 
+                                    [(ngModel)]="transaction.selected" 
+                                    [binary]="true"
+                                    (onChange)="updateSelectedTotal()">
+                                </p-checkbox>
                             </td>
                             <td>
-                                <p>{{transaction.id || '98'}}</p>
+                                <p>{{transaction.id}}</p>
                             </td>
                             <td>
-                                <p>{{transaction.paymentDate || '28/04/2023'}}</p>
+                                <p>{{transaction.paymentDate}}</p>
                             </td>
                             <td class="text-right">
-                                <p>{{transaction.amount || '$0.00'}}</p>
+                                <p>{{transaction.amount}}</p>
                             </td>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="footer">
                         <tr>
-                            <td colspan="3" class="text-right">TOTAL [selected]</td>
-                            <td class="text-right">${{totalSelected.toFixed(2)}}</td>
+                            <td colspan="3" class="text-right font-bold">TOTAL selected</td>
+                            <td class="text-right font-bold">${{totalSelected.toFixed(2)}}</td>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="emptymessage">
                         <tr>
-                            <td colspan="3" class="text-center">
+                            <td colspan="4" class="text-center">
                                 <p class="p-3">No transactions available</p>
                             </td>
                         </tr>
@@ -230,46 +238,92 @@
                 </p-table>
             </div>
 
-            <!-- Columna derecha - Información y formulario -->
             <div class="col-8">
-                <!-- Formulario de reasignación -->
-                <p> <span class="font-bold">Step 2:</span> Make the Reassignment</p>
+                <p><span class="font-bold">Step 2:</span> Make the reassignment</p>
                 <div class="grid">
                     <div class="col">
-                        <small>Selected Transactions</small>
-                        <p>3</p>
-                        <!--
-                               <input id="selected-count" type="text" pInputText
-                                [value]="getSelectedTransactionsCount() + ' transaction' + (getSelectedTransactionsCount() !== 1 ? 's' : '')"
-                                [readonly]="true" class="w-full">
-                                -->
+                        <small>Selected transactions</small>
+                        <p>{{getSelectedTransactionsCount()}} transaction{{getSelectedTransactionsCount() !== 1 ? 's' : ''}}</p>
                     </div>
                     <div class="col">
                         <span class="p-float-label">
-                            <p-dropdown id="new-rp" [options]="rpOptions" [(ngModel)]="newRP" optionLabel="label"
-                                optionValue="value" placeholder="Select RP" inputId="float-label"></p-dropdown>
-                            <label for="float-label">RP</label>
-                        </span>
-                    </div>
-                    <div class="col">
-                        <span class="p-float-label">
-                            <p-dropdown id="new-subaccount" [options]="subAccountOptions" [(ngModel)]="newSubAccount"
-                                optionValue="value" placeholder="Select SubAccount" inputId="float-label"></p-dropdown>
-                            <label for="float-label">SubAccount</label>
+                            <p-dropdown 
+                                id="new-rp" 
+                                [options]="rpOptions" 
+                                [(ngModel)]="newRP" 
+                                optionLabel="label"
+                                optionValue="value" 
+                                placeholder="Select RP" 
+                                inputId="rp-dropdown">
+                            </p-dropdown>
+                            <label for="rp-dropdown">RP</label>
                         </span>
                     </div>
                 </div>
+                
+                <div class="grid mt-3">
+                    <div class="col">
+                        <span class="p-float-label">
+                            <p-dropdown 
+                                [(ngModel)]="typeAccounts"
+                                (onChange)="typeAccountSelected($event)" 
+                                [options]="cities"
+                                placeholder="Select Account Type" 
+                                optionLabel="name" 
+                                optionValue="code"
+                                inputId="account-type-dropdown">
+                            </p-dropdown>
+                            <label for="account-type-dropdown">Account Type</label>
+                        </span>
+                    </div>
+                    
+                    <div class="col" *ngIf="typeAccounts == 1">
+                        <span class="p-float-label">
+                            <p-dropdown 
+                                [(ngModel)]="newSubAccount"
+                                [options]="CuentasCapex" 
+                                placeholder="Select CAPEX Account" 
+                                optionLabel="concepto"
+                                optionValue="idcapexsubaccount" 
+                                [filter]="true"
+                                inputId="capex-dropdown">
+                            </p-dropdown>
+                            <label for="capex-dropdown">CAPEX Account</label>
+                        </span>
+                    </div>
+                    
+                    <div class="col" *ngIf="typeAccounts == 2">
+                        <span class="p-float-label">
+                            <p-dropdown 
+                                [(ngModel)]="newSubAccount" 
+                                [options]="CuentasOpex"
+                                placeholder="Select OPEX Account" 
+                                optionLabel="concepto" 
+                                optionValue="idopexsubaccount"
+                                [filter]="true"
+                                inputId="opex-dropdown">
+                            </p-dropdown>
+                            <label for="opex-dropdown">OPEX Account</label>
+                        </span>
+                    </div>
+                </div>
+                
                 <hr>
                 <div class="grid">
                     <div class="col-12">
                         <p><span class="font-bold">Step 3:</span> Provide a strong justification to prevent your request
                             from being rejected.</p>
                         <span class="p-float-label">
-                            <textarea id="justification" pInputTextarea [(ngModel)]="justification" [rows]="6"
-                                [autoResize]="true" placeholder="Enter your detailed justification here..."
+                            <textarea 
+                                id="justification" 
+                                pInputTextarea 
+                                [(ngModel)]="justification" 
+                                [rows]="6"
+                                [autoResize]="true" 
+                                placeholder="Enter your detailed justification here..."
                                 class="w-full">
                             </textarea>
-                            <label for="float-label">Justification</label>
+                            <label for="justification">Justification</label>
                         </span>
                     </div>
                     <p>The finance department and the technical director will review your request in detail.</p>

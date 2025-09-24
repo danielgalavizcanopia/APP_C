@@ -5,37 +5,46 @@ import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalo
 import { ObservableService } from 'src/app/services/Observables/observableProject.service';
 import { RPCatalogsService } from 'src/app/services/ReportingPeriods/RPCatalogs.service';
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
+import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccounts.service';
 
+interface City {
+  name: string;
+  code: number;
+}
 @Component({
   selector: 'app-financial-tracker',
   templateUrl: './Financial-tracker.component.html',
   styleUrls: ['./Financial-tracker.component.css'],
 })
 export class FinancialTrackerComponent {
-  // Nuevas propiedades para el modal
     showSubAccountModal: boolean = false;
     selectedSubAccount: any = null;
-    subAccountTransactions: any[] = []; // Para almacenar las transacciones detalladas
-    
+    subAccountTransactions: any[] = [];
+    selectAllTransactions: boolean = false
+    cities: City[] = [
+      { name: 'CAPEX', code: 1 },
+      { name: 'OPEX', code: 2 }
+    ];
+    typeAccounts: number = 0; 
+    CuentasCapex: any[] = [];
+    CuentasOpex: any[] = [];
+      
+    capexSubAccounts: any[] = [];
+    opexSubAccounts: any[] = [];
+  
+    currentSubAccountOptions: any[] = [];
 
-    // Propiedades para las transacciones
     transactionList: any[] = [];
     totalSelected: number = 0;
     
-    // Propiedades para los dropdowns
     transactionOptions: any[] = [];
     rpOptions: any[] = [];
     subAccountOptions: any[] = [];
     
-    // Propiedades para los valores seleccionados
     selectedTransaction: string = '';
     newRP: string = '';
     newSubAccount: string = '';
     justification: string = '';
-
-
-
-
 
     token: any;
     proyectoSelected: Projects | null = null;
@@ -65,10 +74,15 @@ export class FinancialTrackerComponent {
       readonly serviceObsProject$: ObservableService,
       private MonitoringCatalogService: MonCatalogService,
       private RPcatalogsService: RPCatalogsService,
+      private capexOpexAccountsService: CapexOpexAccountsService,
     ){
       this.token = this._authGuardService.getToken();
       this.observaProjectSelected();
       this.getRPnumber();
+        this.cities = [
+        { name: 'CAPEX', code: 1 },
+        { name: 'OPEX', code: 2 }
+      ];
     }
 
     observaProjectSelected() {
@@ -187,99 +201,229 @@ export class FinancialTrackerComponent {
     this.evento.emit(this.rpSelected.join(','));
   }
 
-
-     /**
-     * Abre el modal de solicitud de revision
-     * @param subAccount - Datos de la subcuenta seleccionada
-     */
     openSubAccountModal(subAccount: any) {
-        this.selectedSubAccount = subAccount;
-        this.showSubAccountModal = true;
-        
-        // Cargar datos de ejemplo (reemplaza con tu llamada al backend)
-        // this.loadTransactionData();
-        this.loadDropdownOptions();
-        this.resetFormData();
+      this.selectedSubAccount = subAccount;
+      
+      if (!this.selectedSubAccount.type) {
+        if (subAccount.idcapexaccount !== undefined && subAccount.idcapexaccount !== null) {
+          this.selectedSubAccount.type = 'CAPEX';
+        } else if (subAccount.idopexaccount !== undefined && subAccount.idopexaccount !== null) {
+          this.selectedSubAccount.type = 'OPEX';
+        }
+      }
+      
+      this.showSubAccountModal = true;
+      
+      this.loadSubAccountTransactions(subAccount);
+      this.loadDropdownOptions();
+      this.resetFormData();
     }
 
-    /**
-     * Carga los datos de las transacciones
-     */
-    // loadTransactionData() {
+    loadSubAccountTransactions(subAccount: any) {
+      const isCapex = subAccount.idcapexaccount !== undefined && subAccount.idcapexaccount !== null;
+      const isOpex = subAccount.idopexaccount !== undefined && subAccount.idopexaccount !== null;
+      
+      const requestData = {
+        idprojects: this.proyectoSelected?.idprojects,
+        idrpnumber: subAccount.idrpnumber,
+        idcapexsubaccount: isCapex ? subAccount.idcapexaccount : null,
+        idopexsubaccount: isOpex ? subAccount.idopexaccount : null
+      };
 
-    /**
-     * Carga las opciones para los dropdowns
-     */
-    loadDropdownOptions() {
-        // cargar transaciones selecionadas
+
+      this.MonitoringCatalogService.getByAccountDetails(requestData, this.token?.access_token)
+        .subscribe((response: any) => {
+          if (response.valido === 1) {
+            this.subAccountTransactions = response.result;
+            this.transformTransactionsForTable(response.result);
+            this.calculateTransactionTotals();
+          } else {
+            console.error("Error al cargar detalles de la subcuenta:", response.message);
+            this.subAccountTransactions = [];
+            this.transactionList = [];
+          }
+        });
     }
 
-    /**
-     * Actualiza el total de las transacciones seleccionadas
-     */
+    transformTransactionsForTable(backendTransactions: any[]) {
+      this.transactionList = backendTransactions.map((transaction, index) => ({
+        id: `TXN-${transaction.idrpnumber}-${index + 1}`,
+        paymentDate: new Date(transaction.Created).toLocaleDateString('es-MX', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        }),
+        amount: `$${transaction.Amount_USD.toFixed(2)}`,
+        selected: false,
+        originalData: transaction
+      }));
+      
+      this.selectAllTransactions = false;
+    }
+
+    calculateTransactionTotals() {
+      this.updateTotals();
+    }
+  
     updateSelectedTotal() {
-        this.totalSelected = this.transactionList
-            .filter(transaction => transaction.selected)
-            .reduce((total, transaction) => {
-                const amount = parseFloat(transaction.amount.replace(', '));
-                return total + amount;
-            }, 0);
+      this.updateTotals();
+      
+      const selectedCount = this.getSelectedTransactionsCount();
+      const totalCount = this.transactionList.length;
+      
+      this.selectAllTransactions = selectedCount > 0 && selectedCount === totalCount;
+    }
+
+    private updateTotals() {
+      this.totalSelected = this.transactionList
+        .filter(transaction => transaction.selected)
+        .reduce((total, transaction) => {
+          const amount = parseFloat(transaction.amount.replace('$', '').replace(',', ''));
+          return total + amount;
+        }, 0);
     }
     
     getSelectedTransactionsCount(): number {
-        return this.transactionList.filter(transaction => transaction.selected).length;
+      return this.transactionList.filter(transaction => transaction.selected).length;
     }
 
-
-    /**
-     * Resetea los datos del formulario
-     */
-    resetFormData() {
-        this.selectedTransaction = '';
-        this.newRP = '';
-        this.newSubAccount = '';
-        this.justification = '';
-        this.totalSelected = 0;
+  toggleAllTransactions() {
+    if (this.selectAllTransactions) {
+      this.transactionList.forEach(transaction => {
+        transaction.selected = true;
+      });
+    } else {
+      this.transactionList.forEach(transaction => {
+        transaction.selected = false;
+      });
     }
+    
+    this.updateSelectedTotal();
+  }
 
-    /**
-     * Cierra el modal y limpia los datos
-     */
+  resetFormData() {
+    this.transactionList = [];
+    this.totalSelected = 0;
+    this.selectAllTransactions = false;
+    this.selectedTransaction = '';
+    this.newRP = '';
+    this.newSubAccount = '';
+    this.justification = '';
+    this.typeAccounts = 0; 
+  }
+
+
     closeRevisionModal() {
         this.showSubAccountModal = false;
         this.selectedSubAccount = null;
         this.transactionList = [];
         this.resetFormData();
     }
+    typeAccountSelected(event: any) {
+      if (event.value == 1) {
+        this.newSubAccount = ''; 
+        this.typeAccounts = 1;
+        this.loadCapexSubAccounts(); 
+      }
 
-    /**
-     * Envía la solicitud de revision
-     */
+      if (event.value == 2) {
+        this.newSubAccount = ''; 
+        this.typeAccounts = 2;
+        this.loadOpexSubAccounts(); 
+      }
+    }
+
+  loadCapexSubAccounts() {
+    this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
+      .subscribe((response: any) => {
+        if (response.valido === 1) {
+          this.CuentasCapex = response.result;
+        } else {
+          console.error("Error al cargar subcuentas CAPEX:", response.message);
+        }
+      });
+  }
+
+  loadOpexSubAccounts() {
+    this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
+      .subscribe((response: any) => {
+        if (response.valido === 1) {
+          this.CuentasOpex = response.result;
+        } else {
+          console.error("Error al cargar subcuentas OPEX:", response.message);
+        }
+      });
+  }
+  loadDropdownOptions() {
+    this.rpOptions = this.rpnumbers.map(rp => ({
+      label: ` ${rp.RP_Number}`,
+      value: rp.idrpnumber
+    }));
+
+    this.loadCapexSubAccounts();
+    this.loadOpexSubAccounts();
+
+    if (this.selectedSubAccount.type === 'CAPEX') {
+      this.typeAccounts = 1;
+      this.currentSubAccountOptions = this.capexSubAccounts;
+    } else if (this.selectedSubAccount.type === 'OPEX') {
+      this.typeAccounts = 2;
+      this.currentSubAccountOptions = this.opexSubAccounts;
+    }
+  }
+ 
+
+
     sendRevisionRequest() {
-        const selectedTransactions = this.transactionList.filter(t => t.selected);
-        
-        if (selectedTransactions.length === 0) {
-            console.warn('No transactions selected');
-            return;
-        }
+      const selectedTransactions = this.transactionList.filter(t => t.selected);
+      
+      if (selectedTransactions.length === 0) {
+        console.warn('No transactions selected');
+        return;
+      }
 
-        if (!this.justification.trim()) {
-            console.warn('Justification is required');
-            return;
-        }
+      if (!this.justification.trim()) {
+        console.warn('Justification is required');
+        return;
+      }
 
-        const requestData = {
-            subAccount: this.selectedSubAccount,
-            selectedTransactions: selectedTransactions,
-            newRP: this.newRP,
-            newSubAccount: this.newSubAccount,
-            justification: this.justification,
-            totalAmount: this.totalSelected
-        };
+      const requestData = {
+        projectId: this.proyectoSelected?.idprojects,
+        subAccount: {
+          id: this.selectedSubAccount.idcapexaccount || this.selectedSubAccount.idopexaccount,
+          type: this.selectedSubAccount.type,
+          currentRP: this.selectedSubAccount.idrpnumber,
+          name: this.selectedSubAccount.account || this.selectedSubAccount.accountWA
+        },
+        selectedTransactions: selectedTransactions.map(t => ({
+          transactionId: t.id,
+          originalData: t.originalData,
+          amount: parseFloat(t.amount.replace('$', '').replace(',', ''))
+        })),
+        reassignment: {
+          newRP: this.newRP,
+          newSubAccount: this.newSubAccount,
+          justification: this.justification
+        },
+        totalAmount: this.totalSelected,
+        requestDate: new Date().toISOString(),
+        userId: this.token?.user_id || 'current_user'
+      };
 
+      console.log('Sending revision request:', requestData);
+      
+      // Aquí implementarías la llamada al endpoint para guardar la solicitud
+      // this.MonitoringCatalogService.submitRevisionRequest(requestData, this.token?.access_token)
+      //   .subscribe(response => {
+      //     if (response.valido === 1) {
+      //       // Mostrar mensaje de éxito
+      //       this.closeRevisionModal();
+      //     } else {
+      //       // Mostrar mensaje de error
+      //     }
+      //   });
 
-        
-
-        this.closeRevisionModal();
+      // Por ahora solo cerrar el modal
+      this.closeRevisionModal();
     }
  }
