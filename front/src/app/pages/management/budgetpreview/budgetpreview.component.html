@@ -94,8 +94,8 @@
     <p-tabPanel header="Activity Details">
       <div class="mt-5" *ngFor="let activity of activitiesByPlan; let i = index">
         <div class="flex justify-content-between mb-5">
-          <div class="text-2xl text-900">Actividad {{i+1}} - {{ activity.Actividad || activity.NombreActividad}}</div>
-          <div class="text-lg text-900">{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} -
+          <div class="text-2xl ">Actividad {{i+1}} - {{ activity.Actividad || activity.NombreActividad}}</div>
+          <div class="text-lg ">{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} -
             {{activity.actividaddateend | date: 'dd/MM/yyyy': 'UTC'}}</div>
         </div>
         <p-table styleClass="p-datatable-gridlines">
@@ -121,14 +121,14 @@
               <td class="bg-primary">Indicadores</td>
               <td>
                 <div class="flex justify-content-start mb-1">
-                  <div class="text-lg text-900">Cualitativos</div>
+                  <div class="text-lg ">Cualitativos</div>
                 </div>
                 <div>
                   {{activity.Cualitativos}}
                 </div>
                 <div class="flex justify-content-start mb-5">
                 </div>
-                <div class="text-lg text-900">Cuantitativos</div>
+                <div class="text-lg ">Cuantitativos</div>
                 <ul *ngIf="indicadoresCuantitativos[activity.IdActividaddata]; else loading"
                   [innerHTML]="indicadoresCuantitativos[activity.IdActividaddata]"></ul>
                 <ng-template #loading>

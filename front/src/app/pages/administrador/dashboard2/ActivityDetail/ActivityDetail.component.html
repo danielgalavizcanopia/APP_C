@@ -1,8 +1,8 @@
 <p-dialog header="Activity Detail" [(visible)]="visible" [style]="{width: '50vw'}" (onHide)="onHide()">
     <div class="mt-5" *ngIf="activity">
         <div class="flex justify-content-between mb-5">
-            <div class="text-2xl text-900">Activity - {{ activity.Actividad}}</div>
-            <div class="text-lg text-900">{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} - {{activity.actividaddateend | date: 'dd/MM/yyyy': 'UTC'}}</div>
+            <div class="text-2xl ">Activity - {{ activity.Actividad}}</div>
+            <div class="text-lg ">{{activity.actividaddatestart | date: 'dd/MM/yyyy': 'UTC'}} - {{activity.actividaddateend | date: 'dd/MM/yyyy': 'UTC'}}</div>
         </div>
         <p-table styleClass="p-datatable-gridlines" [loading]="loading">
             <ng-template pTemplate="footer">
@@ -26,14 +26,14 @@
                 <td class="bg-primary">Indicadores</td>
                 <td>
                   <div class="flex justify-content-start mb-1">
-                    <div class="text-lg text-900">Cualitativos</div>
+                    <div class="text-lg ">Cualitativos</div>
                   </div>
                   <div>
                     {{activity.Cualitativos}}
                   </div>
                   <div class="flex justify-content-start mb-5">
                   </div>
-                  <div class="text-lg text-900">Cuantitativos</div>
+                  <div class="text-lg ">Cuantitativos</div>
                   <ul *ngIf="indicadoresCuantitativos[activity.IdActividaddata]; else loading" [innerHTML]="indicadoresCuantitativos[activity.IdActividaddata]"></ul>
                   <ng-template #loading>
                     Cargando indicadores...

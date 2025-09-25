@@ -127,6 +127,11 @@ export class MonCatalogService {
       return this._apiService.sendGetRequest(this.url + "CapexOpexAccounts/getOpexSubaccounts", token);
     }
 
+    setReviewActualRequest(data: any, token: string): Observable<any> {
+      const url = this.url + "MonitorSummary/setReviewActualRequest";
+      return this._apiService.sendPostTokenRequest(data, url, token);
+    }
+
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`,

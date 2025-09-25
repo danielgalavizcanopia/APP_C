@@ -1,49 +1,53 @@
 <section class="" *ngIf="(selectedProject$ | async)?.idprojects">
-  <div class="grid border-bottom-1 border-green-50">
-    <div class="col-12 md:col-6">
-      <div class="flex justify-content-start">
-        <div>
-          <p class="m-0 font-semibold">ID PROJECT: {{ (selectedProject$ | async)?.idprojects }} | ID CAR: {{ (selectedProject$ | async)?.Id_ProyectoCAR }}</p>
-          <h5>{{ (selectedProject$ | async)?.ProjectName }}</h5>
-        </div>
-        <div>
-        </div>
-      </div>
+  <div class="grid">
+    <div class="col-12 md:col-4">
+                <h5>{{ (selectedProject$ | async)?.ProjectName }}</h5>
     </div>
-    <div class="col-12 md:col-6">
+    <div class="col-12 md:col-8">
       <div class="flex justify-content-end align-items-center gap-3">
         <div class="text-center">
-          <small class="block">STATE</small>
-          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Estado }}</p>
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.idprojects }}</p>
+          <small class="">ID Project</small>
         </div>
         <div class="text-center">
-          <small class="block">AGGREGATION</small>
-          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Aggregation }}</p>
+          <p class="m-0 font-bold">{{
+            (selectedProject$ | async)?.Id_ProyectoCAR }}</p>
+          <small class="">ID CAR</small>
         </div>
         <div class="text-center">
-          <small class="block">MUNICIPALITY</small>
-          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.Municipio }}</p>
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.Estado }}</p>
+          <small class="">State</small>
         </div>
         <div class="text-center">
-          <small class="block">CORE</small>
-          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.NucleoAgrario }}</p>
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.Aggregation }}</p>
+          <small class="">Aggregation</small>
         </div>
         <div class="text-center">
-          <small class="block">KIND OF PROPERTY</small>
-          <p class="m-0 font-semibold text-sm">{{ (selectedProject$ | async)?.TipoPropiedad }}</p>
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.Municipio }}</p>
+          <small class="">MUnicipality</small>
         </div>
         <div class="text-center">
-          <small class="block">STATUS</small>
-          <p class="m-0 font-semibold">
-            <span [class]="getStatusClass((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0)">
-              {{ getStatusText((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0) }}
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.NucleoAgrario }}</p>
+          <small class="">Core</small>
+        </div>
+        <div class="text-center">
+          <p class="m-0 font-bold">{{ (selectedProject$ | async)?.TipoPropiedad }}</p>
+          <small class="">Kind of Property</small>
+        </div>
+        <div class="text-center">
+          <p class="m-0 font-bold">
+            <span
+              [class]="getStatusClass((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0)">
+              {{ getStatusText((selectedProject$ | async)?.IdpstatusProject || (selectedProject$ | async)?.Status || 0)
+              }}
             </span>
           </p>
+          <small class="block">Status</small>
         </div>
       </div>
     </div>
   </div>
-  <div class="py-2">
+  <div class="project-menu">
     <p-menubar [model]="items"></p-menubar>
   </div>
 </section>

@@ -1,0 +1,214 @@
+<div>
+    <div class="flex">
+        <div class="inline-flex">
+            <h5>Actual Expenses under Review</h5>
+            <p-button type="button" (click)="menu.toggle($event)" icon="pi pi-ellipsis-v"
+                styleClass="p-button-text ml-3"></p-button>
+            <p-menu #menu [model]="items" [popup]="true"></p-menu>
+        </div>
+        <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" placeholder="Search global" />
+        </span>
+    </div>
+    <p-table #dt1 [value]="products" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+            <tr class="text-center">
+                <th>Project</th>
+                <th>Type</th>
+                <th>RP</th>
+                <th>Subaccount</th>
+                <th>Selected<br>Transaccion </th>
+                <th>Total USD <br> Transaccion </th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>
+                    <i pTooltip="Evaluador Finanzas" tooltipPosition="top"
+                        class="pi pi-circle pr-2 status-approved"></i>
+                    <i pTooltip="Area de Finanzas" tooltipPosition="top" class="pi pi-circle pr-2 status-negate"></i>
+                    <i pTooltip="Di. Tecnico" tooltipPosition="top" class="pi pi-circle status-pending"></i>
+                </td>
+                <td><p-button styleClass="p-button-text p-button-secondary" icon="pi pi-eye"
+                        (click)="showDialog()"></p-button></td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!--INICIA MODAL-->
+
+<p-dialog header="Header" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
+    [resizable]="false">
+    <div class="revision-content">
+
+        <div class="grid info-sub mb-4">
+            <div class="col-2">
+                <small>Total Transactions</small>
+                <p class="font-bold">[]</p>
+            </div>
+            <div class="col-2">
+                <small>Type</small>
+                <p class="font-bold">CAPEX<i class="pi pi-angle-double-right ico-color px-3"></i><span
+                        class="new">OPEX</span></p>
+            </div>
+            <div class="col-2">
+                <small>RP</small>
+                <p class="font-bold">RP1<i class="pi pi-angle-double-right ico-color px-3"></i><span
+                        class="new">RP2</span></p>
+            </div>
+            <div class="col">
+                <small>Account</small>
+                <p class="font-bold">Account<i class="pi pi-angle-double-right ico-color px-3"></i><span
+                        class="new">Account</span></p>
+            </div>
+            <div class="col">
+                <small>Subaccount</small>
+                <p class="font-bold">Subaccount<i class="pi pi-angle-double-right ico-color px-3"></i><span
+                        class="new">Subaccount</span></p>
+            </div>
+
+            <div class="col-12">
+                <small class="font-bold">JUSTIFICATION</small>
+                <hr class="m-0">
+                <p-scrollPanel [style]="{ width: '100%', height: '150px' }" styleClass="custombar1">
+                    <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+                        printer
+                        took a galley of type and scrambled it to make a type specimen book. It has survived not only
+                        five
+                        centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It
+                        was
+                        popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                        and
+                        more recently with desktop publishing software like Aldus PageMaker including versions of Lorem
+                        Ipsum.</p>
+                </p-scrollPanel>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col-4">
+                <p-table syleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>ID Transaction</th>
+                            <th>Date Payment </th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body">
+                        <tr>
+                            <td>
+                                <p></p>
+                            </td>
+                            <td>
+                                <p></p>
+                            </td>
+                            <td class="text-right">
+                                <p></p>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <td colspan="2" class="text-right font-bold">TOTAL</td>
+                            <td class="text-right font-bold">$</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <p class="p-3">No transactions available</p>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <div class="col-8">
+                <small class="font-bold">HISTORY MESSAGE</small>
+                <hr>
+                <p-scrollPanel [style]="{ width: '100%', height: '200px' }" styleClass="custombar1">
+                    <div class="grid">
+                        <div class="col-12">
+                            <div>
+                                <p class="font-bold">[Name user] | [date registre] | <span
+                                        class="status-approved">[Status]</span>
+                                </p>
+                            </div>
+
+                            <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
+                                unknown
+                                printer took a galley of type and scrambled it to make a type specimen book. It has
+                                survived
+                                not
+                                only five centuries, but also the leap into electronic typesetting, remaining
+                                essentially
+                                unchanged. It was popularised in the 1960s with the release of Letraset sheets
+                                containing
+                                Lorem
+                                Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker
+                                including versions of Lorem Ipsum.</p>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="text-right">
+                                <p class="font-bold">[Name user] | [date registre] | <span
+                                        class="status-negate">[Status]</span>
+                                </p>
+                            </div>
+                            <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
+                                unknown
+                                printer took a galley of type and scrambled it to make a type specimen book. It has
+                                survived
+                                not
+                                only five centuries, but also the leap into electronic typesetting, remaining
+                                essentially
+                                unchanged. It was popularised in the 1960s with the release of Letraset sheets
+                                containing
+                                Lorem
+                                Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker
+                                including versions of Lorem Ipsum.</p>
+                        </div>
+                    </div>
+                </p-scrollPanel>
+                <hr>
+                <div class="grid">
+                    <div class="col-4">
+                        <span class="p-float-label">
+                            <p-dropdown placeholder="Status">
+                            </p-dropdown>
+                            <label>
+                                Status
+                            </label>
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <span class="p-float-label">
+                            <textarea pInputTextarea id="float-input" rows="5" cols="30"></textarea>
+                            <label for="float-input">Justification</label>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" styleClass="p-button-outlined"></p-button>
+        <p-button label="Send"></p-button>
+    </ng-template>
+</p-dialog>

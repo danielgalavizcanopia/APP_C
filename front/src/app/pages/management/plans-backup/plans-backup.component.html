@@ -3,12 +3,12 @@
     <div class="flex justify-content-center">
         <p-scrollPanel [style]="{ width: '100%', height: '800px' }">
           <div class="flex justify-content-between mb-5">
-            <div class="text-2xl text-900">{{proyectoSelected?.ProjectName}}</div>
-            <div class="text-lg text-900"></div>
-            <!-- <div class="text-lg text-900">Inicio: 2024-11-09 - Fin: 2025-11-09</div> -->
+            <div class="text-2xl ">{{proyectoSelected?.ProjectName}}</div>
+            <div class="text-lg "></div>
+            <!-- <div class="text-lg ">Inicio: 2024-11-09 - Fin: 2025-11-09</div> -->
           </div>
           <div class="flex justify-content-center mb-5">
-            <div class="text-2xl text-900">Actividades de Reporte</div>
+            <div class="text-2xl ">Actividades de Reporte</div>
           </div>
           <div class="flex justify-content-center mb-5">
             <p-table [value]="activitiesSchedule" [loading]="loading" [rows]="10" scrollHeight="400px" [tableStyle]="{ 'min-width': '50rem' }"
@@ -33,7 +33,7 @@
           </p-table>
           </div>
           <div class="flex justify-content-center mb-5">
-            <div class="text-2xl text-900">Cronograma de actividades</div>
+            <div class="text-2xl ">Cronograma de actividades</div>
           </div>
           <div class="flex justify-content-center">
             <p-table [value]="activitiesSchedule" [loading]="loading" [rows]="10" scrollHeight="400px" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
@@ -68,8 +68,8 @@
           </div>
           <div class="mt-5" *ngFor="let activity of actividadesHist; let i = index">
               <div class="flex justify-content-between mb-5">
-                  <div class="text-2xl text-900">Actividad {{i+1}} - {{activity.Actividad}}</div>
-                  <div class="text-lg text-900">{{activity.actividaddatestart | date}} - {{activity.actividaddateend | date}}</div>
+                  <div class="text-2xl ">Actividad {{i+1}} - {{activity.Actividad}}</div>
+                  <div class="text-lg ">{{activity.actividaddatestart | date}} - {{activity.actividaddateend | date}}</div>
               </div>
               <p-table styleClass="p-datatable-gridlines">
                 <ng-template pTemplate="footer">
@@ -93,14 +93,14 @@
                     <td class="bg-primary">Indicadores</td>
                     <td>
                       <div class="flex justify-content-start mb-1">
-                        <div class="text-lg text-900">Cualitativos</div>
+                        <div class="text-lg ">Cualitativos</div>
                       </div>
                       <div>
                         {{activity.Cualitativos}}
                       </div>
                       <div class="flex justify-content-start mb-5">
                       </div>
-                      <div class="text-lg text-900">Cuantitativos</div>
+                      <div class="text-lg ">Cuantitativos</div>
                       <ul *ngIf="indicadoresCuantitativos[activity.IdActividaddata]; else loading" [innerHTML]="indicadoresCuantitativos[activity.IdActividaddata]"></ul>
                       <ng-template #loading>
                         Cargando indicadores...

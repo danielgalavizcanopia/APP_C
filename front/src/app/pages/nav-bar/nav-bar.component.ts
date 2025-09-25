@@ -94,12 +94,12 @@ export class NavBarComponent {
     } else {
       this.items = [
         {
-          label: 'DASHBOARD PROJECT DETAILS',
+          label: 'Dashboard Project',
           icon: 'pi pi-chart-bar',
           routerLink: ["/DashboardProjectDetail"]
         },
         {
-          label: 'ORIGINATION',
+          label: 'Origination',
           icon: 'pi pi-globe',
           items: [
             {
@@ -150,7 +150,7 @@ export class NavBarComponent {
           ]
         },
         {
-          label: 'IMPLEMENTATION',
+          label: 'Implementation',
           icon: 'pi pi-book',
           items: [
             {
@@ -209,7 +209,7 @@ export class NavBarComponent {
           ]
         },
         {
-          label: 'REPORTING',
+          label: 'Reporting',
           icon: 'pi pi-fw pi-folder',
           items: [
             {
@@ -238,7 +238,7 @@ export class NavBarComponent {
           ]
         },
         {
-            label: 'VERTIFICATION',
+            label: 'Verification',
             icon: 'pi pi-fw pi-file-edit',
             items: [
               {
@@ -252,7 +252,7 @@ export class NavBarComponent {
             ]
           },
           {
-            label: 'REGISTRATION/ISSUANCE',
+            label: 'Registration/Issuance',
             icon: 'pi pi-fw pi-align-left',
             items: [
               {
@@ -262,7 +262,7 @@ export class NavBarComponent {
             ]
           },
           {
-            label: 'SETTLEMENT',
+            label: 'Settlement',
             icon: 'pi pi-fw pi-map',
             items: [
               {
@@ -273,7 +273,7 @@ export class NavBarComponent {
             ]
           },
           {
-            label: 'COMMERCIALISATION',
+            label: 'Commercialisation',
             icon: 'pi pi-fw pi-map',
             items: [
               {

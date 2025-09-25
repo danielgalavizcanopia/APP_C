@@ -123,6 +123,7 @@ import { ByTransactionComponent } from '../pages/areas/Monitoring-extern/by-tran
 import { CaOpSetComponent } from '../pages/settlement/ca-op-set/ca-op-set.component';
 import { CdrComponent } from '../pages/settlement/cdr/cdr.component';
 import { SettlementComponent } from '../pages/settlement/settlement.component';
+import { DashFinancialComponent } from '../pages/administrador/inicio/dash-financial/dash-financial.component';
 
 
 
@@ -159,6 +160,7 @@ import { SettlementComponent } from '../pages/settlement/settlement.component';
         SettlementComponent,
         CdrComponent,
         CaOpSetComponent,
+        DashFinancialComponent,
 
     ],
     imports: [
@@ -259,7 +261,7 @@ import { SettlementComponent } from '../pages/settlement/settlement.component';
     ],
     exports: [
         NavBarComponent,// Exporting the component here
-        AlertaComponent 
-      ],
+        AlertaComponent
+    ],
 })
 export class AppLayoutModule { }

@@ -108,8 +108,8 @@
     [contentStyle]="{'height':'calc(100vh - 3.5rem)'}">
     <ng-template pTemplate="content" [formGroup]="settlementForm">
         <div class="flex justify-content-between flex-wrap pt-2">
-            <div class="col-4 grid">
-                <div class="col-6">
+            <div class="col-8 grid">
+                <div class="col-3">
                     <span class="p-float-label">
                         <p-dropdown formControlName="idrpnumber_main"
                             (ngModelChange)="getTotalApprovedByAssembly($event)" [options]="rpnumbers"
@@ -122,23 +122,23 @@
                     </div>
                 </div>
 
-                <div class="col-6 inline-flex" *ngIf="details.length == 0">
+                <div class="col-9 inline-flex" *ngIf="details.length == 0">
                     <div class="flex align-items-center pr-4">
                         <p-radioButton name="decimals" value="two" inputId="two"
                             [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="two" class="ml-2">Two Decimals <small>.00</small> </label>
+                        <label for="two" class="ml-2">Two Decimals <br> <small>.00</small> </label>
                     </div>
 
-                    <div class="flex align-items-center">
+                    <div class="flex align-items-center pr-4">
                         <p-radioButton name="decimals" value="three" inputId="three"
                             [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="three" class="ml-2">Three Decimals <small>.000</small> </label>
+                        <label for="three" class="ml-2">Three Decimals <br> <small>.000</small> </label>
                     </div>
 
                     <div class="flex align-items-center">
                         <p-radioButton name="decimals" value="four" inputId="four"
                             [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="four" class="ml-2">Four Decimals <small>.0000</small> </label>
+                        <label for="four" class="ml-2">Four Decimals <br> <small>.0000</small> </label>
                     </div>
 
                 </div>

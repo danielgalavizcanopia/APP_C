@@ -26,6 +26,9 @@ export class ByTransactionComponent {
     @Output() evento = new EventEmitter<string>();
 
     dateRanges!: DateRangesByProject;
+
+    filtered = this.byTransactionData;
+    searchText: string = '';
   
     constructor(
         private MonitoringCatalogService: MonCatalogService,
@@ -67,6 +70,7 @@ export class ByTransactionComponent {
             for(let transaction of this.byTransactionData){
                 this.totalAmount += transaction.total;
             }
+            this.filterData()
         } else {
             console.error("No se pudo traer la información de getTransactionTracker", response.message)
         }
@@ -99,5 +103,52 @@ export class ByTransactionComponent {
     enviarRPs() {
       this.evento.emit(this.rpSelected.join(','));
     }
+
+  filterData() {
+  const term = this.searchText.toLowerCase().trim();
+
+  // ✅ si no hay término de búsqueda, se regresa el arreglo original
+  if (!term) {
+    this.filtered = [...this.byTransactionData];
+    return;
+  }
+
+  this.filtered = this.byTransactionData
+    .map((group) => {
+      // Filtrar solo por los campos relevantes en accounts
+      const filteredAccounts = group.accounts.filter((account) => {
+        return (
+          String(account.idTransaction).toLowerCase().includes(term) ||
+          String(account.accountName).toLowerCase().includes(term) ||
+          String(account.Actividad).toLowerCase().includes(term) ||
+          String(account.typeofBeneficiary).toLowerCase().includes(term)
+        );
+      });
+
+      // Verificamos también en las propiedades del grupo principal
+      if (
+        group.accountType.toLowerCase().includes(term) ||
+        String(group.total).toLowerCase().includes(term) ||
+        filteredAccounts.length > 0
+      ) {
+        return {
+          ...group,
+          accounts: filteredAccounts,
+        };
+      }
+
+      return null;
+    })
+    .filter((group) => group !== null) as any[];
+  }
+
+  sumTotalAccounts(transactions: any[]){
+    let sum = 0
+    for(let transaction of transactions){
+      sum += transaction.Amount_USD
+    }
+    return sum
+  }
+
 }
 

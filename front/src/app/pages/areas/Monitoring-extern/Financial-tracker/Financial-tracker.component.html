@@ -101,7 +101,7 @@
             <td class="text-right">{{data.provisional | currency}} MXN</td>
             <td class="text-center">
                 <button *ngIf="data.paid > 0" type="button" pButton pRipple icon="pi pi-search"
-                    class="p-button-rounded p-button-text p-button-sm" (click)="openSubAccountModal(data)"
+                    class="p-button-rounded p-button-text p-button-sm" (click)="openSubAccountModal(data, subaccount.AccountName)"
                     pTooltip="Ver detalles de transacciones" tooltipPosition="top">
                 </button>
             </td>
@@ -161,19 +161,22 @@
             </div>
             <div class="col">
                 <small>Account</small>
-                <p class="font-bold">{{selectedSubAccount.account || selectedSubAccount.accountWA}}</p>
+                <p class="font-bold">{{selectedSubAccount.parentAccountName || 'N/A'}}</p>
             </div>
             <div class="col">
                 <small>Subaccount</small>
-                <p class="font-bold">{{selectedSubAccount.Name}}</p>
+                <p class="font-bold">{{selectedSubAccount.account || selectedSubAccount.accountWA}}</p>
+
             </div>
+            <!--
             <div class="col">
-                <small>Current total</small>
+                <small>Total Current </small>
                 <p class="font-bold">{{selectedSubAccount.paid | currency}} USD</p>
             </div>
+            -->
             <div class="col">
-                <small>Available transactions</small>
-                <p class="font-bold">{{transactionList.length}} transactions</p>
+                <small>Total transactions</small>
+                <p class="font-bold">{{transactionList.length}}</p>
             </div>
         </div>
         <hr>
@@ -184,7 +187,7 @@
                     both. The ones you don't select will not be sent for review.</p>
 
                 <p-table [value]="transactionList" [rowsPerPageOptions]="[10, 25, 50]"
-                    [paginator]="true" [rows]="10">
+                    [paginator]="true" [rows]="10" syleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>
@@ -223,8 +226,13 @@
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="footer">
-                        <tr>
-                            <td colspan="3" class="text-right font-bold">TOTAL selected</td>
+                        <tr *ngIf="!hasSelectedTransactions()">
+                            <td colspan="3" class="text-right font-bold">TOTAL</td>
+                            <td class="text-right font-bold">${{totalGeneral.toFixed(2)}}</td>
+                        </tr>
+                        
+                        <tr *ngIf="hasSelectedTransactions()">
+                            <td colspan="3" class="text-right font-bold">TOTAL SELECTED</td>
                             <td class="text-right font-bold">${{totalSelected.toFixed(2)}}</td>
                         </tr>
                     </ng-template>
@@ -243,7 +251,8 @@
                 <div class="grid">
                     <div class="col">
                         <small>Selected transactions</small>
-                        <p>{{getSelectedTransactionsCount()}} transaction{{getSelectedTransactionsCount() !== 1 ? 's' : ''}}</p>
+
+                        <p class="font-bold">{{getSelectedTransactionsCount()}} transaction{{getSelectedTransactionsCount() !== 1 ? 's' : ''}}</p>
                     </div>
                     <div class="col">
                         <span class="p-float-label">
@@ -251,59 +260,30 @@
                                 id="new-rp" 
                                 [options]="rpOptions" 
                                 [(ngModel)]="newRP" 
+                                (onChange)="onRPSelected()"
                                 optionLabel="label"
                                 optionValue="value" 
                                 placeholder="Select RP" 
                                 inputId="rp-dropdown">
                             </p-dropdown>
-                            <label for="rp-dropdown">RP</label>
                         </span>
                     </div>
-                </div>
-                
-                <div class="grid mt-3">
                     <div class="col">
                         <span class="p-float-label">
                             <p-dropdown 
-                                [(ngModel)]="typeAccounts"
-                                (onChange)="typeAccountSelected($event)" 
-                                [options]="cities"
-                                placeholder="Select Account Type" 
-                                optionLabel="name" 
-                                optionValue="code"
-                                inputId="account-type-dropdown">
-                            </p-dropdown>
-                            <label for="account-type-dropdown">Account Type</label>
-                        </span>
-                    </div>
-                    
-                    <div class="col" *ngIf="typeAccounts == 1">
-                        <span class="p-float-label">
-                            <p-dropdown 
                                 [(ngModel)]="newSubAccount"
-                                [options]="CuentasCapex" 
-                                placeholder="Select CAPEX Account" 
+                                [options]="currentSubAccountOptions" 
+                                [disabled]="typeAccounts === 0"
+                                placeholder="Select SubAccount" 
                                 optionLabel="concepto"
-                                optionValue="idcapexsubaccount" 
+                                [optionValue]="typeAccounts === 1 ? 'idcapexsubaccount' : 'idopexsubaccount'"
                                 [filter]="true"
-                                inputId="capex-dropdown">
+                                inputId="subaccount-dropdown"
+                                appendTo="body">
                             </p-dropdown>
-                            <label for="capex-dropdown">CAPEX Account</label>
-                        </span>
-                    </div>
-                    
-                    <div class="col" *ngIf="typeAccounts == 2">
-                        <span class="p-float-label">
-                            <p-dropdown 
-                                [(ngModel)]="newSubAccount" 
-                                [options]="CuentasOpex"
-                                placeholder="Select OPEX Account" 
-                                optionLabel="concepto" 
-                                optionValue="idopexsubaccount"
-                                [filter]="true"
-                                inputId="opex-dropdown">
-                            </p-dropdown>
-                            <label for="opex-dropdown">OPEX Account</label>
+                            <label for="subaccount-dropdown">
+                                Subaccount
+                            </label>
                         </span>
                     </div>
                 </div>
@@ -320,7 +300,6 @@
                                 [(ngModel)]="justification" 
                                 [rows]="6"
                                 [autoResize]="true" 
-                                placeholder="Enter your detailed justification here..."
                                 class="w-full">
                             </textarea>
                             <label for="justification">Justification</label>
@@ -337,3 +316,4 @@
         <p-button label="Send" (click)="sendRevisionRequest()"></p-button>
     </ng-template>
 </p-dialog>
+<p-toast></p-toast>

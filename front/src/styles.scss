@@ -44,7 +44,7 @@ $gutter: 1rem; //for primeflex grid system
 
 small{
     font-size: 12px;
-    color: #464B54;
+    color: #616161;
 }
 
 .img-fluid {
@@ -137,7 +137,13 @@ small{
 }
 
 .info-sub{
-    background-color: #F3F3F3;
+    background-color: rgba(234, 234, 234, 0.5);
     padding: 10px;
     border-radius: 16px;
+}
+
+.p-scrollpanel.custombar1 .p-scrollpanel-bar {
+    background-color: #EAEAEA;
+    opacity: 1;
+    transition: background-color .2s;
 }

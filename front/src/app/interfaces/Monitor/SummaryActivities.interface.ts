@@ -93,8 +93,54 @@ export interface ByTransaction {
     id:          number;
     accountType: string;
     total:       number;
-    accounts:    Account[];
+    accounts:    TransactionAccount[];
 }
+
+export interface TransactionAccount {
+    idrpnumber:        number;
+    principalAccount:  PrincipalAccount;
+    idTransaction:     number;
+    accountName:       string;
+    Actividad:         null | string;
+    typeofBeneficiary: TypeofBeneficiary;
+    typeofSupplier:    TypeofSupplier;
+    Amount_USD:        number;
+    createdAt:         Date;
+    recipient:         Recipient;
+}
+
+export enum PrincipalAccount {
+    The51010Contingencia = "510.10 Contingencia",
+    The5101CAROnsiteVerification = "510.1 CAR Onsite Verification",
+    The5104MonitoringBaseline = "510.4 Monitoring Baseline",
+    The5105OnsiteImplementation = "510.5 Onsite Implementation",
+    The5106GastosDeGestionDeProyecto = "510.6 Gastos de Gestion de Proyecto",
+    The5107PDDDevelopment = "510.7 PDD Development",
+    The5108Registration = "510.8 Registration",
+    The5109VerificationSupport = "510.9 Verification Support",
+}
+
+export enum Recipient {
+    Canopia = "Canopia",
+    Community = "Community",
+    Empty = "",
+    ThirdParty = "Third party",
+}
+
+export enum TypeofBeneficiary {
+    DirectCommunityBenefit = "Direct Community Benefit",
+    ServiceProviders = "Service Providers",
+}
+
+export enum TypeofSupplier {
+    Canopia = "Canopia",
+    Car = "CAR",
+    CommunityEmployment = "Community Employment",
+    EquipmentForCommunity = "Equipment for Community",
+    LocalTechnicalServiceProviders = "Local Technical Service Providers",
+    ServiceProductProviders = "Service/product providers",
+}
+
 
 export interface DateRangesByProject {
     Resultado:              string;

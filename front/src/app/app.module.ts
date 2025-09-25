@@ -220,6 +220,7 @@ registerLocaleData(localeEsMx);
         UsuariosComponent,
         ActivitiesCatalogComponent,
         PrepaDeducComponent,
+   
 
     ],
     imports: [

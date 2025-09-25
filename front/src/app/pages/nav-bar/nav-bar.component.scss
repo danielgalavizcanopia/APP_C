@@ -1,14 +1,19 @@
 section{
-    background-color: #E3F0EA;
+    background-color: rgb(227 240 234 / 50%);
     padding: 16px 30px 0px;
+}
+
+.project-menu{
+  border-top: 2px solid #e3f0ea;
+    padding: 4px 0px; 
 }
 
 // Status styles
 .status-live {
-  background-color: #4CAF50;
+  background-color: #3DB87B;
   color: white;
   padding: 4px 8px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -18,7 +23,7 @@ section{
 }
 
 .status-evaluation {
-  background-color: #FF9800;
+  background-color: #D87610;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -44,7 +49,7 @@ section{
 }
 
 .status-cancelled {
-  background-color: #F44336;
+  background-color: #D1410D;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -57,7 +62,7 @@ section{
 }
 
 .status-unknown {
-  background-color: #9E9E9E;
+  background-color: #616161;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;

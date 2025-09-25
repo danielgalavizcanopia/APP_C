@@ -1,29 +1,24 @@
-<section class="m-3 anti-scroll">
-    <div class="card mb-8 pb-8">
-        <div class="grid">
-            <div class="col-12 md:col-12 font-bold text-center p-4 border-round mb-3">
-                <div class="text-5xl">Welcome Canopia System</div>
-                <div class="text-2xl">New System to management projects information</div>
-            </div>
+<section class="container">
+    <p class="m-0">Manage and track your projects</p>
+    <h3 class="m-0">Global Dashboard</h3>
+    <div class="grid">
 
-            <div class="col-12 md:col-12 font-bold text-center p-4 border-round mb-3">
-                <div class="text-2xl">We can start:</div>
+        <div class="col-12">
+            <div class="card-job text-center">
+                <img src="../../../../assets/layout/images/job.png" width="10%" alt="">
+                <h4 class="m-0">We're working on something exceptional.</h4>
+                <p class="m-0">Thank you for your patience while we prepare this section.</p>
             </div>
-            <div class="col-12 md:col-5 pb-8">
-                <div class="flex-1 align-items-center text-center">Select a project in the dropdown list to start</div>
-                <div class="flex-1 h-4rem font-bold text-center p-4 border-round">
-                    <p-image src="../../../../assets/layout/images/start-dropdown.png" alt="Image" width="350"></p-image>
-                </div>
-            </div>
-            <div class="col-12 md:col-2 mt-8 pb-8 text-center">
-                <div class="flex-1 align-items-center text-2xl">Or</div>
-            </div>
-            <div class="col-12 md:col-5  pb-8">
-                <div class="flex-1 align-items-center text-center">Redirect to projets view and select a project to start</div>
-                <div class="flex-1 h-4rem font-bold text-center p-4 border-round mx-4">
-                    <p-image src="../../../../assets/layout/images/start-projectsView.png" alt="Image" width="350"></p-image>
-                </div>
-            </div>
+        </div>
+
+        <div class="col-12">
+            <p-tabView>
+                <p-tabPanel header="Origination"></p-tabPanel>
+                <p-tabPanel header="Financial Monitoring">
+                    <dash-financial></dash-financial>
+                </p-tabPanel>
+                <p-tabPanel header="Commercialisation"></p-tabPanel>
+            </p-tabView>
         </div>
     </div>
     <!-- <app-dashboard2 *ngIf="proyectoSelected?.idprojects"></app-dashboard2> -->

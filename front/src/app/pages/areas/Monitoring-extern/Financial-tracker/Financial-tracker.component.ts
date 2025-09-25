@@ -6,7 +6,7 @@ import { ObservableService } from 'src/app/services/Observables/observableProjec
 import { RPCatalogsService } from 'src/app/services/ReportingPeriods/RPCatalogs.service';
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccounts.service';
-
+import { MessageService } from 'primeng/api';
 interface City {
   name: string;
   code: number;
@@ -15,10 +15,12 @@ interface City {
   selector: 'app-financial-tracker',
   templateUrl: './Financial-tracker.component.html',
   styleUrls: ['./Financial-tracker.component.css'],
+  providers: [MessageService]
 })
 export class FinancialTrackerComponent {
     showSubAccountModal: boolean = false;
     selectedSubAccount: any = null;
+    totalGeneral: number = 0;  
     subAccountTransactions: any[] = [];
     selectAllTransactions: boolean = false
     cities: City[] = [
@@ -42,7 +44,7 @@ export class FinancialTrackerComponent {
     subAccountOptions: any[] = [];
     
     selectedTransaction: string = '';
-    newRP: string = '';
+    newRP: number | null = null; 
     newSubAccount: string = '';
     justification: string = '';
 
@@ -75,6 +77,7 @@ export class FinancialTrackerComponent {
       private MonitoringCatalogService: MonCatalogService,
       private RPcatalogsService: RPCatalogsService,
       private capexOpexAccountsService: CapexOpexAccountsService,
+      private messageService: MessageService,
     ){
       this.token = this._authGuardService.getToken();
       this.observaProjectSelected();
@@ -201,8 +204,11 @@ export class FinancialTrackerComponent {
     this.evento.emit(this.rpSelected.join(','));
   }
 
-    openSubAccountModal(subAccount: any) {
-      this.selectedSubAccount = subAccount;
+    openSubAccountModal(subAccount: any, accountName?: string) {
+      this.selectedSubAccount = {
+        ...subAccount,
+        parentAccountName: accountName  
+      };
       
       if (!this.selectedSubAccount.type) {
         if (subAccount.idcapexaccount !== undefined && subAccount.idcapexaccount !== null) {
@@ -238,7 +244,6 @@ export class FinancialTrackerComponent {
             this.transformTransactionsForTable(response.result);
             this.calculateTransactionTotals();
           } else {
-            console.error("Error al cargar detalles de la subcuenta:", response.message);
             this.subAccountTransactions = [];
             this.transactionList = [];
           }
@@ -247,7 +252,7 @@ export class FinancialTrackerComponent {
 
     transformTransactionsForTable(backendTransactions: any[]) {
       this.transactionList = backendTransactions.map((transaction, index) => ({
-        id: `TXN-${transaction.idrpnumber}-${index + 1}`,
+        id: transaction.IdP_R_Estructurada,
         paymentDate: new Date(transaction.Created).toLocaleDateString('es-MX', { 
           day: '2-digit', 
           month: '2-digit', 
@@ -258,7 +263,16 @@ export class FinancialTrackerComponent {
         originalData: transaction
       }));
       
+      this.totalGeneral = this.transactionList.reduce((total, transaction) => {
+        const amount = parseFloat(transaction.amount.replace('$', '').replace(',', ''));
+        return total + amount;
+      }, 0);
+      
       this.selectAllTransactions = false;
+    }
+
+    hasSelectedTransactions(): boolean {
+      return this.transactionList.some(transaction => transaction.selected);
     }
 
     calculateTransactionTotals() {
@@ -283,34 +297,34 @@ export class FinancialTrackerComponent {
         }, 0);
     }
     
-    getSelectedTransactionsCount(): number {
-      return this.transactionList.filter(transaction => transaction.selected).length;
+      getSelectedTransactionsCount(): number {
+        return this.transactionList.filter(transaction => transaction.selected).length;
+      }
+
+    toggleAllTransactions() {
+      if (this.selectAllTransactions) {
+        this.transactionList.forEach(transaction => {
+          transaction.selected = true;
+        });
+      } else {
+        this.transactionList.forEach(transaction => {
+          transaction.selected = false;
+        });
+      }
+      
+      this.updateSelectedTotal();
     }
 
-  toggleAllTransactions() {
-    if (this.selectAllTransactions) {
-      this.transactionList.forEach(transaction => {
-        transaction.selected = true;
-      });
-    } else {
-      this.transactionList.forEach(transaction => {
-        transaction.selected = false;
-      });
+    resetFormData() {
+      this.transactionList = [];
+      this.totalSelected = 0;
+      this.selectAllTransactions = false;
+      this.selectedTransaction = '';
+      this.newSubAccount = '';
+      this.justification = '';
+      this.typeAccounts = 0; 
+      this.currentSubAccountOptions = [];
     }
-    
-    this.updateSelectedTotal();
-  }
-
-  resetFormData() {
-    this.transactionList = [];
-    this.totalSelected = 0;
-    this.selectAllTransactions = false;
-    this.selectedTransaction = '';
-    this.newRP = '';
-    this.newSubAccount = '';
-    this.justification = '';
-    this.typeAccounts = 0; 
-  }
 
 
     closeRevisionModal() {
@@ -319,58 +333,120 @@ export class FinancialTrackerComponent {
         this.transactionList = [];
         this.resetFormData();
     }
-    typeAccountSelected(event: any) {
-      if (event.value == 1) {
-        this.newSubAccount = ''; 
+    // typeAccountSelected(event: any) {
+    //   if (event.value == 1) {
+    //     this.newSubAccount = ''; 
+    //     this.typeAccounts = 1;
+    //     this.loadCapexSubAccounts(); 
+    //   }
+
+    //   if (event.value == 2) {
+    //     this.newSubAccount = ''; 
+    //     this.typeAccounts = 2;
+    //     this.loadOpexSubAccounts(); 
+    //   }
+    // }
+
+    loadCapexSubAccounts() {
+      this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
+        .subscribe((response: any) => {
+          if (response.valido === 1) {
+            this.CuentasCapex = response.result;
+          } else {
+            console.error("Error al cargar subcuentas CAPEX:", response.message);
+          }
+        });
+    }
+
+    loadOpexSubAccounts() {
+      this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
+        .subscribe((response: any) => {
+          if (response.valido === 1) {
+            this.CuentasOpex = response.result;
+          } else {
+            console.error("Error al cargar subcuentas OPEX:", response.message);
+          }
+        });
+    }
+    loadDropdownOptions() {
+      this.rpOptions = this.rpnumbers.map(rp => ({
+        label: `${rp.RP_Number}`,
+        value: rp.idrpnumber
+      }));
+
+      this.loadSubAccountsAndSetDefault();
+    }
+
+    loadSubAccountsAndSetDefault() {
+      Promise.all([
+        this.loadCapexSubAccountsAsync(),
+        this.loadOpexSubAccountsAsync()
+      ]).then(() => {
+        this.setDefaultRP();
+      });
+    }
+
+    loadCapexSubAccountsAsync(): Promise<void> {
+      return new Promise((resolve) => {
+        this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
+          .subscribe((response: any) => {
+            if (response.valido === 1) {
+              this.CuentasCapex = response.result;
+            } else {
+              console.error("Error al cargar subcuentas CAPEX:", response.message);
+              this.CuentasCapex = [];
+            }
+            resolve();
+          });
+      });
+    }
+
+    loadOpexSubAccountsAsync(): Promise<void> {
+      return new Promise((resolve) => {
+        this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
+          .subscribe((response: any) => {
+            if (response.valido === 1) {
+              this.CuentasOpex = response.result;
+            } else {
+              console.error("Error al cargar subcuentas OPEX:", response.message);
+              this.CuentasOpex = [];
+            }
+            resolve();
+          });
+      });
+    }
+
+    setDefaultRP() {
+      const currentRP = this.selectedSubAccount.idrpnumber;
+      
+      this.newRP = currentRP;
+      
+      this.updateSubAccountsBasedOnRP(currentRP);
+    }
+
+    updateSubAccountsBasedOnRP(rpValue: number) {
+      if (rpValue === 1) {
         this.typeAccounts = 1;
-        this.loadCapexSubAccounts(); 
-      }
-
-      if (event.value == 2) {
-        this.newSubAccount = ''; 
+        this.currentSubAccountOptions = [...this.CuentasCapex];
+      } else if (rpValue >= 2) {
         this.typeAccounts = 2;
-        this.loadOpexSubAccounts(); 
+        this.currentSubAccountOptions = [...this.CuentasOpex];
+      } else {
+        this.typeAccounts = 0;
+        this.currentSubAccountOptions = [];
       }
     }
 
-  loadCapexSubAccounts() {
-    this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
-      .subscribe((response: any) => {
-        if (response.valido === 1) {
-          this.CuentasCapex = response.result;
-        } else {
-          console.error("Error al cargar subcuentas CAPEX:", response.message);
-        }
-      });
-  }
 
-  loadOpexSubAccounts() {
-    this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
-      .subscribe((response: any) => {
-        if (response.valido === 1) {
-          this.CuentasOpex = response.result;
-        } else {
-          console.error("Error al cargar subcuentas OPEX:", response.message);
-        }
-      });
-  }
-  loadDropdownOptions() {
-    this.rpOptions = this.rpnumbers.map(rp => ({
-      label: ` ${rp.RP_Number}`,
-      value: rp.idrpnumber
-    }));
-
-    this.loadCapexSubAccounts();
-    this.loadOpexSubAccounts();
-
-    if (this.selectedSubAccount.type === 'CAPEX') {
-      this.typeAccounts = 1;
-      this.currentSubAccountOptions = this.capexSubAccounts;
-    } else if (this.selectedSubAccount.type === 'OPEX') {
-      this.typeAccounts = 2;
-      this.currentSubAccountOptions = this.opexSubAccounts;
+    onRPSelected() {
+      if (this.newRP) {
+        this.updateSubAccountsBasedOnRP(this.newRP);
+      } else {
+        this.setDefaultRP();
+      }
+      
+      this.newSubAccount = '';
     }
-  }
  
 
 
@@ -378,52 +454,135 @@ export class FinancialTrackerComponent {
       const selectedTransactions = this.transactionList.filter(t => t.selected);
       
       if (selectedTransactions.length === 0) {
-        console.warn('No transactions selected');
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Warning', 
+          detail: 'You must select at least one transaction to continue'
+        });
         return;
       }
 
       if (!this.justification.trim()) {
-        console.warn('Justification is required');
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Warning', 
+          detail: 'You must provide a justification'
+        });
         return;
       }
 
-      const requestData = {
-        projectId: this.proyectoSelected?.idprojects,
-        subAccount: {
-          id: this.selectedSubAccount.idcapexaccount || this.selectedSubAccount.idopexaccount,
-          type: this.selectedSubAccount.type,
-          currentRP: this.selectedSubAccount.idrpnumber,
-          name: this.selectedSubAccount.account || this.selectedSubAccount.accountWA
-        },
-        selectedTransactions: selectedTransactions.map(t => ({
-          transactionId: t.id,
-          originalData: t.originalData,
-          amount: parseFloat(t.amount.replace('$', '').replace(',', ''))
-        })),
-        reassignment: {
-          newRP: this.newRP,
-          newSubAccount: this.newSubAccount,
-          justification: this.justification
-        },
-        totalAmount: this.totalSelected,
-        requestDate: new Date().toISOString(),
-        userId: this.token?.user_id || 'current_user'
-      };
+      if (!this.newRP && !this.newSubAccount) {
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Warning', 
+          detail: 'You must select at least one RP or Subaccount to make the change'
+        });
+        return;
+      }
 
-      console.log('Sending revision request:', requestData);
+      const currentRP = this.selectedSubAccount.idrpnumber;
+      const currentSubAccountId = this.selectedSubAccount.idcapexaccount || this.selectedSubAccount.idopexaccount;
+      const finalRP = this.newRP || currentRP;
+
+      if (finalRP === currentRP && !this.newSubAccount) {
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Warning', 
+          detail: 'You cannot move transactions to the same RP without selecting a different subaccount'
+        });
+        return;
+      }
+
+      if (finalRP === currentRP && this.newSubAccount === currentSubAccountId) {
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Warning', 
+          detail: 'You cannot move transactions to the same RP and subaccount. No changes would be made'
+        });
+        return;
+      }
+
+      const newLedger = finalRP === 1 ? "Capex" : "Opex";
       
-      // Aquí implementarías la llamada al endpoint para guardar la solicitud
-      // this.MonitoringCatalogService.submitRevisionRequest(requestData, this.token?.access_token)
-      //   .subscribe(response => {
-      //     if (response.valido === 1) {
-      //       // Mostrar mensaje de éxito
-      //       this.closeRevisionModal();
-      //     } else {
-      //       // Mostrar mensaje de error
-      //     }
-      //   });
+      const requests = selectedTransactions.map(transaction => ({
+        IdP_R_Estructurada: transaction.originalData.IdP_R_Estructurada,
+        NewLedger: newLedger,
+        Newidrpnumber: finalRP,
+        Newidcapexsubaccount: finalRP === 1 ? (this.newSubAccount || null) : null,
+        Newidopexsubaccount: finalRP !== 1 ? (this.newSubAccount || null) : null,
+        NewCompaqCapex: finalRP === 1 ? this.getCompaqCode('capex') : null,
+        NewCompaqOpex: finalRP !== 1 ? this.getCompaqCode('opex') : null,
+        Justification: this.justification
+      }));
 
-      // Por ahora solo cerrar el modal
-      this.closeRevisionModal();
+      const requestBody = { requests: requests };
+
+      console.log('Final request body:', JSON.stringify(requestBody, null, 2));
+
+      this.MonitoringCatalogService.setReviewActualRequest(requestBody, this.token?.access_token)
+        .subscribe(
+          (response: any) => {
+            if (response.valido === 1) {
+              this.messageService.add({
+                severity: 'success', 
+                summary: 'Success', 
+                detail: 'Request sent successfully'
+              });
+              this.closeRevisionModal();
+            } else {
+              this.messageService.add({
+                severity: 'error', 
+                summary: 'Error', 
+                detail: response.message || 'Error sending request'
+              });
+            }
+          },
+          (error: any) => {
+            console.error(error);
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Error', 
+              detail: 'Server connection error'
+            });
+          }
+        );
+    }
+
+    private getCompaqCode(type: 'capex' | 'opex'): string | null {
+      if (type === 'capex') {
+        const capexAccount = this.CuentasCapex.find(account => 
+          account.idcapexsubaccount === this.newSubAccount
+        );
+        return capexAccount?.cuentacompaq || null;
+      } else {
+        const opexAccount = this.CuentasOpex.find(account => 
+          account.idopexsubaccount === this.newSubAccount
+        );
+        return opexAccount?.cuentacompaq || null;
+      }
+    }
+
+    saverequest(){
+      /**
+       * si no tienes seleccionado mínimo 1 transacción para modificar, lanzas alerta de que tienes que elegir por lo menos uno
+       * 
+       * armar un arreglo, con los datos que requiere el endpoint
+       * 
+       *  rp1 ? "Capex" : "Opex" usar condicionales ternarias,
+       {
+        "IdP_R_Estructurada":7577,
+        "NewLedger":"Capex", // Es "Capex" u "Opex"
+        "Newidrpnumber": 3,
+        "Newidcapexsubaccount": 57,
+        "Newidopexsubaccount": null,
+        "NewCompaqCapex":null,
+        "NewCompaqOpex":"51101000",
+        "Justification":"Testing to request"
+       }
+
+       * let data = {
+          requests: arregloarmado
+       }
+       */
     }
  }
