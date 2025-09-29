@@ -332,9 +332,14 @@
     </ng-template>
     </p-table>
     <p-footer>
-        <div class="flex justify-content-end" *ngIf="IncidenceStatus != 'Done'">
-            <p-button type="button" styleClass="p-button-outlined" (onClick)="hideDialog()" icon="pi pi-times" label="Cancel"></p-button>
-            <p-button type="button" styleClass="p-button-success" (onClick)="saveIncidence()" icon="pi pi-save" label="Save Incidence" [disabled]="disableButton"></p-button>
+        <div class="flex justify-content-between" *ngIf="IncidenceStatus != 'Done'">
+            <div>
+                <p-button *ngIf="IncidenceSelected" type="button" styleClass="p-button-danger" (onClick)="confirmDeleteIncidence($event, IncidenceSelected)" icon="pi pi-trash" label="Delete"></p-button>
+            </div>
+            <div>
+                <p-button type="button" styleClass="p-button-outlined" (onClick)="hideDialog()" icon="pi pi-times" label="Cancel"></p-button>
+                <p-button type="button" styleClass="p-button-success" (onClick)="saveIncidence()" icon="pi pi-save" label="Save Incidence" [disabled]="disableButton"></p-button>
+            </div>
         </div>
     </p-footer>
 </p-dialog>

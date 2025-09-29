@@ -551,4 +551,41 @@ export class IncidencesComponent {
   exportGeneralIncidencesXLSX(){
     this.indicenceService.downloadGeneralIncidences(this.token?.access_token)
   }
+
+  confirmDeleteIncidence(event: Event, incidence: Incidences) {
+    this.confirmationService.confirm({
+      target: event.target ? event.target : undefined,
+      message: 'Are you sure you want to delete this record?',
+      header: 'Confirm deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteIncidence(incidence.IdIncidence);
+      }
+    });
+  }
+
+  deleteIncidence(idIncidence: number) {
+    const requestBody = { 
+      IdIncidence: idIncidence 
+    };
+
+    this.indicenceService.deleteIncidence(requestBody, this.token?.access_token)
+      .subscribe((response: any) => {
+        if (response.valido === 1) {
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Incidence deleted successfully' 
+          });
+          this.hideDialog(); 
+          this.getIndicencesByProject(); 
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: response.message || 'Error deleting incidence' 
+          });
+        }
+      });
+  }
 }

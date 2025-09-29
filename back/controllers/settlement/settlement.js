@@ -340,7 +340,6 @@ async function getSettlementXLSXByRegister(req, res){
 
                 const priceCanopiaCell = sheet.getCell(`F${row}`);
                 priceCanopiaCell.value = settlementRow.pricecanopia;
-                priceCanopiaCell.numFmt = '"$"#,##0.00;[Red]\-"$"#,##0.00';
 
                 const totalCell = sheet.getCell(`G${row}`);
                 totalCell.value = settlementRow.Total;

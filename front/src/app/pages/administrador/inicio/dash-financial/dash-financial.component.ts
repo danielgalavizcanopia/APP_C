@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ProductService } from 'src/app/services/product.service';
+import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
+import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 
 @Component({
   selector: 'dash-financial',
@@ -11,15 +13,25 @@ export class DashFinancialComponent {
 
   items!: MenuItem[];
   products!: any[];
-  visible!: boolean;
+  visible: boolean = false;
+  actualRequests: any[] = [];
+  loading: boolean = true;
+  selectedRequest: any = null;
+  token: any;
+  transactionDetails: any[] = [];
+  loadingTransactions: boolean = false;
+  requestInfo: any = null;
 
-     showDialog() {
-        this.visible = true;
-    }
-
-  constructor(private productService: ProductService) { }
+  constructor(
+    private productService: ProductService,
+    private MonitoringCatalogService: MonCatalogService, 
+    private _authGuardService: authGuardService 
+  ) { 
+    this.token = this._authGuardService.getToken(); 
+  }
 
   ngOnInit() {
+    this.getActualRequests();
     this.productService.getProductsSmall().then((data) => {
       this.products = data;
     });
@@ -32,4 +44,52 @@ export class DashFinancialComponent {
     ]
   }
 
+  getActualRequests() {
+    this.MonitoringCatalogService.getActualRequests(this.token?.access_token)
+      .subscribe((response: any) => {
+        if (response.valido === 1) {
+          this.actualRequests = response.result;
+          this.loading = false;
+        } else {
+          console.error("Error al obtener requests:", response.message);
+          this.loading = false;
+        }
+      });
+  }
+
+  showDialog(request?: any) {
+    this.selectedRequest = request;
+    this.visible = true;
+    if (request) {
+      this.loadTransactionDetails(request.Idactualreviewrequest);
+    }
+  }
+  loadTransactionDetails(idActualReviewRequest: number) {
+    this.loadingTransactions = true;
+    this.MonitoringCatalogService.getTransactionsDetailsByID(
+      idActualReviewRequest, 
+      this.token?.access_token
+    ).subscribe((response: any) => {
+      if (response.valido === 1 && response.result.length > 0) {
+        this.transactionDetails = response.result;
+        this.requestInfo = response.result[0]; 
+        this.loadingTransactions = false;
+      } else {
+        console.error("Error al cargar transacciones:", response.message);
+        this.transactionDetails = [];
+        this.requestInfo = null;
+        this.loadingTransactions = false;
+      }
+    });
+  }
+
+  getTotalAmount(): number {
+    return this.transactionDetails.reduce((sum, t) => sum + t.Original_Amount_USD, 0);
+  }
+  
+  getTotalTransactions(): number {
+    return this.transactionDetails.length > 0 
+      ? this.transactionDetails[0].TotalTransacciones 
+      : 0;
+  }
 }

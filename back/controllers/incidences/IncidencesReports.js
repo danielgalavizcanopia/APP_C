@@ -202,6 +202,19 @@ function getHistoryStatus(req, res){
 
 }
 
+async function setDeleteIncidences(req, res){
+        try {            
+            const resultados = await ejecutarStoredProcedure('sp_set_deleteIncidences', [
+                req.body.IdIncidence,
+            ]);
+            if(resultados.length > 0){
+                res.status(200).json({valido: 1, result: resultados[0]});
+            }
+        } catch (error) {
+            console.log(error)
+        }
+}
+
 module.exports = {
     setIncidences,
     setInvolvedSIL,
@@ -211,4 +224,5 @@ module.exports = {
     setEvidencesByIncidences,
     getEvidencesByIncidence,
     getHistoryStatus,
+    setDeleteIncidences,
 }

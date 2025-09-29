@@ -51,6 +51,11 @@ export class IncidenceService {
         const url = this.url + "Incidence/setEvidencesByIncidences";
         return this._apiService.sendPostTokenRequest(data, url, token);
     }
+
+    deleteIncidence(requestBody: any, token: string): Observable<any> {
+      const url = this.url + "Incidence/setDeleteIncidences";
+      return this._apiService.sendPostTokenRequest(requestBody, url, token);
+    }
     
     downloadBenefitMonitorExcel(idProyecto: any, token: string) {
         const headers = new HttpHeaders({

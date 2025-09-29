@@ -9,7 +9,8 @@ const {
     setIncidenceStatus,
     setEvidencesByIncidences,
     getEvidencesByIncidence,
-    getHistoryStatus
+    getHistoryStatus,
+    setDeleteIncidences
 } = require('../../controllers/incidences/IncidencesReports');
 const {
     getIncidencesReportXLSX,
@@ -24,6 +25,7 @@ router.get('/getEvidencesByIncidence/:id', authMiddleware, getEvidencesByInciden
 router.get('/getCanopiaInvolvedByIncidence/:id', authMiddleware, getCanopiaInvolvedByIncidence);
 router.get('/getIndicencesByProject/:id', authMiddleware, getIndicencesByProject);
 router.get('/getHistoryStatus/:id', authMiddleware, getHistoryStatus);
+router.post('/setDeleteIncidences', authMiddleware, setDeleteIncidences);
 
 router.get('/getIncidencesReportXLSX/:id', authMiddleware, getIncidencesReportXLSX);
 router.get('/getGeneralIncidencesReportsXLSX', authMiddleware, getGeneralIncidencesReportsXLSX);

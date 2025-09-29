@@ -131,6 +131,12 @@ export class MonCatalogService {
       const url = this.url + "MonitorSummary/setReviewActualRequest";
       return this._apiService.sendPostTokenRequest(data, url, token);
     }
+    getActualRequests(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + "MonitorSummary/getActualRequests", token);
+    }
+    getTransactionsDetailsByID(idActualReviewRequest: number, token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getTransactionsDetailsByID/${idActualReviewRequest}`, token);
+    }
 
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({

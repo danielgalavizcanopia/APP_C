@@ -1,7 +1,23 @@
-const { ejecutarStoredProcedure } = require('../../../queries/projects');
+const { ejecutarStoredProcedure, ejecutarStoredProcedurev2 } = require('../../../queries/projects');
+const { ejecutarVistaTools } = require('../../../queries/executeViews')
+
+const jwt = require('jsonwebtoken');
+
+function catchUserLogged(req) {
+    return new Promise(function (resolve, reject){
+        const token = req.header('Authorization').split(" ")[1];
+        if(!token){
+            resolve({error: "no hay usuario logueado"})
+        } else {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            resolve({IDUser: decoded.IDUser});
+        }
+    });
+};
 
 async function getByAccountDetails(req, res){
     try {
+        
         const body = req.body
         const resultados = await ejecutarStoredProcedure('sp_getFM_Actualbyaccounts',[
             body.idprojects,
@@ -14,10 +30,63 @@ async function getByAccountDetails(req, res){
         }
     } catch (error) {
         console.log(error);
+        res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+        
+    }
+}
+
+async function setReviewActualRequest(req, res){
+    try {
+
+        let IDUser = await catchUserLogged(req);
+        const body = req.body;
+        const requests = JSON.stringify(body.requests);
+        const resultados = await ejecutarStoredProcedurev2('sp_Set_FM_ReviewRequest',[
+            body.idprojects,
+            body.ledgerType,
+            body.idrpnumber,
+            body.idsubaccount,
+            body.justification,
+            IDUser.IDUser,
+            requests
+        ]);
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados[0], message: "request send succesfully"});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function getActualRequests(req, res){
+    try {
+        const resultados = await ejecutarVistaTools('vw_fm_actualreviewrequest');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function getTransactionsDetailsByID(req, res){
+    try {
+        const resultados = await ejecutarStoredProcedure('sp_getFM_actualreviewrequest_detail',[
+            req.params.id
+        ]);
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados[0]});
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({valido: 0, message: "Was an error, please, try again"});
         
     }
 }
 
 module.exports = {
-    getByAccountDetails
+    getByAccountDetails,
+    setReviewActualRequest,
+    getActualRequests,
+    getTransactionsDetailsByID
 }

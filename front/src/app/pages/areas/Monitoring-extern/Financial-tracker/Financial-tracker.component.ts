@@ -502,22 +502,44 @@ export class FinancialTrackerComponent {
         return;
       }
 
-      const newLedger = finalRP === 1 ? "Capex" : "Opex";
+      const ledgerType = finalRP === 1 ? "Capex" : "Opex";
+      const isCapex = finalRP === 1;
       
-      const requests = selectedTransactions.map(transaction => ({
-        IdP_R_Estructurada: transaction.originalData.IdP_R_Estructurada,
-        NewLedger: newLedger,
-        Newidrpnumber: finalRP,
-        Newidcapexsubaccount: finalRP === 1 ? (this.newSubAccount || null) : null,
-        Newidopexsubaccount: finalRP !== 1 ? (this.newSubAccount || null) : null,
-        NewCompaqCapex: finalRP === 1 ? this.getCompaqCode('capex') : null,
-        NewCompaqOpex: finalRP !== 1 ? this.getCompaqCode('opex') : null,
-        Justification: this.justification
-      }));
+      const subAccountId = isCapex 
+        ? (this.newSubAccount || this.selectedSubAccount.idcapexaccount)
+        : (this.newSubAccount || this.selectedSubAccount.idopexaccount);
 
-      const requestBody = { requests: requests };
+      const requests = selectedTransactions.map(transaction => {
+        const baseRequest = {
+          IdP_R_Estructurada: transaction.originalData.IdP_R_Estructurada,
+          New_idrpnumber: finalRP
+        };
 
-      console.log('Final request body:', JSON.stringify(requestBody, null, 2));
+        if (isCapex) {
+          return {
+            ...baseRequest,
+            New_idcapexsubaccount: this.newSubAccount,
+            New_CompaqCapex: this.getCompaqCode('capex')
+          };
+        } else {
+          return {
+            ...baseRequest,
+            New_idopexsubaccount: this.newSubAccount,
+            New_CompaqOpex: this.getCompaqCode('opex')
+          };
+        }
+      });
+
+      const requestBody = {
+        idprojects: this.proyectoSelected?.idprojects,
+        ledgerType: ledgerType,
+        idrpnumber: finalRP,
+        idsubaccount: subAccountId,
+        justification: this.justification, 
+        requests: requests
+      };
+
+      console.log('requestBody:', JSON.stringify(requestBody, null, 2));
 
       this.MonitoringCatalogService.setReviewActualRequest(requestBody, this.token?.access_token)
         .subscribe(
@@ -560,29 +582,5 @@ export class FinancialTrackerComponent {
         );
         return opexAccount?.cuentacompaq || null;
       }
-    }
-
-    saverequest(){
-      /**
-       * si no tienes seleccionado mínimo 1 transacción para modificar, lanzas alerta de que tienes que elegir por lo menos uno
-       * 
-       * armar un arreglo, con los datos que requiere el endpoint
-       * 
-       *  rp1 ? "Capex" : "Opex" usar condicionales ternarias,
-       {
-        "IdP_R_Estructurada":7577,
-        "NewLedger":"Capex", // Es "Capex" u "Opex"
-        "Newidrpnumber": 3,
-        "Newidcapexsubaccount": 57,
-        "Newidopexsubaccount": null,
-        "NewCompaqCapex":null,
-        "NewCompaqOpex":"51101000",
-        "Justification":"Testing to request"
-       }
-
-       * let data = {
-          requests: arregloarmado
-       }
-       */
     }
  }
