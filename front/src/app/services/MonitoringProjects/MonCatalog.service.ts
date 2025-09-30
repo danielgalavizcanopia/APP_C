@@ -138,6 +138,10 @@ export class MonCatalogService {
       return this._apiService.sendGetRequest(this.url + `MonitorSummary/getTransactionsDetailsByID/${idActualReviewRequest}`, token);
     }
 
+    getHistoryActualRequest(idActualReviewRequest: number, token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getHistoryActualRequest/${idActualReviewRequest}`, token);
+    }
+
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`,

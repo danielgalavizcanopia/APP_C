@@ -11,42 +11,7 @@
             <input pInputText type="text" placeholder="Search global" />
         </span>
     </div>
-    <!-- <p-table #dt1 [value]="products" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [rowsPerPageOptions]="[10, 25, 50]">
-        <ng-template pTemplate="header">
-            <tr class="text-center">
-                <th>Project</th>
-                <th>Type</th>
-                <th>RP</th>
-                <th>Subaccount</th>
-                <th>Selected<br>Transaccion </th>
-                <th>Total USD <br> Transaccion </th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-product>
-            <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.name }}</td>
-                <td>
-                    <i pTooltip="Evaluador Finanzas" tooltipPosition="top"
-                        class="pi pi-circle pr-2 status-approved"></i>
-                    <i pTooltip="Area de Finanzas" tooltipPosition="top" class="pi pi-circle pr-2 status-negate"></i>
-                    <i pTooltip="Di. Tecnico" tooltipPosition="top" class="pi pi-circle status-pending"></i>
-                </td>
-                <td><p-button styleClass="p-button-text p-button-secondary" icon="pi pi-eye"
-                        (click)="showDialog()"></p-button></td>
-            </tr>
-        </ng-template>
-    </p-table> -->
-        <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="5" [loading]="loading"
+    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="5" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[10, 25, 50]">
@@ -92,7 +57,7 @@
 <!--INICIA MODAL-->
 
 <p-dialog header="Header" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
-    [resizable]="false">
+    [resizable]="false" (onHide)="hideDialog()">
     <div class="revision-content">
 
         <div class="grid info-sub mb-4" *ngIf="requestInfo">
@@ -119,18 +84,16 @@
             <div class="col-3">
                 <small>Account</small>
                 <p class="font-bold">
-                    Account
-                     <i class="pi pi-angle-double-right ico-color px-3"></i>
-                    <span class="new">Account</span>
+                    {{requestInfo.accountCapexOriginal || requestInfo.accountOpexOriginal}}
                 </p>
             </div>
             
             <div class="col-3">
                 <small>Subaccount</small>
                 <p class="font-bold">
-                    {{ requestInfo.Original_idcapexsubaccount || requestInfo.Original_idopexsubaccount }}
+                    {{ requestInfo.conceptoCapexOriginal || requestInfo.conceptoOpexOriginal }}
                     <i class="pi pi-angle-double-right ico-color px-3"></i>
-                    <span class="new">{{ requestInfo.Newidcapexsubaccount || requestInfo.Newidopexsubaccount }}</span>
+                    <span class="new">{{ requestInfo.conceptoCapexNew || requestInfo.conceptoOpexNew }}</span>
                 </p>
             </div>
 
@@ -166,7 +129,7 @@
                     <ng-template pTemplate="footer">
                         <tr>
                             <td colspan="2" class="text-right font-bold">TOTAL</td>
-                            <td class="text-right font-bold">${{ getTotalAmount() }}</td>
+                            <td class="text-right font-bold">{{ getTotalAmount() | currency }}</td>
                         </tr>
                     </ng-template>
 
@@ -185,45 +148,14 @@
                 <hr>
                 <p-scrollPanel [style]="{ width: '100%', height: '200px' }" styleClass="custombar1">
                     <div class="grid">
-                        <div class="col-12">
+                        <div class="col-12" *ngFor="let history of historyActualRequests">
                             <div>
-                                <p class="font-bold">[Name user] | [date registre] | <span
-                                        class="status-approved">[Status]</span>
+                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span
+                                        class="status-approved">{{history.StatusNombre}}</span>
                                 </p>
                             </div>
 
-                            <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
-                                unknown
-                                printer took a galley of type and scrambled it to make a type specimen book. It has
-                                survived
-                                not
-                                only five centuries, but also the leap into electronic typesetting, remaining
-                                essentially
-                                unchanged. It was popularised in the 1960s with the release of Letraset sheets
-                                containing
-                                Lorem
-                                Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker
-                                including versions of Lorem Ipsum.</p>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="text-right">
-                                <p class="font-bold">[Name user] | [date registre] | <span
-                                        class="status-negate">[Status]</span>
-                                </p>
-                            </div>
-                            <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
-                                unknown
-                                printer took a galley of type and scrambled it to make a type specimen book. It has
-                                survived
-                                not
-                                only five centuries, but also the leap into electronic typesetting, remaining
-                                essentially
-                                unchanged. It was popularised in the 1960s with the release of Letraset sheets
-                                containing
-                                Lorem
-                                Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker
-                                including versions of Lorem Ipsum.</p>
+                            <p>{{history.AuthorizationComment}}</p>
                         </div>
                     </div>
                 </p-scrollPanel>
@@ -251,7 +183,7 @@
     </div>
 
     <ng-template pTemplate="footer">
-        <p-button label="Cancel" styleClass="p-button-outlined"></p-button>
+        <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
         <p-button label="Send"></p-button>
     </ng-template>
 </p-dialog>

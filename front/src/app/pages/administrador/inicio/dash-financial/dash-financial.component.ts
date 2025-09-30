@@ -3,6 +3,7 @@ import { MenuItem } from 'primeng/api';
 import { ProductService } from 'src/app/services/product.service';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
+import { HistoryActualRequests, TransactionDetails } from 'src/app/interfaces/Monitor/requests.interface';
 
 @Component({
   selector: 'dash-financial',
@@ -18,9 +19,10 @@ export class DashFinancialComponent {
   loading: boolean = true;
   selectedRequest: any = null;
   token: any;
-  transactionDetails: any[] = [];
+  transactionDetails: TransactionDetails[] = [];
   loadingTransactions: boolean = false;
-  requestInfo: any = null;
+  requestInfo!: TransactionDetails | null;
+  historyActualRequests: HistoryActualRequests[] = [];
 
   constructor(
     private productService: ProductService,
@@ -62,8 +64,31 @@ export class DashFinancialComponent {
     this.visible = true;
     if (request) {
       this.loadTransactionDetails(request.Idactualreviewrequest);
+      this.loadgetHistoryActualRequest(request.Idactualreviewrequest);
     }
   }
+
+  hideDialog(){
+    this.visible = false;
+    this.selectedRequest = null;
+    this.transactionDetails = [];
+    this.requestInfo = null;
+    this.historyActualRequests = [];
+  }
+
+  loadgetHistoryActualRequest(idActualReviewRequest: number) {
+    this.MonitoringCatalogService.getHistoryActualRequest(
+      idActualReviewRequest, 
+      this.token?.access_token
+    ).subscribe((response: any) => {
+      if (response.valido === 1 && response.result.length > 0) {
+        this.historyActualRequests = response.result;
+      } else {
+        console.error("Error al cargar historial:", response.message);
+      }
+    });
+  }
+
   loadTransactionDetails(idActualReviewRequest: number) {
     this.loadingTransactions = true;
     this.MonitoringCatalogService.getTransactionsDetailsByID(
@@ -77,7 +102,7 @@ export class DashFinancialComponent {
       } else {
         console.error("Error al cargar transacciones:", response.message);
         this.transactionDetails = [];
-        this.requestInfo = null;
+        this.requestInfo = undefined!;
         this.loadingTransactions = false;
       }
     });

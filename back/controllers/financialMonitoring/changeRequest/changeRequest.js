@@ -84,9 +84,32 @@ async function getTransactionsDetailsByID(req, res){
     }
 }
 
+async function getHistoryActualRequest(req, res){
+    try {
+        const resultados = await ejecutarStoredProcedure('sp_getFM_Actualrequest_authorization',[
+            req.params.id
+        ]);
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados[0]});
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+        
+    }
+}
+
+async function setAuthotizationRequest(req, res){
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 module.exports = {
     getByAccountDetails,
     setReviewActualRequest,
     getActualRequests,
-    getTransactionsDetailsByID
+    getTransactionsDetailsByID,
+    getHistoryActualRequest
 }
