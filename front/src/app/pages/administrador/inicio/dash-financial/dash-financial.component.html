@@ -11,7 +11,7 @@
             <input pInputText type="text" placeholder="Search global" />
         </span>
     </div>
-    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="5" [loading]="loading"
+    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[10, 25, 50]">
@@ -35,7 +35,7 @@
                 <td>RP{{ product.idrpnumber }}</td>
                 <td>{{ product.nombre_subcuenta }}</td>
                 <td>{{ product.TotalChanges }}</td>
-                <td>${{ product.OriginalTotal }}</td>
+                <td>{{ product.OriginalTotal | currency}}</td>
                 <td>
                     <i pTooltip="Evaluador Finanzas" tooltipPosition="top"
                         class="pi pi-circle pr-2 status-approved"></i>
@@ -122,7 +122,7 @@
                         <tr>
                             <td>{{ transaction.IdP_R_Estructurada }}</td>
                             <td>{{ transaction.CreatedDate | date: 'dd/MM/yyyy' }}</td>
-                            <td class="text-right">${{ transaction.Original_Amount_USD }}</td>
+                            <td class="text-right">{{ transaction.Original_Amount_USD | currency}}</td>
                         </tr>
                     </ng-template>
 
@@ -150,8 +150,7 @@
                     <div class="grid">
                         <div class="col-12" *ngFor="let history of historyActualRequests">
                             <div>
-                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span
-                                        class="status-approved">{{history.StatusNombre}}</span>
+                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.idstatusautho)">{{history.StatusNombre}}</span>
                                 </p>
                             </div>
 
@@ -163,16 +162,14 @@
                 <div class="grid">
                     <div class="col-4">
                         <span class="p-float-label">
-                            <p-dropdown placeholder="Status">
+                            <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
                             </p-dropdown>
-                            <label>
-                                Status
-                            </label>
+                            <label>Status</label>
                         </span>
                     </div>
                     <div class="col-12">
                         <span class="p-float-label">
-                            <textarea pInputTextarea id="float-input" rows="5" cols="30"></textarea>
+                            <textarea [(ngModel)]="justification" pInputTextarea id="float-input" rows="5" cols="30"></textarea>
                             <label for="float-input">Justification</label>
                         </span>
                     </div>
@@ -184,6 +181,6 @@
 
     <ng-template pTemplate="footer">
         <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
-        <p-button label="Send"></p-button>
+        <p-button label="Send" (onClick)="saveChanges()"></p-button>
     </ng-template>
 </p-dialog>

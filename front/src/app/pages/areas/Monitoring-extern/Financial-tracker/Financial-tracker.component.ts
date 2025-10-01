@@ -18,6 +18,7 @@ interface City {
   providers: [MessageService]
 })
 export class FinancialTrackerComponent {
+    disableButton: boolean = false;
     showSubAccountModal: boolean = false;
     selectedSubAccount: any = null;
     totalGeneral: number = 0;  
@@ -451,6 +452,9 @@ export class FinancialTrackerComponent {
 
 
     sendRevisionRequest() {
+      if (this.disableButton) {
+        return;
+      }
       const selectedTransactions = this.transactionList.filter(t => t.selected);
       
       if (selectedTransactions.length === 0) {
@@ -540,6 +544,7 @@ export class FinancialTrackerComponent {
       };
 
       console.log('requestBody:', JSON.stringify(requestBody, null, 2));
+      this.disableButton = true;
 
       this.MonitoringCatalogService.setReviewActualRequest(requestBody, this.token?.access_token)
         .subscribe(
@@ -558,6 +563,7 @@ export class FinancialTrackerComponent {
                 detail: response.message || 'Error sending request'
               });
             }
+            this.disableButton = false;
           },
           (error: any) => {
             console.error(error);
@@ -566,6 +572,7 @@ export class FinancialTrackerComponent {
               summary: 'Error', 
               detail: 'Server connection error'
             });
+            this.disableButton = false;
           }
         );
     }

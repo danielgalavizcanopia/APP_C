@@ -30,3 +30,16 @@ export interface HistoryActualRequests {
     AuthorizationComment:  string;
     StatusNombre:          string;
 }
+
+export interface ActualRequest {
+    Idactualreviewrequest: number;
+    idprojects:            number;
+    LedgerType:            string;
+    idrpnumber:            number;
+    idsubaccount:          number;
+    nombre_subcuenta:      string;
+    idstatusrequest:       number;
+    ProjectName:           string;
+    TotalChanges:          number;
+    OriginalTotal:         number;
+}

@@ -131,15 +131,30 @@ export class MonCatalogService {
       const url = this.url + "MonitorSummary/setReviewActualRequest";
       return this._apiService.sendPostTokenRequest(data, url, token);
     }
+
     getActualRequests(token: string): Observable<any> {
       return this._apiService.sendGetRequest(this.url + "MonitorSummary/getActualRequests", token);
     }
+
     getTransactionsDetailsByID(idActualReviewRequest: number, token: string): Observable<any> {
       return this._apiService.sendGetRequest(this.url + `MonitorSummary/getTransactionsDetailsByID/${idActualReviewRequest}`, token);
     }
 
     getHistoryActualRequest(idActualReviewRequest: number, token: string): Observable<any> {
       return this._apiService.sendGetRequest(this.url + `MonitorSummary/getHistoryActualRequest/${idActualReviewRequest}`, token);
+    }
+
+    getStatusAuthorizations(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getStatusAuthorizations`, token);
+    }
+
+    getConfigUsersAndAccounts(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getConfigUsersAndAccounts`, token);
+    }
+
+    setAuthotizationRequest(data: any, token: string): Observable<any[]> {
+      const url = this.url + "MonitorSummary/setAuthotizationRequest";
+      return this._apiService.sendPostTokenRequest(data, url, token);
     }
 
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
