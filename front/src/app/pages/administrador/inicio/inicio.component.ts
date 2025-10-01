@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MenuItem } from 'primeng/api';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { CustomerService } from 'src/app/services/customer.service';
 import { UsuarioService } from 'src/app/services/login.service';
@@ -24,6 +25,7 @@ export class InicioComponent {
   token: any;
   proyectoSelected: Projects | null = null;
   isSelectedProject: boolean = false;
+   items!: MenuItem[];
 
   constructor( 
     readonly serviceObsProject$: ObservableService,
@@ -46,5 +48,17 @@ export class InicioComponent {
         }
       });
     }
+
+     ngOnInit() {
+        this.items = [
+           {
+                        label: 'opt 1',
+                    },
+                    {
+                        label: 'opt 2',
+                    }
+        ]
+      }
+
 
 }

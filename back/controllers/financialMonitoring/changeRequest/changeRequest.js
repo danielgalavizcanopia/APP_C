@@ -51,7 +51,7 @@ async function setReviewActualRequest(req, res){
             requests
         ]);
         if(resultados){
-            res.status(200).json({valido: 1, result: resultados[0], message: "request send succesfully"});
+            res.status(200).json({valido: 1, result: resultados[0]});
         }
     } catch (error) {
         console.log(error);
@@ -99,11 +99,41 @@ async function getHistoryActualRequest(req, res){
     }
 }
 
+
+
 async function setAuthotizationRequest(req, res){
     try {
+
+        const body = req.body;
+
+        if(body.typeOfAutho == 1){
+            /** APROBACIÓN DE 2 PERSONAS */
+            const resultados = await ejecutarStoredProcedure('sp_Set_FM_AuthorizeRequestbyID',[
+                body.Idactualreviewrequest,
+                body.iduserautho,
+                body.idstatusautho,
+                body.AuthorizationComment,
+            ]);
+            if(resultados.length > 0){
+                res.status(200).json({valido: 1, result: resultados[0]});
+            }
+        }
+
+        if(body.typeOfAutho == 2){
+            /** APROBACIÓN DE 3 PERSONAS */
+            const resultados = await ejecutarStoredProcedure('sp_Set_FM_AuthorizeRequest',[
+                body.Idactualreviewrequest,
+                body.iduserautho,
+                body.idstatusautho,
+                body.AuthorizationComment,
+            ]);
+            if(resultados.length > 0){
+                res.status(200).json({valido: 1, result: resultados[0]});
+            }
+        }
         
     } catch (error) {
-        
+        console.log(error);
     }
 }
 module.exports = {
@@ -111,5 +141,6 @@ module.exports = {
     setReviewActualRequest,
     getActualRequests,
     getTransactionsDetailsByID,
-    getHistoryActualRequest
+    getHistoryActualRequest,
+    setAuthotizationRequest,
 }

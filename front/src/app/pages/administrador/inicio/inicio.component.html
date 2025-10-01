@@ -1,8 +1,17 @@
 <section class="container">
-    <p class="m-0">Manage and track your projects</p>
-    <h3 class="m-0">Global Dashboard</h3>
-    <div class="grid">
+    <div class="flex justify-content-between">
+        <div>
+            <p class="m-0">Manage and track your projects</p>
+            <h3 class="m-0">Global Dashboard</h3>
+        </div>
+        <div>
+   <p-menu #menu [model]="items" [popup]="true"></p-menu>
+                <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-angle-down" label="Download document global"
+                    iconPos="right"></button>
+        </div>
+    </div>
 
+    <div class="grid">
         <div class="col-12">
             <div class="card-job text-center">
                 <img src="../../../../assets/layout/images/job.png" width="10%" alt="">

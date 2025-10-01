@@ -41,6 +41,7 @@ const {
     getActualRequests,
     getTransactionsDetailsByID,
     getHistoryActualRequest,
+    setAuthotizationRequest
 } = require('../../controllers/financialMonitoring/changeRequest/changeRequest');
 
 /** CHANGE ACTUAL RESQUEST */
@@ -49,6 +50,7 @@ router.post('/setReviewActualRequest', authMiddleware, setReviewActualRequest);
 router.get('/getActualRequests', authMiddleware, getActualRequests);
 router.get('/getTransactionsDetailsByID/:id', authMiddleware, getTransactionsDetailsByID);
 router.get('/getHistoryActualRequest/:id', authMiddleware, getHistoryActualRequest);
+router.post('/setAuthotizationRequest', authMiddleware, setAuthotizationRequest);
 
 /** BY ACTIVITIES CONTROLLERS */
 router.get('/getBudgetTrackerByProjectRP/:idprojects/:rpnumber', authMiddleware, getByActivitiesReport);
