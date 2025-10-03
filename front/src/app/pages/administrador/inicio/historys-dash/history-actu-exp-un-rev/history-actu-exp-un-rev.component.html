@@ -1,62 +1,57 @@
-<div>
-    <div class="flex">
-        <div class="inline-flex">
-            <h5>Actual Expenses under Review</h5>
-            <p-button type="button" (click)="menu.toggle($event)" icon="pi pi-ellipsis-v"
-                styleClass="p-button-text ml-3"></p-button>
-            <p-menu #menu [model]="items" [popup]="true"></p-menu>
-        </div>
-        <span class="p-input-icon-left ml-auto">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text" placeholder="Search global" />
-        </span>
-    </div>
+<section class="container">
+
     <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[10, 25, 50]">
-                <ng-template pTemplate="header">
-                <tr class="text-center">
-                    <th>Project</th>
-                    <th>Request Date</th>
-                    <th>Type</th>
-                    <th>RP</th>
-                    <th>Subaccount</th>
-                    <th>Selected<br>Transaccion </th>
-                    <th>Total USD <br> Transaccion </th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </ng-template>
-        
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                    <h4 class="m-0">History Actual Expenses under Review</h4>
+                    <span class="p-input-icon-left ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" placeholder="Search global" />
+                    </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr class="text-center">
+                <th>Project</th>
+                <th>Date registrer</th>
+                <th>Original Type</th>
+                <th>New Type</th>
+                <th>Original RP</th>
+                <th>New RP</th>
+                <th>Original Subaccount</th>
+                <th>New Subaccount</th>
+                <th>Total<br>Transaccion </th>
+                <th>Total USD <br> Transaccion </th>
+                <th></th>
+            </tr>
+        </ng-template>
+
         <ng-template pTemplate="body" let-product>
             <tr>
                 <td>{{ product.ProjectName }}</td>
-                <td>{{ product.requestDate | date: 'dd/MM/yyyy' }}</td>
+                <td>new</td>
                 <td>{{ product.LedgerType }}</td>
+                <td>new</td>
                 <td>RP{{ product.idrpnumber }}</td>
+                <td>new</td>
                 <td>{{ product.nombre_subcuenta }}</td>
+                <td>new</td>
                 <td>{{ product.TotalChanges }}</td>
                 <td>{{ product.OriginalTotal | currency}}</td>
-<td>
-    <i *ngFor="let circle of getStatusCircles(product)" 
-       [pTooltip]="circle.tooltip" 
-       tooltipPosition="top"
-       class="pi pi-circle pr-2"
-       [ngClass]="circle.statusClass">
-    </i>
-</td>
                 <td>
-                    <p-button styleClass="p-button-text p-button-secondary" 
-                        icon="pi pi-eye" (click)="showDialog(product)">
+                    <p-button styleClass="p-button-text p-button-secondary" icon="pi pi-eye"
+                        (click)="showDialog(product)">
                     </p-button>
                 </td>
             </tr>
         </ng-template>
     </p-table>
-</div>
 
-<!--INICIA MODAL-->
+</section>
+
 
 <p-dialog header="Header" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
     [resizable]="false" (onHide)="hideDialog()">
@@ -89,7 +84,7 @@
                     {{requestInfo.accountCapexOriginal || requestInfo.accountOpexOriginal}}
                 </p>
             </div>
-            
+
             <div class="col-3">
                 <small>Subaccount</small>
                 <p class="font-bold">
@@ -103,14 +98,13 @@
                 <small class="font-bold">JUSTIFICATION</small>
                 <hr class="m-0">
                 <p-scrollPanel [style]="{ width: '100%', height: '150px' }" styleClass="custombar1">
-                <p>{{ requestInfo.Justification }}</p>
+                    <p>{{ requestInfo.Justification }}</p>
                 </p-scrollPanel>
             </div>
         </div>
         <div class="grid">
             <div class="col-4">
-                <p-table [value]="transactionDetails" [loading]="loadingTransactions" 
-                    styleClass="p-datatable-sm">
+                <p-table [value]="transactionDetails" [loading]="loadingTransactions" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>ID Transaction</th>
@@ -119,7 +113,7 @@
                         </tr>
                     </ng-template>
 
-                    <!-- AQUÍ FALTABA let-transaction -->
+                  
                     <ng-template pTemplate="body" let-transaction>
                         <tr>
                             <td>{{ transaction.IdP_R_Estructurada }}</td>
@@ -131,7 +125,7 @@
                     <ng-template pTemplate="footer">
                         <tr>
                             <td colspan="2" class="text-right font-bold">TOTAL</td>
-                            <td class="text-right font-bold">{{ getTotalAmount() | currency }}</td>
+                            <td class="text-right font-bold">{{ 0 }}</td>
                         </tr>
                     </ng-template>
 
@@ -150,9 +144,10 @@
                 <hr>
                 <p-scrollPanel [style]="{ width: '100%', height: '200px' }" styleClass="custombar1">
                     <div class="grid">
-                        <div class="col-12" *ngFor="let history of historyActualRequests">
+                        <div class="col-12" *ngFor="let history of historyMessages;">
                             <div>
-                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.idstatusautho)">{{history.StatusNombre}}</span>
+                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date:
+                                    'dd/MM/yyyy'}} | <span>{{history.StatusNombre}}</span>
                                 </p>
                             </div>
 
@@ -160,29 +155,7 @@
                         </div>
                     </div>
                 </p-scrollPanel>
-                <hr>
-                <div class="grid">
-                    <div class="col-4">
-                        <span class="p-float-label">
-                            <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
-                            </p-dropdown>
-                            <label>Status</label>
-                        </span>
-                    </div>
-                    <div class="col-12">
-                        <span class="p-float-label">
-                            <textarea [(ngModel)]="justification" pInputTextarea id="float-input" rows="5" cols="30"></textarea>
-                            <label for="float-input">Justification</label>
-                        </span>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
-
-    <ng-template pTemplate="footer">
-        <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
-        <p-button label="Send" (onClick)="saveChanges()"></p-button>
-    </ng-template>
 </p-dialog>

@@ -1,5 +1,6 @@
 const { ejecutarStoredProcedure, ejecutarStoredProcedurev2 } = require('../../../queries/projects');
 const { ejecutarVistaTools } = require('../../../queries/executeViews')
+const { getCatalogs } = require('../../../queries/catalogs');
 
 const jwt = require('jsonwebtoken');
 
@@ -99,7 +100,30 @@ async function getHistoryActualRequest(req, res){
     }
 }
 
+async function getStatusAuthorizations(req, res){
+    try {
+        const resultados = await ejecutarVistaTools('vw_fm_statusautho');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+function getConfigUsersAndAccounts(req, res){
+    return new Promise(async (resolve, reject) => {
+        try {
+            const resultados = await getCatalogs('ct_subaccount_rel_userpositions');
+            if(resultados.length > 0){
+                res.status(201).json({valido: 1, result: resultados});
+            } else {
+                res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+            }
+        } catch (error) {
+        }
+    });
+}
 
 async function setAuthotizationRequest(req, res){
     try {
@@ -142,5 +166,7 @@ module.exports = {
     getActualRequests,
     getTransactionsDetailsByID,
     getHistoryActualRequest,
+    getStatusAuthorizations,
     setAuthotizationRequest,
+    getConfigUsersAndAccounts,
 }

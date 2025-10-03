@@ -47,6 +47,7 @@ import { MarketingComponent } from './pages/commercialisation/marketing/marketin
 import { AnnualPlanningComponent } from './pages/management/AnnualPlanning/AnnualPlanning.component';
 import { SettlementComponent } from './pages/settlement/settlement.component';
 import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
+import { HistoryActuExpUnRevComponent } from './pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
 
 @NgModule({
     imports: [RouterModule.forRoot([
@@ -77,6 +78,11 @@ import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.comp
                 {
                     path: 'home',
                     component: InicioComponent,
+                },
+                //dashboard global
+                {
+                     path: 'histoReview',
+                    component: HistoryActuExpUnRevComponent,
                 },
                 {
                     path: 'new-proyect',
@@ -237,7 +243,7 @@ import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.comp
                     path: 'ActivitiesCatalog',
                     component: ActivitiesCatalogComponent
                 },
-                  {
+                {
                     path: 'prepadeduc',
                     component: PrepaDeducComponent
                 },
@@ -245,7 +251,7 @@ import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.comp
                 {
                     path: 'settlement',
                     component: SettlementComponent
-}
+                }
 
             ],
             canActivate: [authGuardService]

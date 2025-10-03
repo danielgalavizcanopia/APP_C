@@ -124,11 +124,13 @@ import { CaOpSetComponent } from '../pages/settlement/ca-op-set/ca-op-set.compon
 import { CdrComponent } from '../pages/settlement/cdr/cdr.component';
 import { SettlementComponent } from '../pages/settlement/settlement.component';
 import { DashFinancialComponent } from '../pages/administrador/inicio/dash-financial/dash-financial.component';
+import { HistoryActuExpUnRevComponent } from '../pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
 
 
 
 @NgModule({
     declarations: [
+        HistoryActuExpUnRevComponent,
         AlertaComponent,
         ModalNewProjectComponent,
         AppConfigComponent,

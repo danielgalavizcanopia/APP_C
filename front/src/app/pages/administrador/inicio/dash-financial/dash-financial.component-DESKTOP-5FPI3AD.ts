@@ -30,6 +30,7 @@ export class DashFinancialComponent {
   justification: string = '';
 
   disabledButton: boolean = false;
+  
   constructor(
     private MonitoringCatalogService: MonCatalogService, 
     private _authGuardService: authGuardService,
@@ -46,7 +47,7 @@ export class DashFinancialComponent {
     this.items = [
       {
         label: 'View History',
-        routerLink: ''
+        routerLink: '/histoReview'
       }
     ]
   }
@@ -54,92 +55,15 @@ export class DashFinancialComponent {
   getActualRequests() {
     this.MonitoringCatalogService.getActualRequests(this.token?.access_token)
       .subscribe((response: any) => {
+        console.log('getActualRequests:', response);
         if (response.valido === 1) {
           this.actualRequests = response.result;
-          
-          this.actualRequests.forEach(request => {
-            this.loadHistoryForTable(request);
-          });
-          
           this.loading = false;
         } else {
-          console.error("Error getting requests:", response.message);
+          console.error("Error al obtener requests:", response.message);
           this.loading = false;
         }
       });
-  }
-
-  loadHistoryForTable(request: any) {
-    this.MonitoringCatalogService.getHistoryActualRequest(
-      request.Idactualreviewrequest, 
-      this.token?.access_token
-    ).subscribe((response: any) => {
-      if (response.valido === 1) {
-        request.history = response.result;
-        request.totalApprovers = this.getTotalApproversForRequest(request);
-      } else {
-        request.history = [];
-        request.totalApprovers = this.getTotalApproversForRequest(request);
-      }
-    });
-  }
-
-  getTotalApproversForRequest(request: any): number {
-    const config = this.relUsersAndAccounts.find(ua => {
-      if (request.LedgerType === 'Capex') {
-        return ua.idcapexsubaccount === request.idsubaccount;
-      } else if (request.LedgerType === 'Opex') {
-        return ua.idopexsubaccount === request.idsubaccount;
-      }
-      return false;
-    });
-    
-    if (!config) {
-      return 3;
-    }
-    
-    return config.IdUsertechnicaldirector > 0 ? 3 : 2;
-  }
-
-  getStatusClass(idstatusautho: number | null | undefined): string {
-    if (!idstatusautho) {
-      return 'status-pending';
-    }
-    
-    switch (idstatusautho) {
-      case 1: 
-        return 'status-approved';
-      case 2: 
-      case 3: 
-        return 'status-negate';
-      default:
-        return 'status-pending';
-    }
-  }
-
-  getStatusCircles(request: any): any[] {
-    const circles: any[] = [];
-    const totalNeeded = request.totalApprovers || 3;
-    const history = request.history || [];
-    
-    history.forEach((h: any) => {
-      circles.push({
-        tooltip: `${h.Name} - ${h.StatusNombre}`,
-        statusClass: this.getStatusClass(h.idstatusautho),
-        isPending: false
-      });
-    });
-    
-    const remaining = totalNeeded - circles.length;
-    for (let i = 0; i < remaining; i++) {
-      circles.push({
-        tooltip: 'Pending review',
-        statusClass: 'status-pending',
-        isPending: true
-      });
-    }
-    
-    return circles;
   }
 
   getStatusAuthorizations() {
@@ -147,9 +71,172 @@ export class DashFinancialComponent {
         if (response.valido === 1) {
           this.StatusAuthorizations = response.result;
         } else {
-          console.error("Error getting requests:", response.message);
+          console.error("Error al obtener requests:", response.message);
         }
     });
+  }
+
+  getStatusCircles(request: any): any[] {
+    const circles: any[] = [];
+    
+    const votedRoles = request.AllAuthorizersWithRoles 
+      ? request.AllAuthorizersWithRoles.split(',').map((r: string) => r.trim())
+      : [];
+    
+    const allRequiredRoles = this.getAllRolesForSubAccount(request);
+    const lastVoter = request.LastAuthorizerWithRole ? request.LastAuthorizerWithRole.trim() : null;
+    
+    const statusMatch = request.CurrentStatusDescription?.match(/In progress \((\d+)\/(\d+)\)/);
+    
+    if (request.CurrentStatusDescription === 'Approved') {
+      if (votedRoles.length === 2) {
+        votedRoles.forEach((role: string) => {
+          circles.push({
+            tooltip: `${role} - Approved`,
+            statusClass: 'status-approved',
+            isPending: false
+          });
+        });
+      } else {
+        allRequiredRoles.forEach((role: string) => {
+          circles.push({
+            tooltip: `${role} - Approved`,
+            statusClass: 'status-approved',
+            isPending: false
+          });
+        });
+      }
+    } else if (request.CurrentStatusDescription === 'Rechazed') {
+      
+      if (votedRoles.length === 3) {
+        votedRoles.forEach((role: string) => {
+          if (role !== lastVoter) {
+            circles.push({
+              tooltip: `${role} - Approved`,
+              statusClass: 'status-approved',
+              isPending: false
+            });
+          }
+        });
+        if (lastVoter) {
+          circles.push({
+            tooltip: `${lastVoter} - Rejected`,
+            statusClass: 'status-negate',
+            isPending: false
+          });
+        }
+        
+      } else if (votedRoles.length === 2) {
+        const approvedRole = votedRoles.find((role: string) => role !== lastVoter);
+        const pendingRoles = allRequiredRoles.filter((role: string) => !votedRoles.includes(role));
+        
+        if (approvedRole) {
+          circles.push({
+            tooltip: `${approvedRole} - Approved`,
+            statusClass: 'status-approved',
+            isPending: false
+          });
+        }
+        
+        if (lastVoter) {
+          circles.push({
+            tooltip: `${lastVoter} - Rejected`,
+            statusClass: 'status-negate',
+            isPending: false
+          });
+        }
+        
+        pendingRoles.forEach((role: string) => {
+          circles.push({
+            tooltip: `${role} - Pending`,
+            statusClass: 'status-pending',
+            isPending: true
+          });
+        });
+        
+      } else if (votedRoles.length === 1) {
+        circles.push({
+          tooltip: `${votedRoles[0]} - Rejected`,
+          statusClass: 'status-negate',
+          isPending: false
+        });
+        
+        allRequiredRoles.forEach((role: string) => {
+          if (!votedRoles.includes(role)) {
+            circles.push({
+              tooltip: `${role} - Pending`,
+              statusClass: 'status-pending',
+              isPending: true
+            });
+          }
+        });
+      }
+      
+    } else if (statusMatch) {
+      votedRoles.forEach((role: string) => {
+        circles.push({
+          tooltip: `${role} - Approved`,
+          statusClass: 'status-approved',
+          isPending: false
+        });
+      });
+      
+      allRequiredRoles.forEach((role: string) => {
+        if (!votedRoles.includes(role)) {
+          circles.push({
+            tooltip: `${role} - Pending`,
+            statusClass: 'status-pending',
+            isPending: true
+          });
+        }
+      });
+      
+    } else {
+      allRequiredRoles.forEach((role: string) => {
+        circles.push({
+          tooltip: `${role} - Pending`,
+          statusClass: 'status-pending',
+          isPending: true
+        });
+      });
+    }
+    
+    return circles;
+  }
+
+  getAllRolesForSubAccount(request: any): string[] {
+    const config = this.relUsersAndAccounts.find(ua => {
+      const matchCapex = request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount;
+      const matchOpex = request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount;
+      return matchCapex || matchOpex;
+    });
+    
+    if (!config) {
+      return ['Financial Evaluator', 'Manager', 'Technical Director'];
+    }
+    
+    const roles: string[] = [];
+    
+    if (config.name_financial_evaluator) {
+      roles.push('Financial Evaluator');
+    }
+    if (config.name_user) {
+      roles.push('Manager');
+    }
+    if (config.name_technical_director) {
+      roles.push('Technical Director');
+    }
+    
+    return roles.length > 0 ? roles : ['Financial Evaluator', 'Manager', 'Technical Director'];
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'approved': return 'status-approved';
+      case 'rechazed':
+      case 'rejected': return 'status-negate';
+      default: return 'status-pending';
+    }
   }
 
   getConfigUsersAndAccounts() {
@@ -157,7 +244,7 @@ export class DashFinancialComponent {
         if (response.valido === 1) {
           this.relUsersAndAccounts = response.result;
         } else {
-          console.error("Error getting requests:", response.message);
+          console.error("Error al obtener requests:", response.message);
         }
     });
   }
@@ -168,7 +255,6 @@ export class DashFinancialComponent {
     if (request) {
       this.loadTransactionDetails(request.Idactualreviewrequest);
       this.loadgetHistoryActualRequest(request.Idactualreviewrequest);
-      
     }
   }
 
@@ -218,7 +304,7 @@ export class DashFinancialComponent {
   getTotalAmount(): number {
     return this.transactionDetails.reduce((sum, t) => sum + t.Original_Amount_USD, 0);
   }
-  
+
   getTotalTransactions(): number {
     return this.transactionDetails.length > 0 
       ? this.transactionDetails[0].TotalTransacciones 
@@ -226,7 +312,7 @@ export class DashFinancialComponent {
   }
 
   saveChanges(){
-    if(this.disabledButton) return; /** block multiples peticiones */
+    if(this.disabledButton) return;
 
     if(!this.optionStatusSelected || !this.justification){
       return this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Option and Justification are required.'});
@@ -252,7 +338,7 @@ export class DashFinancialComponent {
     }
 
     console.log(data);
-    
+
     this.MonitoringCatalogService.setAuthotizationRequest(data, this.token?.access_token).subscribe((response: any) => {
       if (response.valido === 1) {
         if(response.result[0].result.includes("Error")){
@@ -265,10 +351,11 @@ export class DashFinancialComponent {
       } else {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while saving changes.'});
       }
+      this.disabledButton = false;
     });
   }
 
-    isValidStatus(status: number): string {
+  isValidStatus(status: number): string {
     switch (status) {
       case 1:
         return 'status-approved';
@@ -277,7 +364,7 @@ export class DashFinancialComponent {
       case 3:
         return 'status-negate';
       default:
-        return ''; // sin clase si no hay match
+        return '';
     }
   }
 }
