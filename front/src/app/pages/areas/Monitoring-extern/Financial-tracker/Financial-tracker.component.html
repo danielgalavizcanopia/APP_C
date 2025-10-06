@@ -100,7 +100,7 @@
             <td class="text-right">{{data.paid | currency}} USD</td>
             <td class="text-right">{{data.provisional | currency}} MXN</td>
             <td class="text-center">
-                <button *ngIf="data.paid > 0" type="button" pButton pRipple icon="pi pi-search"
+                <button *ngIf="data.paid > 0 && rpSelected.length <= 1" type="button" pButton pRipple icon="pi pi-search"
                     class="p-button-rounded p-button-text p-button-sm" (click)="openSubAccountModal(data, subaccount.AccountName)"
                     pTooltip="Ver detalles de transacciones" tooltipPosition="top">
                 </button>

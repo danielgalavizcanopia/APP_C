@@ -70,6 +70,17 @@ async function getActualRequests(req, res){
     }
 }
 
+
+async function getHistoryRequests(req, res){
+    try {
+        const resultados = await ejecutarVistaTools('vw_fm_actualrequesthistory');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 async function getTransactionsDetailsByID(req, res){
     try {
         const resultados = await ejecutarStoredProcedure('sp_getFM_actualreviewrequest_detail',[
@@ -89,6 +100,21 @@ async function getHistoryActualRequest(req, res){
     try {
         const resultados = await ejecutarStoredProcedure('sp_getFM_Actualrequest_authorization',[
             req.params.id
+        ]);
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados[0]});
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({valido: 0, message: "Was an error, please, try again"});
+        
+    }
+}
+
+async function setDeletePedingRequests(req, res){
+    try {
+        const resultados = await ejecutarStoredProcedure('sp_set_FM_ActualReviewRequestDelete',[
+            req.body.Idactualreviewrequest
         ]);
         if(resultados){
             res.status(200).json({valido: 1, result: resultados[0]});
@@ -167,6 +193,8 @@ module.exports = {
     getTransactionsDetailsByID,
     getHistoryActualRequest,
     getStatusAuthorizations,
+    setDeletePedingRequests,
     setAuthotizationRequest,
     getConfigUsersAndAccounts,
+    getHistoryRequests
 }

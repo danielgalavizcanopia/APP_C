@@ -39,6 +39,8 @@ const {
     getByAccountDetails,
     setReviewActualRequest,
     getActualRequests,
+    getHistoryRequests,
+    setDeletePedingRequests,
     getTransactionsDetailsByID,
     getHistoryActualRequest,
     setAuthotizationRequest,
@@ -50,11 +52,13 @@ const {
 router.post('/getByAccountDetails', authMiddleware, getByAccountDetails);
 router.post('/setReviewActualRequest', authMiddleware, setReviewActualRequest);
 router.get('/getActualRequests', authMiddleware, getActualRequests);
+router.get('/getHistoryRequests', authMiddleware, getHistoryRequests);
 router.get('/getStatusAuthorizations', authMiddleware, getStatusAuthorizations);
 router.get('/getConfigUsersAndAccounts', authMiddleware, getConfigUsersAndAccounts);
 router.get('/getTransactionsDetailsByID/:id', authMiddleware, getTransactionsDetailsByID);
 router.get('/getHistoryActualRequest/:id', authMiddleware, getHistoryActualRequest);
 router.post('/setAuthotizationRequest', authMiddleware, setAuthotizationRequest);
+router.post('/setDeletePedingRequests', authMiddleware, setDeletePedingRequests);
 
 /** BY ACTIVITIES CONTROLLERS */
 router.get('/getBudgetTrackerByProjectRP/:idprojects/:rpnumber', authMiddleware, getByActivitiesReport);

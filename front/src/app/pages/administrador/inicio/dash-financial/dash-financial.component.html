@@ -8,22 +8,23 @@
         </div>
         <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input pInputText type="text" placeholder="Search global" />
+            <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search global" />
         </span>
     </div>
     <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [globalFilterFields]="['ProjectName', 'LedgerType', 'nombre_subcuenta', 'OriginalTotal']"
         [rowsPerPageOptions]="[10, 25, 50]">
                 <ng-template pTemplate="header">
                 <tr class="text-center">
-                    <th>Project</th>
-                    <th>Request Date</th>
-                    <th>Type</th>
+                    <th pSortableColumn="ProjectName">Project <p-sortIcon field="ProjectName" /></th>
+                    <th pSortableColumn="requestDate">Request Date <p-sortIcon field="requestDate" /></th>
+                    <th pSortableColumn="LedgerType">Type <p-sortIcon field="LedgerType" /></th>
                     <th>RP</th>
-                    <th>Subaccount</th>
-                    <th>Selected<br>Transaccion </th>
-                    <th>Total USD <br> Transaccion </th>
+                    <th pSortableColumn="nombre_subcuenta">Subaccount <p-sortIcon field="nombre_subcuenta" /></th>
+                    <th pSortableColumn="TotalChanges">Selected<br>Transaccion  <p-sortIcon field="TotalChanges" /></th>
+                    <th pSortableColumn="OriginalTotal">Total USD <br> Transaccion <p-sortIcon field="OriginalTotal" /></th>
                     <th>Status</th>
                     <th></th>
                 </tr>
@@ -38,17 +39,25 @@
                 <td>{{ product.nombre_subcuenta }}</td>
                 <td>{{ product.TotalChanges }}</td>
                 <td>{{ product.OriginalTotal | currency}}</td>
-<td>
-    <i *ngFor="let circle of getStatusCircles(product)" 
-       [pTooltip]="circle.tooltip" 
-       tooltipPosition="top"
-       class="pi pi-circle pr-2"
-       [ngClass]="circle.statusClass">
-    </i>
-</td>
                 <td>
-                    <p-button styleClass="p-button-text p-button-secondary" 
-                        icon="pi pi-eye" (click)="showDialog(product)">
+                    <i *ngFor="let circle of getStatusCircles(product)" 
+                    [pTooltip]="circle.tooltip" 
+                    tooltipPosition="top"
+                    class="pi pi-circle pr-2"
+                    [ngClass]="circle.statusClass">
+                    </i>
+                </td>
+                <td>
+                    <p-button *ngIf="isUserAuthorizedToEvaluate(product)" 
+                            styleClass="p-button-text p-button-secondary" 
+                            icon="pi pi-pencil" 
+                            (click)="showDialog(product)">
+                    </p-button>
+                    
+                    <p-button *ngIf="!isUserAuthorizedToEvaluate(product)" 
+                            styleClass="p-button-text p-button-secondary" 
+                            icon="pi pi-eye" 
+                            (click)="showDialog(product)">
                     </p-button>
                 </td>
             </tr>
@@ -161,7 +170,7 @@
                     </div>
                 </p-scrollPanel>
                 <hr>
-                <div class="grid">
+                <div class="grid" *ngIf="canUserEdit">
                     <div class="col-4">
                         <span class="p-float-label">
                             <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
@@ -176,13 +185,20 @@
                         </span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <ng-template pTemplate="footer">
-        <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
-        <p-button label="Send" (onClick)="saveChanges()"></p-button>
-    </ng-template>
+<ng-template pTemplate="footer">
+    <div class="flex justify-content-between w-full">
+        <div>
+            <p-button *ngIf="canUserEdit"type="button" styleClass="p-button-danger" (onClick)="deleteRequest()" icon="pi pi-trash" label="Delete"></p-button>
+        </div>
+        
+        <div>
+            <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
+            <p-button *ngIf="canUserEdit" label="Send" (onClick)="saveChanges()"></p-button>
+        </div>
+    </div>
+</ng-template>
 </p-dialog>

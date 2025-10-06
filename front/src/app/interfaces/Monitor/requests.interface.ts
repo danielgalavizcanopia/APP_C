@@ -43,3 +43,17 @@ export interface ActualRequest {
     TotalChanges:          number;
     OriginalTotal:         number;
 }
+
+export interface HistoryRequests {
+    ProjectName:                string;
+    requestDate:                Date;
+    Original_Ledger:            string;
+    NewLedger:                  string;
+    Original_idrpnumber:        number;
+    New_idrpnumber:             number;
+    Original_idcapexsubaccount: number;
+    Original_idopexsubaccount:  null;
+    New_idcapexsubaccount:      null;
+    New_idopexsubaccount:       number;
+    Original_Amount_USD:        number;
+}

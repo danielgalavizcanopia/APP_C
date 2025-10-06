@@ -1,6 +1,6 @@
 <section class="container">
 
-    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading"
+    <p-table #dt1 [value]="historyRequest" [paginator]="true" [rows]="10" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [rowsPerPageOptions]="[10, 25, 50]">
@@ -32,15 +32,15 @@
         <ng-template pTemplate="body" let-product>
             <tr>
                 <td>{{ product.ProjectName }}</td>
-                <td>new</td>
-                <td>{{ product.LedgerType }}</td>
-                <td>new</td>
-                <td>RP{{ product.idrpnumber }}</td>
-                <td>new</td>
+                <td>{{ product.requestDate | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ product.Original_Ledger }}</td>
+                <td>{{ product.NewLedger }}</td>
+                <td>RP{{ product.Original_idrpnumber }}</td>
+                <td>RP{{ product.New_idrpnumber }}</td>
                 <td>{{ product.nombre_subcuenta }}</td>
                 <td>new</td>
                 <td>{{ product.TotalChanges }}</td>
-                <td>{{ product.OriginalTotal | currency}}</td>
+                <td>{{ product.Original_Amount_USD | currency}}</td>
                 <td>
                     <p-button styleClass="p-button-text p-button-secondary" icon="pi pi-eye"
                         (click)="showDialog(product)">

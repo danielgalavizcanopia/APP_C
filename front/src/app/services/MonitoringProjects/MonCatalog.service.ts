@@ -136,6 +136,10 @@ export class MonCatalogService {
       return this._apiService.sendGetRequest(this.url + "MonitorSummary/getActualRequests", token);
     }
 
+    getHistoryRequests(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + "MonitorSummary/getHistoryRequests", token);
+    }
+
     getTransactionsDetailsByID(idActualReviewRequest: number, token: string): Observable<any> {
       return this._apiService.sendGetRequest(this.url + `MonitorSummary/getTransactionsDetailsByID/${idActualReviewRequest}`, token);
     }
