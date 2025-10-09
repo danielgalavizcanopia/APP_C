@@ -7,6 +7,8 @@ export interface TransactionDetails {
     NewRP:                      null;
     Original_idcapexsubaccount: null;
     conceptoCapexOriginal:      null;
+    accountCapexNew?: string | null;  
+    accountOpexNew?: string | null;
     Newidcapexsubaccount:       null;
     conceptoCapexNew:           null;
     accountCapexOriginal:       null;

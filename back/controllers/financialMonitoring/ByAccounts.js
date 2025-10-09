@@ -133,7 +133,7 @@ async function getByAccountsReport(req, res){
                 let capexplan;
                 capexplan = CapexPlanned.find(x => x.idcapexsubaccount == account.idcapexsubaccount && x.Ca_o_pex == 1 && x.idrpnumber == account.idrpnumber && x.idactivitiesprojects == account.idactivitiesprojects)
                 let shareMonto = 0;
-                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
                 if(provisionalRow.length > 0){
                    for(let prov of provisionalRow){
                      shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
@@ -217,7 +217,7 @@ async function getByAccountsReport(req, res){
                 let opexplan;
                 opexplan = CapexPlanned.find(x => x.idopexsubaccount == account.idopexsubaccount && x.Ca_o_pex == 2 && x.idrpnumber == account.idrpnumber &&  x.idactivitiesprojects == account.idactivitiesprojects)
                 let shareMonto = 0;
-                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
                 if(provisionalRow.length >= 0){
                    for(let prov of provisionalRow){
                      shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
@@ -439,7 +439,7 @@ function getByAccountsReportXLSX(req, res){
                 let capexplan;
                 capexplan = CapexPlanned.find(x => x.idcapexsubaccount == account.idcapexsubaccount && x.Ca_o_pex == 1 && x.idrpnumber == account.idrpnumber && x.idactivitiesprojects == account.idactivitiesprojects)
                 let shareMonto = 0;
-                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
                 if(provisionalRow.length > 0){
                    for(let prov of provisionalRow){
                      shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
@@ -523,7 +523,7 @@ function getByAccountsReportXLSX(req, res){
                 let opexplan;
                 opexplan = CapexPlanned.find(x => x.idopexsubaccount == account.idopexsubaccount && x.Ca_o_pex == 2 && x.idrpnumber == account.idrpnumber &&  x.idactivitiesprojects == account.idactivitiesprojects)
                 let shareMonto = 0;
-                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+                let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
 
                 if(provisionalRow.length >= 0){
                    for(let prov of provisionalRow){
@@ -843,7 +843,7 @@ async function getByAccountByFullReport(idProject, rpnumbers){
               let capexplan;
               capexplan = CapexPlanned.find(x => x.idcapexsubaccount == account.idcapexsubaccount && x.Ca_o_pex == 1 && x.idrpnumber == account.idrpnumber && x.idactivitiesprojects == account.idactivitiesprojects)
               let shareMonto = 0;
-              let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+              let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
               if(provisionalRow.length > 0){
                   for(let prov of provisionalRow){
                     shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
@@ -927,7 +927,7 @@ async function getByAccountByFullReport(idProject, rpnumbers){
               let opexplan;
               opexplan = CapexPlanned.find(x => x.idopexsubaccount == account.idopexsubaccount && x.Ca_o_pex == 2 && x.idrpnumber == account.idrpnumber &&  x.idactivitiesprojects == account.idactivitiesprojects)
               let shareMonto = 0;
-              let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
+              let provisionalRow = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(account.cuentacompaq) && parseInt(x.fields?.RP?.slice(2)) == account.idrpnumber && account.idactivitiesprojects && account.idactivitiesprojects == x.fields?.IDAct)
               if(provisionalRow.length >= 0){
                   for(let prov of provisionalRow){
                     shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)

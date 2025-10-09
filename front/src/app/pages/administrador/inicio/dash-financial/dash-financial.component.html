@@ -1,5 +1,6 @@
-<div>
-    <div class="flex">
+<p-confirmPopup></p-confirmPopup>
+<div class="container">
+    <div class="flex pb-2">
         <div class="inline-flex">
             <h5>Actual Expenses under Review</h5>
             <p-button type="button" (click)="menu.toggle($event)" icon="pi pi-ellipsis-v"
@@ -11,29 +12,28 @@
             <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search global" />
         </span>
     </div>
-    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading"
-        [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+    <p-table #dt1 [value]="actualRequests" [paginator]="true" [rows]="10" [loading]="loading" styleClass="p-datatable-sm"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [globalFilterFields]="['ProjectName', 'LedgerType', 'nombre_subcuenta', 'OriginalTotal']"
         [rowsPerPageOptions]="[10, 25, 50]">
-                <ng-template pTemplate="header">
-                <tr class="text-center">
-                    <th pSortableColumn="ProjectName">Project <p-sortIcon field="ProjectName" /></th>
-                    <th pSortableColumn="requestDate">Request Date <p-sortIcon field="requestDate" /></th>
-                    <th pSortableColumn="LedgerType">Type <p-sortIcon field="LedgerType" /></th>
-                    <th>RP</th>
-                    <th pSortableColumn="nombre_subcuenta">Subaccount <p-sortIcon field="nombre_subcuenta" /></th>
-                    <th pSortableColumn="TotalChanges">Selected<br>Transaccion  <p-sortIcon field="TotalChanges" /></th>
-                    <th pSortableColumn="OriginalTotal">Total USD <br> Transaccion <p-sortIcon field="OriginalTotal" /></th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </ng-template>
+        <ng-template pTemplate="header">
+            <tr class="text-center">
+                <th pSortableColumn="requestDate">Request Date <p-sortIcon field="requestDate" /></th>
+                <th pSortableColumn="ProjectName">Project<p-sortIcon field="ProjectName" /></th>
+                <th pSortableColumn="LedgerType">Type <p-sortIcon field="LedgerType" /></th>
+                <th>RP</th>
+                <th pSortableColumn="nombre_subcuenta">Subaccount <p-sortIcon field="nombre_subcuenta" /></th>
+                <th pSortableColumn="TotalChanges">Selected<br>Transaccion  <p-sortIcon field="TotalChanges" /></th>
+                <th pSortableColumn="OriginalTotal">Total USD <br> Transaccion <p-sortIcon field="OriginalTotal" /></th>
+                <th width="8%">Status</th>
+                <th></th>
+            </tr>
+        </ng-template>
         
         <ng-template pTemplate="body" let-product>
             <tr>
-                <td>{{ product.ProjectName }}</td>
                 <td>{{ product.requestDate | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ product.ProjectName }}</td>
                 <td>{{ product.LedgerType }}</td>
                 <td>RP{{ product.idrpnumber }}</td>
                 <td>{{ product.nombre_subcuenta }}</td>
@@ -67,138 +67,147 @@
 
 <!--INICIA MODAL-->
 
-<p-dialog header="Header" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
-    [resizable]="false" (onHide)="hideDialog()">
+<p-dialog header="Request for review" [(visible)]="visible" [modal]="true" [draggable]="false" [maximizable]="true"
+    [resizable]="false" (onHide)="hideDialog()" [style]="{minHeight: '600px', width: '90vw'}">
     <div class="revision-content">
 
-        <div class="grid info-sub mb-4" *ngIf="requestInfo">
-            <div class="col-2">
-                <small>Total Transactions</small>
-                <p class="font-bold">{{ getTotalTransactions() }}</p>
-            </div>
-            <div class="col-2">
-                <small>Type</small>
-                <p class="font-bold">
-                    {{ requestInfo.Original_Ledger }}
-                    <i class="pi pi-angle-double-right ico-color px-3"></i>
-                    <span class="new">{{ requestInfo.NewLedger || requestInfo.Original_Ledger }}</span>
-                </p>
-            </div>
-            <div class="col-2">
-                <small>RP</small>
-                <p class="font-bold">
-                    RP{{ requestInfo.OriginalRP }}
-                    <i class="pi pi-angle-double-right ico-color px-3"></i>
-                    <span class="new">RP{{ requestInfo.NewRP || requestInfo.OriginalRP }}</span>
-                </p>
-            </div>
-            <div class="col-3">
-                <small>Account</small>
-                <p class="font-bold">
-                    {{requestInfo.accountCapexOriginal || requestInfo.accountOpexOriginal}}
-                </p>
-            </div>
-            
-            <div class="col-3">
-                <small>Subaccount</small>
-                <p class="font-bold">
-                    {{ requestInfo.conceptoCapexOriginal || requestInfo.conceptoOpexOriginal }}
-                    <i class="pi pi-angle-double-right ico-color px-3"></i>
-                    <span class="new">{{ requestInfo.conceptoCapexNew || requestInfo.conceptoOpexNew }}</span>
-                </p>
-            </div>
-
-            <div class="col-12">
-                <small class="font-bold">JUSTIFICATION</small>
-                <hr class="m-0">
-                <p-scrollPanel [style]="{ width: '100%', height: '150px' }" styleClass="custombar1">
-                <p>{{ requestInfo.Justification }}</p>
-                </p-scrollPanel>
-            </div>
+        <!-- Loading indicator -->
+        <div *ngIf="loadingModalData" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; text-align: center;">
+            <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+            <p style="margin-top: 1rem;">Loading...</p>
         </div>
-        <div class="grid">
-            <div class="col-4">
-                <p-table [value]="transactionDetails" [loading]="loadingTransactions" 
-                    styleClass="p-datatable-sm">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>ID Transaction</th>
-                            <th>Date Payment</th>
-                            <th class="text-right">Amount</th>
-                        </tr>
-                    </ng-template>
 
-                    <!-- AQUÍ FALTABA let-transaction -->
-                    <ng-template pTemplate="body" let-transaction>
-                        <tr>
-                            <td>{{ transaction.IdP_R_Estructurada }}</td>
-                            <td>{{ transaction.CreatedDate | date: 'dd/MM/yyyy' }}</td>
-                            <td class="text-right">{{ transaction.Original_Amount_USD | currency}}</td>
-                        </tr>
-                    </ng-template>
+        <!-- Contenido del modal con opacidad cuando está cargando -->
+        <div [style.opacity]="loadingModalData ? '0.3' : '1'" [style.pointer-events]="loadingModalData ? 'none' : 'auto'">
+            <div class="grid info-sub mb-4" *ngIf="requestInfo">
+                <div class="col-2">
+                    <small>Total Transactions</small>
+                    <p class="font-bold">{{ getTotalTransactions() }}</p>
+                </div>
+                <div class="col-2">
+                    <small>Type</small>
+                    <p class="font-bold">
+                        {{ requestInfo.Original_Ledger }}
+                        <i class="pi pi-angle-double-right ico-color px-3"></i>
+                        <span class="new">{{ requestInfo.NewLedger || requestInfo.Original_Ledger }}</span>
+                    </p>
+                </div>
+                <div class="col-2">
+                    <small>RP</small>
+                    <p class="font-bold">
+                        RP{{ requestInfo.OriginalRP }}
+                        <i class="pi pi-angle-double-right ico-color px-3"></i>
+                        <span class="new">RP{{ requestInfo.NewRP || requestInfo.OriginalRP }}</span>
+                    </p>
+                </div>
+                <div class="col-3">
+                    <small>Account</small>
+                    <p class="font-bold">
+                        <span *ngIf="requestInfo.accountCapexOriginal || requestInfo.accountOpexOriginal">
+                            {{requestInfo.accountCapexOriginal || requestInfo.accountOpexOriginal}}
+                        </span>
+                        
+                        <span *ngIf="requestInfo.accountCapexNew || requestInfo.accountOpexNew">
+                            <i class="pi pi-angle-double-right ico-color px-3"></i>
+                            <span class="new">{{requestInfo.accountCapexNew || requestInfo.accountOpexNew}}</span>
+                        </span>
+                    </p>
+                </div>
+                
+                <div class="col-3">
+                    <small>Subaccount</small>
+                    <p class="font-bold">
+                        {{ requestInfo.conceptoCapexOriginal || requestInfo.conceptoOpexOriginal }}
+                        <i class="pi pi-angle-double-right ico-color px-3"></i>
+                        <span class="new">{{ requestInfo.conceptoCapexNew || requestInfo.conceptoOpexNew }}</span>
+                    </p>
+                </div>
 
-                    <ng-template pTemplate="footer">
-                        <tr>
-                            <td colspan="2" class="text-right font-bold">TOTAL</td>
-                            <td class="text-right font-bold">{{ getTotalAmount() | currency }}</td>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template pTemplate="emptymessage">
-                        <tr>
-                            <td colspan="3" class="text-center">
-                                <p class="p-3">No transactions available</p>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
+                <div class="col-12">
+                    <small class="font-bold">JUSTIFICATION</small>
+                    <hr class="m-0">
+                    <p-scrollPanel [style]="{ width: '100%', height: '150px' }" styleClass="custombar1">
+                    <p>{{ requestInfo.Justification }}</p>
+                    </p-scrollPanel>
+                </div>
             </div>
+            <div class="grid">
+                <div class="col-4">
+                    <p-table [value]="transactionDetails" [loading]="loadingTransactions" 
+                        styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>ID Transaction</th>
+                                <th>Date Payment</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </ng-template>
 
-            <div class="col-8">
-                <small class="font-bold">HISTORY MESSAGE</small>
-                <hr>
-                <p-scrollPanel [style]="{ width: '100%', height: '200px' }" styleClass="custombar1">
-                    <div class="grid">
-                        <div class="col-12" *ngFor="let history of historyActualRequests">
-                            <div>
-                                <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.idstatusautho)">{{history.StatusNombre}}</span>
-                                </p>
+                        <ng-template pTemplate="body" let-transaction>
+                            <tr>
+                                <td>{{ transaction.IdP_R_Estructurada }}</td>
+                                <td>{{ transaction.CreatedDate | date: 'dd/MM/yyyy' }}</td>
+                                <td class="text-right">{{ transaction.Original_Amount_USD | currency}}</td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="footer">
+                            <tr>
+                                <td colspan="2" class="text-right font-bold">TOTAL</td>
+                                <td class="text-right font-bold">{{ getTotalAmount() | currency }}</td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <p class="p-3">No transactions available</p>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <div class="col-8">
+                    <small class="font-bold">HISTORY MESSAGE</small>
+                    <hr>
+                    <p-scrollPanel [style]="{ width: '100%', height: '200px' }" styleClass="custombar1">
+                        <div class="grid">
+                            <div class="col-12" *ngFor="let history of historyActualRequests">
+                                <div>
+                                    <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.idstatusautho)">{{history.StatusNombre}}</span>
+                                    </p>
+                                </div>
+
+                                <p>{{history.AuthorizationComment}}</p>
                             </div>
-
-                            <p>{{history.AuthorizationComment}}</p>
                         </div>
-                    </div>
-                </p-scrollPanel>
-                <hr>
-                <div class="grid" *ngIf="canUserEdit">
-                    <div class="col-4">
-                        <span class="p-float-label">
-                            <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
-                            </p-dropdown>
-                            <label>Status</label>
-                        </span>
-                    </div>
-                    <div class="col-12">
-                        <span class="p-float-label">
-                            <textarea [(ngModel)]="justification" pInputTextarea id="float-input" rows="5" cols="30"></textarea>
-                            <label for="float-input">Justification</label>
-                        </span>
+                    </p-scrollPanel>
+                    <hr>
+                    <div class="grid" *ngIf="canUserEdit">
+                        <div class="col-4">
+                            <span class="p-float-label">
+                                <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
+                                </p-dropdown>
+                                <label>Status</label>
+                            </span>
+                        </div>
+                        <div class="col-12">
+                            <span class="p-float-label">
+                                <textarea [(ngModel)]="justification" pInputTextarea id="float-input" rows="5" cols="30"></textarea>
+                                <label for="float-input">Justification</label>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-<ng-template pTemplate="footer">
-    <div class="flex justify-content-between w-full">
-        <div>
-            <p-button *ngIf="canUserEdit"type="button" styleClass="p-button-danger" (onClick)="deleteRequest()" icon="pi pi-trash" label="Delete"></p-button>
-        </div>
-        
-        <div>
-            <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
-            <p-button *ngIf="canUserEdit" label="Send" (onClick)="saveChanges()"></p-button>
-        </div>
-    </div>
-</ng-template>
+    <ng-template pTemplate="footer">
+            <div>
+                <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
+                <p-button *ngIf="canUserEdit" label="Send" (onClick)="saveChanges()" [disabled]="loadingModalData"></p-button>
+            </div>
+    </ng-template>
 </p-dialog>

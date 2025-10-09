@@ -1,6 +1,5 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalNewProjectComponent } from 'src/app/modal-new-project/modal-new-project.component';
 import { LayoutService } from 'src/app/services/app.layout.service';
 // import { LayoutService } from './service/app.layout.service';
 
@@ -10,7 +9,6 @@ import { LayoutService } from 'src/app/services/app.layout.service';
 })
 export class AppSidebarComponent {
     timeout: any = null;
-    @ViewChild(ModalNewProjectComponent, { static: false }) modalNewProject!: ModalNewProjectComponent;
 
     @ViewChild('menuContainer') menuContainer!: ElementRef;
 
@@ -59,7 +57,4 @@ export class AppSidebarComponent {
         this.layoutService.state.anchored = !this.layoutService.state.anchored;
     }
 
-    openModal(showModal : boolean): void {
-     this.modalNewProject.openModalNewProject(showModal);
-    }
 }

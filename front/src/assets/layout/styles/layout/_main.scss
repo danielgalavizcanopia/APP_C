@@ -3,15 +3,15 @@
 }
 
 html {
-    height: 100%;
+    width: 100%;
     font-size: $scale;
 }
 
 body {
     font-weight: 400;
-    padding: 0;
-    margin: 0;
-    min-height: 100%;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
     color: var(--text-color);
     font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
@@ -25,25 +25,10 @@ a {
 
 .layout-container {
     background: var(--body-bg);
-    min-height: 100vh;
-    &:before {
-        min-height: 100vh;
-        height: 100%;
-        width: 100%;
-        content: "";
-        z-index: 0;
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-image: var(--body-image);
-        background-repeat: no-repeat;
-        z-index: 0;
-    }
+
 
     .layout-content-wrapper {
         position: relative;
         z-index: 1;
-        overflow-x: hidden;
     }
 }

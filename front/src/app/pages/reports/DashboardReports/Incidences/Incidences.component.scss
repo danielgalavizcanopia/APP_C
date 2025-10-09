@@ -2,13 +2,15 @@
   display: block;
 }
 
-
 .status-pending{
-  background-color: #E3F0EA; color: #000000; padding: 4px; border-radius: 5px;
+  color: #707070; padding: 5px; border-radius: 5px;
 }
 .status-evaluation{
-  background-color: #D87610; color: #FFFFFF; padding: 4px; border-radius: 5px;
+  color: #D87610; padding: 5px; border-radius: 5px;
 }
 .status-finished{
-  background-color: #00946E; color: #FFFFFF; padding: 4px; border-radius: 5px;
+    color: #00946E; padding: 5px; border-radius: 5px;
+}
+.status-closed{
+    color: #919191; padding: 5px; border-radius: 5px;
 }

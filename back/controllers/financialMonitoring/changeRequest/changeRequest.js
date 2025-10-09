@@ -1,6 +1,6 @@
 const { ejecutarStoredProcedure, ejecutarStoredProcedurev2 } = require('../../../queries/projects');
-const { ejecutarVistaTools } = require('../../../queries/executeViews')
 const { getCatalogs } = require('../../../queries/catalogs');
+const { ejecutarVistaTools } = require('../../../queries/executeViews')
 
 const jwt = require('jsonwebtoken');
 
@@ -48,6 +48,7 @@ async function setReviewActualRequest(req, res){
             body.idrpnumber,
             body.idsubaccount,
             body.justification,
+            body.Idruleset,
             IDUser.IDUser,
             requests
         ]);
@@ -92,7 +93,6 @@ async function getTransactionsDetailsByID(req, res){
     } catch (error) {
         console.log(error);
         res.status(500).json({valido: 0, message: "Was an error, please, try again"});
-        
     }
 }
 
@@ -107,7 +107,6 @@ async function getHistoryActualRequest(req, res){
     } catch (error) {
         console.log(error);
         res.status(500).json({valido: 0, message: "Was an error, please, try again"});
-        
     }
 }
 
@@ -128,7 +127,7 @@ async function setDeletePedingRequests(req, res){
 
 async function getStatusAuthorizations(req, res){
     try {
-        const resultados = await ejecutarVistaTools('vw_fm_statusautho');
+        const resultados = await getCatalogs('ct_fm_actualstatus');
         if(resultados){
             res.status(200).json({valido: 1, result: resultados});
         }
@@ -137,18 +136,17 @@ async function getStatusAuthorizations(req, res){
     }
 }
 
-function getConfigUsersAndAccounts(req, res){
-    return new Promise(async (resolve, reject) => {
-        try {
-            const resultados = await getCatalogs('ct_subaccount_rel_userpositions');
-            if(resultados.length > 0){
-                res.status(201).json({valido: 1, result: resultados});
-            } else {
-                res.status(500).json({valido: 0, message: "Was an error, please, try again"});
-            }
-        } catch (error) {
+async function getConfigUsersAndAccounts(req, res){
+    try {
+        const resultados = await getCatalogs('ct_subaccount_rel_userpositions');
+        if(resultados.length > 0){
+            res.status(201).json({valido: 1, result: resultados});
+        } else {
+            res.status(500).json({valido: 0, message: "Was an error, please, try again"});
         }
-    });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function setAuthotizationRequest(req, res){
@@ -156,30 +154,14 @@ async function setAuthotizationRequest(req, res){
 
         const body = req.body;
 
-        if(body.typeOfAutho == 1){
-            /** APROBACIÓN DE 2 PERSONAS */
-            const resultados = await ejecutarStoredProcedure('sp_Set_FM_AuthorizeRequestbyID',[
-                body.Idactualreviewrequest,
-                body.iduserautho,
-                body.idstatusautho,
-                body.AuthorizationComment,
-            ]);
-            if(resultados.length > 0){
-                res.status(200).json({valido: 1, result: resultados[0]});
-            }
-        }
-
-        if(body.typeOfAutho == 2){
-            /** APROBACIÓN DE 3 PERSONAS */
-            const resultados = await ejecutarStoredProcedure('sp_Set_FM_AuthorizeRequest',[
-                body.Idactualreviewrequest,
-                body.iduserautho,
-                body.idstatusautho,
-                body.AuthorizationComment,
-            ]);
-            if(resultados.length > 0){
-                res.status(200).json({valido: 1, result: resultados[0]});
-            }
+        const resultados = await ejecutarStoredProcedure('sp_Set_FM_AuthorizeRequest',[
+            body.Idactualreviewrequest,
+            body.iduserautho,
+            body.idstatusautho,
+            body.AuthorizationComment,
+        ]);
+        if(resultados.length > 0){
+            res.status(200).json({valido: 1, result: resultados[0]});
         }
         
     } catch (error) {

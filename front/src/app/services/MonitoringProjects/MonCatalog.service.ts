@@ -160,6 +160,12 @@ export class MonCatalogService {
       const url = this.url + "MonitorSummary/setAuthotizationRequest";
       return this._apiService.sendPostTokenRequest(data, url, token);
     }
+    
+    setDeletePendingRequests(data: any, token: string): Observable<any> {
+      const url = this.url + "MonitorSummary/setDeletePedingRequests";
+      return this._apiService.sendPostTokenRequest(data, url, token);
+    }
+    
 
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({

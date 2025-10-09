@@ -37,7 +37,7 @@ function getStatusIncidence(req, res){
     return new Promise(async (resolve, reject) => {
         try {
             
-            const resultados = await getCatalogs('ct_statusreporteoactividades');
+            const resultados = await getCatalogs('ct_status_incidences');
             if(resultados.length > 0){
                 res.status(201).json({valido: 1, result: resultados});
             } else {

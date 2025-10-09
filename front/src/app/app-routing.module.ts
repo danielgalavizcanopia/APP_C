@@ -48,6 +48,7 @@ import { AnnualPlanningComponent } from './pages/management/AnnualPlanning/Annua
 import { SettlementComponent } from './pages/settlement/settlement.component';
 import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
 import { HistoryActuExpUnRevComponent } from './pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
+import { DashFinancialComponent } from './pages/administrador/inicio/dash-financial/dash-financial.component';
 
 @NgModule({
     imports: [RouterModule.forRoot([
@@ -80,6 +81,10 @@ import { HistoryActuExpUnRevComponent } from './pages/administrador/inicio/histo
                     component: InicioComponent,
                 },
                 //dashboard global
+                {
+                     path: 'dashfinancial',
+                    component: DashFinancialComponent,
+                },
                 {
                      path: 'histoReview',
                     component: HistoryActuExpUnRevComponent,

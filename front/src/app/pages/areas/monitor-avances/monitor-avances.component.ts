@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { MenuItem } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { ActivitiesDates, ActivitiesMonitoringExpand } from 'src/app/interfaces/Monitor/MonitorActivities.interface';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
@@ -23,6 +24,7 @@ export class MonitorAvancesComponent {
     const input = event.target as HTMLInputElement;
     this.dt1.filterGlobal(input.value, 'contains');
   }
+  actions!: MenuItem[];
   token: any;
   customers: any[] = [];
   cities!: City[];
@@ -62,6 +64,31 @@ export class MonitorAvancesComponent {
     this.token = this._authGuardService.getToken();
     this.getRPnumber();
     this.observaProjectSelected();
+  }
+
+    ngOnInit(){
+      this.actions = [
+        {
+        label: 'SDG report',
+        icon: 'pi pi-cloud-download',
+        command: () => {
+        }
+      },
+      {
+        label: 'KPI report',
+        icon: 'pi pi-cloud-download',
+        command: () => {
+          this.exportKPIToExcel();
+        }
+      },
+      {
+        label: 'general KPI report',
+        icon: 'pi pi-cloud-download',
+        command: () => {
+          this.exportGeneralReport();
+        }
+      },
+    ]
   }
 
   observaProjectSelected() {

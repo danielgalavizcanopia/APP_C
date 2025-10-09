@@ -7,6 +7,7 @@ import { RPCatalogsService } from 'src/app/services/ReportingPeriods/RPCatalogs.
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccounts.service';
 import { MessageService } from 'primeng/api';
+import { ImplementationCatalogsService } from 'src/app/services/Implementacion/Implementacion-catalogs.service';
 interface City {
   name: string;
   code: number;
@@ -77,7 +78,7 @@ export class FinancialTrackerComponent {
       readonly serviceObsProject$: ObservableService,
       private MonitoringCatalogService: MonCatalogService,
       private RPcatalogsService: RPCatalogsService,
-      private capexOpexAccountsService: CapexOpexAccountsService,
+      private _implementationCatalogsService: ImplementationCatalogsService,
       private messageService: MessageService,
     ){
       this.token = this._authGuardService.getToken();
@@ -349,7 +350,7 @@ export class FinancialTrackerComponent {
     // }
 
     loadCapexSubAccounts() {
-      this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
+      this._implementationCatalogsService.getCapexSubAccounts(this.token?.access_token)
         .subscribe((response: any) => {
           if (response.valido === 1) {
             this.CuentasCapex = response.result;
@@ -360,8 +361,8 @@ export class FinancialTrackerComponent {
     }
 
     loadOpexSubAccounts() {
-      this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
-        .subscribe((response: any) => {
+      this._implementationCatalogsService.getOpexSubAccounts(this.token?.access_token)
+        .subscribe((response: any) => { 
           if (response.valido === 1) {
             this.CuentasOpex = response.result;
           } else {
@@ -389,7 +390,7 @@ export class FinancialTrackerComponent {
 
     loadCapexSubAccountsAsync(): Promise<void> {
       return new Promise((resolve) => {
-        this.capexOpexAccountsService.getCapexSubaccounts(this.token?.access_token)
+        this._implementationCatalogsService.getCapexSubAccounts(this.token?.access_token)
           .subscribe((response: any) => {
             if (response.valido === 1) {
               this.CuentasCapex = response.result;
@@ -404,7 +405,7 @@ export class FinancialTrackerComponent {
 
     loadOpexSubAccountsAsync(): Promise<void> {
       return new Promise((resolve) => {
-        this.capexOpexAccountsService.getOpexSubaccounts(this.token?.access_token)
+        this._implementationCatalogsService.getOpexSubAccounts(this.token?.access_token)
           .subscribe((response: any) => {
             if (response.valido === 1) {
               this.CuentasOpex = response.result;

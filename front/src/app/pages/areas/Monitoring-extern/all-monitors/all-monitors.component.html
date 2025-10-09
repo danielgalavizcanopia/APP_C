@@ -1,9 +1,12 @@
-<section class="m-5">
-    <div class="flex justify-content-center m-5">
-        <div class="text-2xl ">Financial Monitoring</div>
-    </div>
-    <div class="flex justify-content-end">
-        <p-button label="Download full financial report" (onClick)="exportFullReportXLSX()" styleClass="p-button-outlined" class="m-1" icon="pi pi-file-excel"></p-button>
+<section class="container">
+    <div class="flex justify-content-between">
+        <div class="inline-flex">
+            <h4>Financial Monitoring</h4>
+        </div>
+        <div>
+            <p-button label="Download full financial report" (onClick)="exportFullReportXLSX()"
+                styleClass="p-button-outlined" class="m-1" icon="pi pi-file-excel"></p-button>
+        </div>
     </div>
     <p-tabView>
         <p-tabPanel header="By accounts">
@@ -16,7 +19,7 @@
             <app-supplier-tracker (evento)="recibir($event)"></app-supplier-tracker>
         </p-tabPanel>
         <p-tabPanel header="By Transaction">
-          <app-by-transaction (evento)="recibir($event)"></app-by-transaction>
+            <app-by-transaction (evento)="recibir($event)"></app-by-transaction>
         </p-tabPanel>
     </p-tabView>
 </section>

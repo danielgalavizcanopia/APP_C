@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { CCInvolvedSelected, EvidencesByIncidence, HistoryIncidenceStatus, Incidences } from 'src/app/interfaces/Incidence/Incidences.interfaces';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
@@ -17,6 +17,9 @@ import { regex } from 'src/app/util/regex';
   styleUrls: ['./Incidences.component.scss'],
 })
 export class IncidencesComponent {
+
+   actions!: MenuItem[];
+
   @ViewChild('dt1') dt1!: Table;
   data!: Event;
   
@@ -113,6 +116,32 @@ export class IncidencesComponent {
     this.getStatusIncidence();
     this.getUserProManager();
     this.observaProjectSelected();
+  }
+
+  ngOnInit(){
+      this.actions = [
+        {
+        label: 'New Incidence',
+        icon: 'pi pi-plus',
+        command: () => {
+          this.showDialog();
+        }
+      },
+        {
+        label: 'Project Incidences XLSX',
+        icon: 'pi pi-cloud-download',
+        command: () => {
+          this.exportIncidencesXLSX();
+        }
+      },
+      {
+        label: 'General incidences XLSX',
+        icon: 'pi pi-cloud-download',
+        command: () => {
+          this.exportGeneralIncidencesXLSX();
+        }
+      },
+    ]
   }
 
   observaProjectSelected() {

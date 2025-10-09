@@ -212,10 +212,7 @@ export class NavBarComponent {
           label: 'Reporting',
           icon: 'pi pi-fw pi-folder',
           items: [
-            {
-              label: 'Execution',
-              icon: 'pi pi-book',
-              items: [
+          
                 {
                   label: 'Reporting Periods',
                   icon: 'pi pi-book',
@@ -231,11 +228,7 @@ export class NavBarComponent {
                   icon: 'pi pi-file',
                   routerLink: ['Reports/ProjectLog']
                 },
-              ]
-            },
-  
-  
-          ]
+              ],
         },
         {
             label: 'Verification',
@@ -277,16 +270,10 @@ export class NavBarComponent {
             icon: 'pi pi-fw pi-map',
             items: [
               {
-                label: 'Execution',
-                icon: 'pi pi-briefcase',
-                items: [
-                  {
                     label: 'Marketing',
                     icon: 'pi pi-desktop',
                     routerLink: ["/Marketing"]
-                  },
-                ]
-              },
+              }
             ]
           },
       ];

@@ -220,13 +220,11 @@ registerLocaleData(localeEsMx);
         UsuariosComponent,
         ActivitiesCatalogComponent,
         PrepaDeducComponent,
-   
 
     ],
     imports: [
         AppRoutingModule,
         AppLayoutModule,
-
         StyleClassModule,
         BrowserModule,
         FormsModule,

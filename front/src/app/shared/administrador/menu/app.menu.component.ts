@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
+import { ModalNewProjectComponent } from 'src/app/modal-new-project/modal-new-project.component';
 import { ObservableService } from 'src/app/services/Observables/observableProject.service';
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 import { ItemService } from 'src/app/services/item.service';
@@ -12,6 +13,8 @@ import { ItemService } from 'src/app/services/item.service';
   templateUrl: './app.menu.component.html'
 })
 export class AppMenuComponent implements OnInit, OnDestroy {
+
+  @ViewChild(ModalNewProjectComponent, { static: false }) modalNewProject!: ModalNewProjectComponent;
   token: any;
   model: any[] = [];
   proyectoSelected: Projects | null = null;
@@ -47,29 +50,29 @@ export class AppMenuComponent implements OnInit, OnDestroy {
       this.itemSubscription.unsubscribe();
     }
   }
-// En app.menu.component.ts, MODIFICA la función observaProjectSelected:
+  // En app.menu.component.ts, MODIFICA la función observaProjectSelected:
 
-observaProjectSelected() {
+  observaProjectSelected() {
     this.serviceObsProject$.selectedProject$.subscribe((project: Projects) => {
-        this.proyectoSelected = project;
+      this.proyectoSelected = project;
 
-        if(this.isSelectedProject == false && project){
-            // Verificar que this.model existe y tiene la estructura correcta
-            if(this.model && this.model[0] && this.model[0].items){
-                var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
-                if (proyectosIndex !== -1 && this.model[0].items[proyectosIndex] && this.model[0].items[proyectosIndex].items) {
-                    this.model[0].items[proyectosIndex].items = [];
-                    for (let key in this.menuProject) {
-                        if(this.model[0].items[3] && this.model[0].items[3].items){
-                            this.model[0].items[3].items.push(this.menuProject[key]);
-                        }
-                    }
-                }
+      if (this.isSelectedProject == false && project) {
+        // Verificar que this.model existe y tiene la estructura correcta
+        if (this.model && this.model[0] && this.model[0].items) {
+          var proyectosIndex = this.model[0].items.findIndex((item: any) => item.label === 'Proyecto Detalle');
+          if (proyectosIndex !== -1 && this.model[0].items[proyectosIndex] && this.model[0].items[proyectosIndex].items) {
+            this.model[0].items[proyectosIndex].items = [];
+            for (let key in this.menuProject) {
+              if (this.model[0].items[3] && this.model[0].items[3].items) {
+                this.model[0].items[3].items.push(this.menuProject[key]);
+              }
             }
-            this.isSelectedProject = true;
+          }
         }
+        this.isSelectedProject = true;
+      }
     });
-}
+  }
 
   menuProjectDefinition() {
     this.menuProject = [
@@ -278,9 +281,19 @@ observaProjectSelected() {
       },
       {
         label: 'Projects',
-        icon: 'pi pi-folder',
-        routerLink: ["/new-proyect"],
-
+        icon: 'pi pi-folder-open',
+        items: [
+          {
+            label: 'Projects global',
+            icon: 'pi pi-folder',
+            routerLink: ["/new-proyect"],
+          },
+          {
+            label: 'Expenses review',
+            icon: 'pi pi-sync',
+            routerLink: ["/dashfinancial"]
+          },
+        ]
       },
       {
         label: 'Support',
@@ -349,5 +362,7 @@ observaProjectSelected() {
       )
     }
   }
-
+  openModal(showModal: boolean): void {
+    this.modalNewProject.openModalNewProject(showModal);
+  }
 }
