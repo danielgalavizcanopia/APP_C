@@ -49,7 +49,7 @@ export class FinancialTrackerComponent {
     newRP: number | null = null; 
     newSubAccount: string = '';
     justification: string = '';
-
+    relUsersAndAccounts: any[] = [];
     token: any;
     proyectoSelected: Projects | null = null;
     
@@ -82,6 +82,7 @@ export class FinancialTrackerComponent {
       private messageService: MessageService,
     ){
       this.token = this._authGuardService.getToken();
+      this.getConfigUsersAndAccounts();
       this.observaProjectSelected();
       this.getRPnumber();
         this.cities = [
@@ -194,13 +195,26 @@ export class FinancialTrackerComponent {
       this.LastUpdatePaid = `Last update: ${dia}/${mes}/${anio}`;
     }
 
-    exportFTToExcel() {
-      this.MonitoringCatalogService.downloadFTMonitorExcel(this.proyectoSelected?.idprojects ,this.rpSelected.join(','), this.proyectoSelected?.ProjectName, this.token?.access_token)
-    }
+  exportFTToExcel() {
+    this.MonitoringCatalogService.downloadFTMonitorExcel(this.proyectoSelected?.idprojects ,this.rpSelected.join(','), this.proyectoSelected?.ProjectName, this.token?.access_token)
+  }
 
-    exportProvisionalReport() {
-      this.MonitoringCatalogService.downloadProvisionalReport(this.proyectoSelected?.Folio_project, this.proyectoSelected?.ProjectName, this.proyectoSelected?.idprojects, this.rpSelected.join(','), this.token?.access_token)
-    }
+  exportProvisionalReport() {
+    this.MonitoringCatalogService.downloadProvisionalReport(this.proyectoSelected?.Folio_project, this.proyectoSelected?.ProjectName, this.proyectoSelected?.idprojects, this.rpSelected.join(','), this.token?.access_token)
+  }
+
+  getConfigUsersAndAccounts() {
+    this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
+      .subscribe((response: any) => {
+        console.log('Config users and accounts response:', response);
+        if (response.valido === 1) {
+          this.relUsersAndAccounts = response.result;
+        } else {
+          console.error("Error getting config:", response.message);
+          this.loading = false;
+        }
+      });
+  }
 
   enviarRPs() {
     this.evento.emit(this.rpSelected.join(','));
@@ -535,12 +549,21 @@ export class FinancialTrackerComponent {
         }
       });
 
+      const catchUsersValidateByAccount = this.relUsersAndAccounts.find(ua => 
+        ledgerType == "Capex" && ua.idcapexsubaccount === subAccountId || 
+        ledgerType == "Opex" && ua.idopexsubaccount === subAccountId
+      );
+
+      const typeOfValidation = catchUsersValidateByAccount?.IdUsertechnicaldirector > 0 ? 2 : 1;
+
+
       const requestBody = {
         idprojects: this.proyectoSelected?.idprojects,
         ledgerType: ledgerType,
         idrpnumber: finalRP,
         idsubaccount: subAccountId,
-        justification: this.justification, 
+        justification: this.justification,
+        Idruleset: typeOfValidation,
         requests: requests
       };
 

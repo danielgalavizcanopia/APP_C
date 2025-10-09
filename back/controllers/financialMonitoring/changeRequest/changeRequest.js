@@ -48,8 +48,8 @@ async function setReviewActualRequest(req, res){
             body.idrpnumber,
             body.idsubaccount,
             body.justification,
-            body.Idruleset,
             IDUser.IDUser,
+            body.Idruleset,
             requests
         ]);
         if(resultados){

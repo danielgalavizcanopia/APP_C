@@ -5,7 +5,6 @@ import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
 import { ActualRequest, HistoryActualRequests, TransactionDetails } from 'src/app/interfaces/Monitor/requests.interface';
 import { Table } from 'primeng/table';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { co } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'dash-financial',
@@ -69,7 +68,6 @@ export class DashFinancialComponent {
   getActualRequests() {
     this.MonitoringCatalogService.getActualRequests(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Actual requests response:', response);
         if (response.valido === 1) {
           this.actualRequests = this.filterRequestsByUserRole(response.result);
           this.sortRequestsByEditability();
@@ -113,7 +111,6 @@ export class DashFinancialComponent {
   getStatusAuthorizations() {
     this.MonitoringCatalogService.getStatusAuthorizations(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Status authorizations response:', response);
         if (response.valido === 1) {
           this.StatusAuthorizations = response.result;
         } else {
@@ -322,7 +319,6 @@ export class DashFinancialComponent {
   }
 
   isUserAuthorizedToEvaluate(request: any): boolean {
-    console.log('Checking authorization for request:', request);
     if (request.CurrentStatusDescription === 'Approved' || 
         request.CurrentStatusDescription === 'Rechazed') {
       return false;
@@ -471,29 +467,11 @@ export class DashFinancialComponent {
       });
     }
 
-    const catchUsersValidateByAccount = this.relUsersAndAccounts.find(ua => 
-     this.requestInfo?.Newidcapexsubaccount != null && ua.idcapexsubaccount === this.requestInfo?.Newidcapexsubaccount || 
-     this.requestInfo?.Newidopexsubaccount!= null && ua.idopexsubaccount === this.requestInfo?.Newidopexsubaccount
-    );
-    
-    if (!catchUsersValidateByAccount) {
-      return this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'No users assigned to validate this account.'
-      });
-    }
-
-    this.disabledButton = true;
-
-    let typeOfAutho = catchUsersValidateByAccount.IdUsertechnicaldirector > 0 ? 2 : 1;
-
     let data = {
       Idactualreviewrequest: this.selectedRequest?.Idactualreviewrequest,
       iduserautho: this.token?.userId,
       idstatusautho: this.optionStatusSelected,
       AuthorizationComment: this.justification,
-      typeOfAutho: typeOfAutho,
     };
     
     this.MonitoringCatalogService.setAuthotizationRequest(data, this.token?.access_token)
