@@ -26,11 +26,11 @@ export interface HistoryActualRequests {
     Idactualreviewrequest: number;
     iduserautho:           number;
     authorizationDate:     Date;
-    idstatusautho:         number;
+    IdActualstatus:         number;
     Name:                  string;
     Email:                 string;
     AuthorizationComment:  string;
-    StatusNombre:          string;
+    StatusName:          string;
 }
 
 export interface ActualRequest {

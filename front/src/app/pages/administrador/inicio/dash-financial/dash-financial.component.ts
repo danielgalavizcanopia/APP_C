@@ -36,12 +36,12 @@ export class DashFinancialComponent {
   justification: string = '';
   disabledButton: boolean = false;
   loadingModalData: boolean = false;
+  allVotesRejected: boolean = false;
 
-  // Definición del orden de votación
   private readonly VOTING_ORDER: { [key: string]: number } = {
     'Manager': 1,
-    'Technical Director': 2,
-    'Financial Evaluator': 3
+    'TechnicalDirector': 2,
+    'FinancialEvaluator': 3
   };
 
   constructor(
@@ -68,6 +68,7 @@ export class DashFinancialComponent {
   getActualRequests() {
     this.MonitoringCatalogService.getActualRequests(this.token?.access_token)
       .subscribe((response: any) => {
+        console.log('Actual requests response:', response);
         if (response.valido === 1) {
           this.actualRequests = this.filterRequestsByUserRole(response.result);
           this.sortRequestsByEditability();
@@ -79,44 +80,55 @@ export class DashFinancialComponent {
       });
   }
 
+filterRequestsByUserRole(requests: any[]): any[] {
+  const currentUserId = this.token?.userId;
+  
+  if (!currentUserId) {
+    console.log('No user ID found, showing no requests');
+    return [];
+  }
 
-  filterRequestsByUserRole(requests: any[]): any[] {
-    const currentUserId = this.token?.userId;
-    
-    if (!currentUserId) {
-      console.log('No user ID found, showing no requests');
-      return [];
+  const filteredRequests = requests.filter(request => {
+    if (request.iduserrequest === currentUserId) {
+      return true;
     }
 
-    const filteredRequests = requests.filter(request => {
-      const config = this.relUsersAndAccounts.find(ua => 
-        (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
-        (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
-      );
+    const config = this.relUsersAndAccounts.find(ua => 
+      (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
+      (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
+    );
 
-      if (!config) {
-        return false; 
-      }
+    if (!config) {
+      return false; 
+    }
 
-      const isManager = config.IDUser === currentUserId;
-      const isTechnicalDirector = config.IdUsertechnicaldirector === currentUserId;
-      const isFinancialEvaluator = config.IdUserFinancialEvaluator === currentUserId;
+    const isManager = config.IDUser === currentUserId;
+    const isTechnicalDirector = config.IdUsertechnicaldirector === currentUserId;
+    const isFinancialEvaluator = config.IdUserFinancialEvaluator === currentUserId;
 
-      return isManager || isTechnicalDirector || isFinancialEvaluator;
-    });
+    return isManager || isTechnicalDirector || isFinancialEvaluator;
+  });
 
-    return filteredRequests;
-  }
+  return filteredRequests;
+}
 
   getStatusAuthorizations() {
     this.MonitoringCatalogService.getStatusAuthorizations(this.token?.access_token)
       .subscribe((response: any) => {
+        console.log('Status authorizations response:', response);
         if (response.valido === 1) {
           this.StatusAuthorizations = response.result;
         } else {
           console.error("Error getting status authorizations:", response.message);
         }
       });
+  }
+
+  get filteredStatusAuthorizations() {
+    return this.StatusAuthorizations.filter(status => {
+      const statusName = status.StatusName?.toLowerCase();
+      return statusName !== 'pending';
+    });
   }
 
   getConfigUsersAndAccounts() {
@@ -147,6 +159,12 @@ export class DashFinancialComponent {
   }
 
   getAllRolesForSubAccount(request: any): string[] {
+    if (request.Idruleset === 1) {
+      return ['Manager', 'FinancialEvaluator'];
+    } else if (request.Idruleset === 2) {
+      return ['Manager', 'TechnicalDirector', 'FinancialEvaluator'];
+    }
+    
     const config = this.relUsersAndAccounts.find(ua => {
       const matchCapex = request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount;
       const matchOpex = request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount;
@@ -154,7 +172,7 @@ export class DashFinancialComponent {
     });
     
     if (!config) {
-      return ['Manager', 'Technical Director', 'Financial Evaluator'];
+      return ['Manager', 'TechnicalDirector', 'FinancialEvaluator'];
     }
     
     const roles: string[] = [];
@@ -164,14 +182,14 @@ export class DashFinancialComponent {
     }
     
     if (config.IdUsertechnicaldirector && config.IdUsertechnicaldirector > 0) {
-      roles.push('Technical Director');
+      roles.push('TechnicalDirector');
     }
     
     if (config.IdUserFinancialEvaluator && config.IdUserFinancialEvaluator > 0) {
-      roles.push('Financial Evaluator');
+      roles.push('FinancialEvaluator');
     }
     
-    return roles.length > 0 ? roles : ['Manager', 'Financial Evaluator'];
+    return roles.length > 0 ? roles : ['Manager', 'FinancialEvaluator'];
   }
 
   getCurrentUserRole(request: any): string | null {
@@ -186,19 +204,13 @@ export class DashFinancialComponent {
     if (!config) return null;
     
     if (config.IDUser === currentUserId) return 'Manager';
-    if (config.IdUsertechnicaldirector === currentUserId) return 'Technical Director';
-    if (config.IdUserFinancialEvaluator === currentUserId) return 'Financial Evaluator';
+    if (config.IdUsertechnicaldirector === currentUserId) return 'TechnicalDirector';
+    if (config.IdUserFinancialEvaluator === currentUserId) return 'FinancialEvaluator';
     
     return null;
   }
 
   havePreviousRolesVoted(request: any, currentRole: string): boolean {
-    const votedRolesStr = request.AllAuthorizersWithRoles;
-    
-    const votedRoles = (votedRolesStr && votedRolesStr.trim()) 
-      ? votedRolesStr.split(',').map((r: string) => r.trim()).filter((r: string) => r.length > 0)
-      : [];
-    
     const allRequiredRoles = this.getAllRolesForSubAccount(request);
     const currentRoleOrder = this.VOTING_ORDER[currentRole];
     
@@ -209,21 +221,18 @@ export class DashFinancialComponent {
     for (const role of allRequiredRoles) {
       const roleOrder = this.VOTING_ORDER[role];
       
-      if (roleOrder < currentRoleOrder && !votedRoles.includes(role)) {
-        return false;
+      if (roleOrder < currentRoleOrder) {
+        const roleVote = request[role];
+        if (!roleVote || roleVote === null) {
+          return false;
+        }
       }
     }
+    
     return true;
   }
 
   getNextRoleToVote(request: any): string | null {
-    const votedRolesStr = request.AllAuthorizersWithRoles;
-    
-    const votedRoles = (votedRolesStr && votedRolesStr.trim()) 
-      ? votedRolesStr.split(',').map((r: string) => r.trim()).filter((r: string) => r.length > 0)
-      : [];
-    
-    
     const allRequiredRoles = this.getAllRolesForSubAccount(request);
     
     const sortedRoles = allRequiredRoles.sort((a, b) => {
@@ -233,24 +242,23 @@ export class DashFinancialComponent {
     });
     
     for (const role of sortedRoles) {
-      if (!votedRoles.includes(role)) {
+      const roleVote = request[role];
+      if (!roleVote || roleVote === null) {
         return role;
       }
     }
+    
     return null;
   }
 
   getStatusCircles(request: any): any[] {
     const circles: any[] = [];
     
-    const votedRolesStr = request.AllAuthorizersWithRoles;
-    
-    const votedRoles = (votedRolesStr && votedRolesStr.trim()) 
-      ? votedRolesStr.split(',').map((r: string) => r.trim()).filter((r: string) => r.length > 0)
-      : [];
-    
     const allRequiredRoles = this.getAllRolesForSubAccount(request);
-    const lastVoter = request.LastAuthorizerWithRole ? request.LastAuthorizerWithRole.trim() : null;
+    const currentRound = request.current_round || 1;
+    
+    const allVotedRejected = request.CurrentStatusDescription === 'Pending' && 
+      allRequiredRoles.every(role => request[role] === 'Rejected');
     
     if (request.CurrentStatusDescription === 'Approved') {
       allRequiredRoles.forEach((role: string) => {
@@ -260,27 +268,24 @@ export class DashFinancialComponent {
           order: this.VOTING_ORDER[role] || 999
         });
       });
-    } else if (request.CurrentStatusDescription === 'Rechazed') {
-      votedRoles.forEach((role: string) => {
-        if (role !== lastVoter) {
+    } 
+    else if (request.CurrentStatusDescription === 'Rechazed' || allVotedRejected) {
+      allRequiredRoles.forEach((role: string) => {
+        const roleVote = request[role];
+        
+        if (roleVote === 'Approved') {
           circles.push({
             tooltip: `${role} - Approved`,
             statusClass: 'status-approved',
             order: this.VOTING_ORDER[role] || 999
           });
-        }
-      });
-      
-      if (lastVoter) {
-        circles.push({
-          tooltip: `${lastVoter} - Rejected`,
-          statusClass: 'status-negate',
-          order: this.VOTING_ORDER[lastVoter] || 999
-        });
-      }
-      
-      allRequiredRoles.forEach((role: string) => {
-        if (!votedRoles.includes(role)) {
+        } else if (roleVote === 'Rejected') {
+          circles.push({
+            tooltip: `${role} - Rejected`,
+            statusClass: 'status-negate',
+            order: this.VOTING_ORDER[role] || 999
+          });
+        } else {
           circles.push({
             tooltip: `${role} - Pending`,
             statusClass: 'status-pending',
@@ -288,25 +293,35 @@ export class DashFinancialComponent {
           });
         }
       });
-    } else {
+    } 
+    else {
       const nextRole = this.getNextRoleToVote(request);
       
       allRequiredRoles.forEach((role: string) => {
-        if (votedRoles.includes(role)) {
+        const roleVote = request[role];
+        
+        if (roleVote === 'Approved') {
           circles.push({
             tooltip: `${role} - Approved`,
             statusClass: 'status-approved',
             order: this.VOTING_ORDER[role] || 999
           });
-        } else if (role === nextRole) {
+        } else if (roleVote === 'Rejected') {
+          circles.push({
+            tooltip: `${role} - Rejected`,
+            statusClass: 'status-negate',
+            order: this.VOTING_ORDER[role] || 999
+          });
+        } else if (role === nextRole && currentRound === 1) {
           circles.push({
             tooltip: `${role} - Next to Vote`,
-            statusClass: 'status-next',
+            statusClass: 'status-pending',
             order: this.VOTING_ORDER[role] || 999
           });
         } else {
+          const pendingLabel = currentRound > 1 ? 'Can Vote' : 'Pending';
           circles.push({
-            tooltip: `${role} - Pending`,
+            tooltip: `${role} - ${pendingLabel}`,
             statusClass: 'status-pending',
             order: this.VOTING_ORDER[role] || 999
           });
@@ -339,25 +354,50 @@ export class DashFinancialComponent {
     }
     
     const userRole = this.getCurrentUserRole(request);
-
     if (!userRole) {
       return false;
     }
+
+    if (request.CurrentStatusDescription === 'Pending') {
+      const allRequiredRoles = this.getAllRolesForSubAccount(request);
+      const allVotedRejected = allRequiredRoles.every(role => {
+        const roleVote = request[role];
+        return roleVote === 'Rejected';
+      });
+      
+      if (allVotedRejected) {
+        return false;
+      }
+    }
+
+    const currentRound = (request as any).current_round || 1;
     
-    const nextRole = this.getNextRoleToVote(request);
-    
-    if (nextRole !== userRole) {
-      return false;
+    if (currentRound === 1) {
+      const nextRole = this.getNextRoleToVote(request);
+      
+      if (nextRole !== userRole) {
+        return false;
+      }
+      
+      const previousVoted = this.havePreviousRolesVoted(request, userRole);
+      return previousVoted && request.CurrentStatusDescription === 'Pending';
     }
     
-    const previousVoted = this.havePreviousRolesVoted(request, userRole);
-    
-    return previousVoted;
+    return request.CurrentStatusDescription === 'Pending';
   }
+
+
 
   showDialog(request?: any) {
     this.selectedRequest = request;
     this.canUserEdit = this.isUserAuthorizedToEvaluate(request);
+    
+    if (request && request.CurrentStatusDescription === 'Pending') {
+      const allRequiredRoles = this.getAllRolesForSubAccount(request);
+      this.allVotesRejected = allRequiredRoles.every(role => request[role] === 'Rejected');
+    } else {
+      this.allVotesRejected = false;
+    }
     
     this.visible = true;
     this.loadingModalData = true;
@@ -378,6 +418,29 @@ export class DashFinancialComponent {
     this.justification = '';
     this.disabledButton = false;
     this.loadingModalData = false;
+    this.allVotesRejected = false; 
+  }
+
+  enableResendRequest() {
+    const userRole = this.getCurrentUserRole(this.selectedRequest);
+    
+    if (!userRole) {
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'You are not authorized to resend this request.'
+      });
+      return;
+    }
+    
+    this.canUserEdit = true;
+    this.allVotesRejected = false; 
+    
+    this.messageService.add({ 
+      severity: 'info', 
+      summary: 'Resend Mode', 
+      detail: 'You can now submit a new vote for this request.'
+    });
   }
 
   loadgetHistoryActualRequest(idActualReviewRequest: number) {
@@ -450,64 +513,88 @@ export class DashFinancialComponent {
       });
     }
 
-    const nextRole = this.getNextRoleToVote(this.selectedRequest);
-    if (nextRole !== userRole) {
+    const catchUsersValidateByAccount = this.relUsersAndAccounts.find(ua => 
+      ua.idcapexsubaccount === this.requestInfo?.Newidcapexsubaccount || 
+      ua.idopexsubaccount === this.requestInfo?.Newidopexsubaccount
+    );
+    
+    if (!catchUsersValidateByAccount) {
       return this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Warning', 
-        detail: `It's not your turn to vote. Waiting for: ${nextRole}`
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'No users assigned to validate this account.'
       });
     }
 
-    if (!this.havePreviousRolesVoted(this.selectedRequest, userRole)) {
-      return this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Warning', 
-        detail: 'Previous roles must vote before you can evaluate.'
-      });
-    }
+    this.disabledButton = true;
+
+    const selectedRequestAny = this.selectedRequest as any;
+    let typeOfAutho = selectedRequestAny.Idruleset || 
+                      (catchUsersValidateByAccount.IdUsertechnicaldirector > 0 ? 2 : 1);
 
     let data = {
       Idactualreviewrequest: this.selectedRequest?.Idactualreviewrequest,
       iduserautho: this.token?.userId,
       idstatusautho: this.optionStatusSelected,
       AuthorizationComment: this.justification,
+      typeOfAutho: typeOfAutho,
     };
     
+
+    
     this.MonitoringCatalogService.setAuthotizationRequest(data, this.token?.access_token)
-      .subscribe((response: any) => {
-        if (response.valido === 1) {
-          if (response.result[0].result.includes("Error")) {
+      .subscribe(
+        (response: any) => {
+          
+          if (response.valido === 1) {
+            const resultMessage = response.result?.[0]?.result;
+            
+            if (resultMessage && resultMessage.includes("Error")) {
+              this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: resultMessage
+              });
+              this.disabledButton = false;
+            } else {
+              this.messageService.add({ 
+                severity: 'success', 
+                summary: 'Success', 
+                detail: 'Changes saved successfully.'
+              });
+              this.hideDialog();
+              
+              setTimeout(() => {
+                this.getActualRequests();
+                this.disabledButton = false;
+              }, 500);
+            }
+          } else {
             this.messageService.add({ 
               severity: 'error', 
               summary: 'Error', 
-              detail: response.result[0].result
+              detail: response.message || 'An error occurred while saving changes.'
             });
-          } else {
-            this.messageService.add({ 
-              severity: 'success', 
-              summary: 'Success', 
-              detail: 'Changes saved successfully.'
-            });
+            this.disabledButton = false;
           }
-          this.hideDialog();
-          this.getActualRequests();
-        } else {
+        },
+        (error: any) => {
+          
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'An error occurred while saving changes.'
+            detail: error.error?.message || 'An error occurred while saving changes.'
           });
+          this.disabledButton = false;
         }
-        this.disabledButton = false;
-      });
+      );
   }
 
   isValidStatus(status: number): string {
     switch (status) {
       case 1:
-        return 'status-approved';
       case 2:
+        return 'status-approved';
       case 3:
         return 'status-negate';
       default:

@@ -3,24 +3,30 @@
     <p-table #dt1 [value]="historyRequest" [paginator]="true" [rows]="10" [loading]="loading"
         [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [globalFilterFields]="['ProjectName',
+            'requestDate',
+            'Original_Ledger',
+            'NewLedger',
+            'Original_idrpnumber',
+            'Newidrpnumber']"
         [rowsPerPageOptions]="[10, 25, 50]">
         <ng-template pTemplate="caption">
             <div class="flex">
                     <h5 class="m-0">History Actual Expenses under Review</h5>
                     <span class="p-input-icon-left ml-auto">
                         <i class="pi pi-search"></i>
-                        <input pInputText type="text" placeholder="Search global" />
+                        <input pInputText type="text" (input)="handleGlobalFilter($event)" placeholder="Search global" />
                     </span>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <tr class="text-center">
-                <th>Project</th>
-                <th>Date registrer</th>
-                <th>Original Type</th>
-                <th>New Type</th>
-                <th>Original RP</th>
-                <th>New RP</th>
+                <th pSortableColumn="ProjectName">Project <p-sortIcon field="ProjectName" /></th>
+                <th pSortableColumn="requestDate">Date registrer <p-sortIcon field="requestDate" /></th>
+                <th pSortableColumn="Original_Ledger">Original Type <p-sortIcon field="Original_Ledger" /></th>
+                <th pSortableColumn="NewLedger">New Type <p-sortIcon field="NewLedger" /></th>
+                <th pSortableColumn="Original_idrpnumber">Original RP <p-sortIcon field="Original_idrpnumber" /></th>
+                <th pSortableColumn="Newidrpnumber">New RP <p-sortIcon field="Newidrpnumber" /></th>
                 <th>Original Subaccount</th>
                 <th>New Subaccount</th>
                 <th>Total<br>Transaccion </th>
@@ -42,7 +48,7 @@
                 <td>{{ product.conceptoNewCapex || product.conceptoNewOpex }}</td>
                 <td>{{ product.TotalChanges }}</td>
                 <td>{{ product.Original_Amount_USD | currency}}</td>
-                <td>Acepted or Rechased</td>
+                <td>{{ product.CurrentStatus }}</td>
                 <td>
                     <p-button styleClass="p-button-text p-button-secondary" icon="pi pi-eye"
                         (click)="showDialog(product)">
@@ -163,7 +169,7 @@
                         <div class="grid">
                             <div class="col-12" *ngFor="let history of historyActualRequests">
                                 <div>
-                                    <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} |<span [ngClass]="getStatusClass(history.idstatusautho)">{{history.StatusNombre}}</span>
+                                    <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} |<span [ngClass]="getStatusClass(history.IdActualstatus)">{{history.StatusName}}</span>
                                 </div>
 
                                 <p>{{history.AuthorizationComment}}</p>
@@ -176,7 +182,7 @@
         </div>
     </div>
 
-    <ng-template pTemplate="footer">
+    <!-- <ng-template pTemplate="footer">
         <div class="flex justify-content-between w-full">
 
             
@@ -184,5 +190,5 @@
                 <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
             </div>
         </div>
-    </ng-template>
+    </ng-template> -->
 </p-dialog>

@@ -96,14 +96,15 @@ function getGeneralIncidencesReportsXLSX(req, res){
                         { header: 'N°', key: 'IdIncidence', width: 4 },
                         { header: 'Forestal Owner', key: 'ProjectName', width: 24 },
                         { header: 'Incidence', key: 'Incidencia', width: 57 },
-                        { header: 'Impact', key: 'Impact', width: 57 },
                         { header: 'Incidence Description', key: 'IncidenceDescription', width: 57 },
+                        { header: 'Status', key: 'Estatus', width: 15 },
                         { header: 'Immediate Actions', key: 'ImmediateActions', width: 57},
+                        { header: 'Incident handling status', key: 'Seguimiento', width: 82 },
+                        { header: 'Impact', key: 'Impact', width: 57 },
                         { header: 'Name of the person who reported the incident.', key: 'Persona_Levanta_Incidencia', width: 57 },
                         { header: 'Date Reported', key: 'Fecha_Reportada', width: 21 },
                         { header: 'Name of the person who received the incident.', key: 'PersonaRecepciono', width: 54 },
                         // { header: 'Follow-Up', key: 'Seguimiento', width: 82 },
-                        { header: 'Status', key: 'Estatus', width: 15 },
 
                     ];
 
@@ -146,12 +147,12 @@ function getGeneralIncidencesReportsXLSX(req, res){
                             Fecha_Reportada: item.Fecha_Reportada, 
                             PersonaRecepciono: item.PersonaRecepciono, 
                             Asignado_a: item.Asignado_a, 
-                            // Seguimiento: segFinal, 
+                            Seguimiento: segFinal, 
                             Estatus: item.Estatus || "Pending Attention"
                         });
 
-                        const seguimientoCell = newRow.getCell('Seguimiento');
-                        seguimientoCell.alignment = { wrapText: true };
+                        // const seguimientoCell = newRow.getCell('Seguimiento');
+                        // seguimientoCell.alignment = { wrapText: true };
 
                     });
 

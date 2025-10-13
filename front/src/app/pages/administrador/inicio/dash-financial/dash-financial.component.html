@@ -175,7 +175,7 @@
                         <div class="grid">
                             <div class="col-12" *ngFor="let history of historyActualRequests">
                                 <div>
-                                    <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.idstatusautho)">{{history.StatusNombre}}</span>
+                                    <p class="font-bold">{{history.Name}} | {{history.authorizationDate | date: 'dd/MM/yyyy'}} | <span [ngClass]="isValidStatus(history.IdActualstatus)">{{history.StatusName}}</span>
                                     </p>
                                 </div>
 
@@ -187,7 +187,7 @@
                     <div class="grid" *ngIf="canUserEdit">
                         <div class="col-4">
                             <span class="p-float-label">
-                                <p-dropdown [(ngModel)]="optionStatusSelected" [options]="StatusAuthorizations" optionValue="StatusCode" optionLabel="StatusName" placeholder="Status">
+                                <p-dropdown [(ngModel)]="optionStatusSelected" [options]="filteredStatusAuthorizations" optionValue="IdActualstatus" optionLabel="StatusName" placeholder="Status">
                                 </p-dropdown>
                                 <label>Status</label>
                             </span>
@@ -204,10 +204,13 @@
         </div>
     </div>
 
-    <ng-template pTemplate="footer">
-            <div>
-                <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
-                <p-button *ngIf="canUserEdit" label="Send" (onClick)="saveChanges()" [disabled]="loadingModalData"></p-button>
-            </div>
-    </ng-template>
+<ng-template pTemplate="footer">
+  <div>
+    <p-button label="Cancel" styleClass="p-button-outlined" (onClick)="hideDialog()"></p-button>
+    
+    <p-button *ngIf="allVotesRejected && !canUserEdit" label="Resend Request" icon="pi pi-refresh"(onClick)="enableResendRequest()"></p-button>
+    
+    <p-button *ngIf="canUserEdit" label="Send" (onClick)="saveChanges()" [disabled]="loadingModalData"></p-button>
+  </div>
+</ng-template>
 </p-dialog>

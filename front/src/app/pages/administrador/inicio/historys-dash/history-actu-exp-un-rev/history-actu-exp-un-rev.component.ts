@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { Table } from 'primeng/table';
 import { HistoryRequests, HistoryActualRequests, TransactionDetails } from 'src/app/interfaces/Monitor/requests.interface';
 import { MonCatalogService } from 'src/app/services/MonitoringProjects/MonCatalog.service';
 import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
@@ -9,7 +10,12 @@ import { authGuardService } from 'src/app/services/Secret/auth-guard.service';
   styleUrls: ['./history-actu-exp-un-rev.component.scss']
 })
 export class HistoryActuExpUnRevComponent {
-
+  @ViewChild('dt1') dt1!: Table;
+  
+  handleGlobalFilter(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.dt1.filterGlobal(input.value, 'contains');
+  }
   token: any;
   historyRequest: HistoryRequests[] = [];
   loading: boolean = true;
@@ -35,6 +41,7 @@ export class HistoryActuExpUnRevComponent {
     this.MonitoringCatalogService.getHistoryRequests(this.token?.access_token)
       .subscribe(
         (response: any) => {
+          console.log("History requests response:", response);
           if (response && response.valido === 1) {
             this.historyRequest = response.result || [];
           } else {
@@ -141,8 +148,8 @@ export class HistoryActuExpUnRevComponent {
   getStatusClass(idstatusautho: number): string {
     switch (idstatusautho) {
       case 1:
-        return 'status-approved';
       case 2:
+        return 'status-approved';
       case 3:
         return 'status-negate';
       default:

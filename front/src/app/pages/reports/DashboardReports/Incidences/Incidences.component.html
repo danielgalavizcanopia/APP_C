@@ -44,7 +44,14 @@
             <td>{{truncateText(incidence.IncidenceDescription, 60)}}</td>
             <td>{{incidence.Name}}</td>
             <td>{{incidence.DateIncidence | date: 'dd/MM/yyyy': 'UTC'}}</td>
-            <td>{{incidence.DateSuggestedAttention | date: 'dd/MM/yyyy': 'UTC'}}</td>
+            <td>
+                <div *ngIf="incidence.statusname == 'Closed'">
+                    {{incidence.Dateclosed | date: 'dd/MM/yyyy': 'UTC'}}
+                </div>
+                <div *ngIf="incidence.statusname != 'Closed'">
+                    --------------
+                </div>
+            </td>
             <td>
                 <span *ngIf="incidence.statusname == 'No Started' || !incidence.statusname"
                     class="status-pending"><strong>Pending attention</strong></span>
