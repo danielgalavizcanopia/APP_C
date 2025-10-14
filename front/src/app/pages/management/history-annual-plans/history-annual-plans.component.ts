@@ -176,4 +176,52 @@ export class HistoryAnnualPlansComponent {
     })
 
   }
+
+  confirmDelete(annualPlan: AnnualPlan) {
+    this.confirmationService.confirm({
+      key: 'deleteAnnualPlan',
+      message: `Are you sure you want to delete the Annual Plan "${annualPlan.name}"? This action cannot be undone.`,
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      acceptLabel: 'Yes, Delete',
+      rejectLabel: 'Cancel',
+      accept: () => {
+        this.deleteAnnualPlan(annualPlan);
+      }
+    });
+  }
+
+  deleteAnnualPlan(annualPlan: AnnualPlan) {
+    const data = {
+      Idplananual: annualPlan.Idplananual
+    };
+    
+    this._implementacionService.setDeleteAnnualPlanById(data, this.token?.access_token).subscribe(
+      (resp: any) => {
+        if (resp.valido == 1) {
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Deleted', 
+            detail: 'Annual Plan deleted successfully!' 
+          });
+          this.getPlanAnualByProject();
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to delete Annual Plan' 
+          });
+        }
+      },
+      (error) => {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Server Error', 
+          detail: 'Something went wrong, try again' 
+        });
+      }
+    );
+  }
+
 }

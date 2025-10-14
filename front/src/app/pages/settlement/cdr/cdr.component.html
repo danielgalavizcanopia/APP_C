@@ -351,6 +351,38 @@
                 </p-table>
             </div>
         </div>
+
+        <!-- Nueva seccion -->
+        <div class="mt-2 plus-card p-2">
+            <div class="pb-2 pl-2">
+                <small class="font-bold">Adjustment</small>
+            </div>
+            <div class="grid" formGroupName="newDeduction" *ngIf="!settlementApproved">
+                <div class="col-4">
+                    <span class="p-float-label">
+                        <p-dropdown formControlName="Idtypededuction" [options]="deductionType"
+                            (onChange)="typeAccountSelected($event.value)" placeholder="Type of adjustment"
+                            optionLabel="typeDeduction" optionValue="IdtypeDeduction"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">Type of adjustment</label>
+                    </span>
+                    <div *ngIf="newDeduction.get('Idtypededuction')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <span class="p-float-label">
+                        <p-inputNumber formControlName="cost" class="w-full" inputId="minmaxfraction" mode="decimal"
+                            [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
+                        <label htmlFor="username">-$ </label>
+                    </span>
+                    <div *ngIf="newDeduction.get('cost')?.invalid && deductionsV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="mt-2">
             <p-divider type="dashed"> <span class="p-tag">Resume</span></p-divider>
             <div class="grid">

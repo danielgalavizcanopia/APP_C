@@ -270,17 +270,18 @@
                     </div>
                     <div class="col">
                         <span class="p-float-label">
-                            <p-dropdown 
-                                [(ngModel)]="newSubAccount"
-                                [options]="currentSubAccountOptions" 
-                                [disabled]="typeAccounts === 0"
-                                placeholder="Select SubAccount" 
-                                optionLabel="concepto"
-                                [optionValue]="typeAccounts === 1 ? 'idcapexsubaccount' : 'idopexsubaccount'"
-                                [filter]="true"
-                                inputId="subaccount-dropdown"
-                                appendTo="body">
-                            </p-dropdown>
+                        <p-dropdown 
+                            [(ngModel)]="newSubAccount"
+                            [options]="currentSubAccountOptions" 
+                            [disabled]="currentSubAccountOptions.length === 0"
+                            placeholder="Select SubAccount" 
+                            optionLabel="displayName"
+                            optionValue="uniqueId"
+                            [filter]="true"
+                            [showClear]="true"
+                            inputId="subaccount-dropdown"
+                            appendTo="body">
+                        </p-dropdown>
                             <label for="subaccount-dropdown">
                                 Subaccount
                             </label>

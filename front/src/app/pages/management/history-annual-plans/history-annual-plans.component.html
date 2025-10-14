@@ -31,7 +31,8 @@
                         </td>
                         <td>
                             <p-button class="m-1" (click)="redirectToPreview(product)" icon="pi pi-eye"></p-button>
-                            <p-button class="m-1" (onClick)="onRowSelected(product)" icon="pi pi-pencil"></p-button>
+                            <p-button *ngIf="product.status != 5" class="m-1" (onClick)="onRowSelected(product)" icon="pi pi-pencil"></p-button>
+                            <p-button *ngIf="product.status == 5" class="m-1" severity="danger" (onClick)="confirmDelete(product)" icon="pi pi-trash"></p-button>
                         </td>
                     </tr>
                 </ng-template>
@@ -76,3 +77,5 @@
         <p-button class="m-1" [disabled]="activitiesByPlan.length == 0" icon="pi pi-save" (click)="saveActivitiesByAnnualPlan()" label="Save changes"></p-button>
     </ng-template>
 </p-dialog>
+
+<p-confirmDialog key="deleteAnnualPlan"></p-confirmDialog>

@@ -79,4 +79,8 @@ export class ImplementationCatalogsService {
     getManagers(token: string = ''): Observable<any[]>{
         return this._apiService.sendGetRequest(this.url + "implementationCatalogs/getManagers/", token);
     }
+
+    getAllSubAccounts(token: string = ''): Observable<any> {
+        return this._apiService.sendGetRequest(this.url + "MonitorSummary/getAllSubAccounts", token);
+    }
 }

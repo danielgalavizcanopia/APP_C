@@ -90,7 +90,8 @@ export class BudgetpreviewComponent {
       if(resp.valido == 1){
         this.annualPlanSelected = resp.result[0];
         this.status = this.annualPlanSelected?.status == 6 ? 4 : this.annualPlanSelected?.status;
-        if(this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6);
+        // if(this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6);
+        if(this.annualPlanSelected?.status == 4 || this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6 && v.Idstatusvalidateplan != 5);
         
         this.typeHeaderBackup = this.annualPlanSelected?.status === 4 ? "Historical Plan" : this.annualPlanSelected?.status === 6 ? "Approved By Assembly" : "";
       }
@@ -273,6 +274,7 @@ export class BudgetpreviewComponent {
     if(this.status == 4) titulo = 'Implementation Annual Plan_' + this.proyectoSelected?.ProjectName;
 
     if(this.status == 2 && !this.corrections){
+      this.formV = false;
       return this.messageService.add({ severity: 'error', summary: 'Corrections', detail: 'Please, write your corrections'});
     }
 
@@ -324,6 +326,8 @@ export class BudgetpreviewComponent {
         }
 
       } else {
+        this.formV = false;
+        this.disableButton = false;
         this.messageService.add({ severity: 'error', summary: 'Server error', detail: 'Some was wrong, try again'});
       }
     })

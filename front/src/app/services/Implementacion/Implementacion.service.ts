@@ -92,6 +92,11 @@ export class ImplementacionService {
     getPlanAnualById(idPlanAnnual: number = 0, token: string): Observable<any[]> {
         return this._apiService.sendGetRequest(this.url + `Implementation/getPlanAnualById/${idPlanAnnual}/`, token);
     }
+    
+    setDeleteAnnualPlanById(data: any, token: string = ''): Observable<any[]>{
+        const url = this.url + "Implementation/setDeleteAnnualPlanById";
+        return this._apiService.sendPostTokenRequest(data, url, token);
+    }
 
     downloadWord(idPlanAnnual: number = 0, ProjectName: any,token: string) {
         const headers = new HttpHeaders({
