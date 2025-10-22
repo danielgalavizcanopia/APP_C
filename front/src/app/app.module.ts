@@ -172,6 +172,7 @@ import { DashboarProjectDetailService } from './services/dashboards/dashboarProj
 import { SettlementService } from './services/settlement/settlement.service';
 import { SettlementCatalogsService } from './services/settlement/settlement-catalogs.service';
 import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
+import { AdjustmentTypeComponent } from './pages/config/Adjustment-Type/adjustment-type.component';
 
 // Registrar la localización es-MX
 registerLocaleData(localeEsMx);
@@ -220,6 +221,7 @@ registerLocaleData(localeEsMx);
         UsuariosComponent,
         ActivitiesCatalogComponent,
         PrepaDeducComponent,
+        AdjustmentTypeComponent,
 
     ],
     imports: [

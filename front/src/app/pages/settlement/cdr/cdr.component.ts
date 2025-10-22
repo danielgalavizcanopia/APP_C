@@ -19,7 +19,7 @@ import { CapexOpexAccountsService } from 'src/app/services/Tools/CapexOpexAccoun
 })
 export class CdrComponent {
 
-  decimalType!: string;
+  decimalType: string = 'two';
 
   cities!: any[];
   visible!: boolean;
@@ -32,6 +32,7 @@ export class CdrComponent {
     this.settlementForm.reset();
     this.details.clear();
     this.deductions.clear();
+    this.adjustments.clear();
     this.visible = false;
     this.settlementSelected = undefined!;
     this.settlementApproved = false;
@@ -69,6 +70,7 @@ export class CdrComponent {
   CuentasOpex!: any[];
   prePayments!: any[];
   statusSettlement!: any[];
+  adjustmentTypes!: any[];
 
   statusSelected: any;
 
@@ -93,6 +95,7 @@ export class CdrComponent {
     this.getPrePaymentDeductions();
     this.initFormulario();
     this.observaProjectSelected();
+    this.getAdjustmentTypes()
     this.productService.getProducts().then(response => {
       this.products = response;
     });
@@ -139,8 +142,29 @@ export class CdrComponent {
         cost: [,[Validators.required]],
       }),
 
+      Idtypeadjustment: [''],   
+      adjustment_amount: [''],
+
       details_json: this._fb.array([],),
       deductions_json: this._fb.array([],),
+      adjustments_json: this._fb.array([]),
+    });
+  }
+  
+
+  get adjustments(): FormArray {
+    return this.settlementForm.get('adjustments_json') as FormArray;
+  }
+
+  get newAdjustment(): FormGroup {
+    return this.settlementForm.get('newAdjustment') as FormGroup;
+  }
+
+  getAdjustmentTypes(){
+    this._settlementeCatalogsService.getTypeAdjustments(this.token?.access_token).subscribe((resp: any) => {
+      if(resp.valido == 1){
+        this.adjustmentTypes = resp.result;
+      }
     });
   }
 
@@ -352,19 +376,14 @@ export class CdrComponent {
     let decimals = 2;
     if(this.decimalType == 'two'){
       decimals = 2 
-    } else if(this.decimalType == 'three'){
-      decimals = 3
-    } else if(this.decimalType == 'four'){
-      decimals = 4
     }
-    console.log(this.decimalType, decimals);
     
     return parseFloat(calculatePrice.toFixed(decimals));
   }
 
   getTotalHorizontal(volume: number, index: number): number{
     const priceCanopia = Number(this.getPriceCanopia(this.details.at(index).value.markert_price).toFixed(
-      this.decimalType == 'two' ? 2 : this.decimalType == 'three' ? 3 : this.decimalType == 'four' ? 4 : 2
+      this.decimalType == 'two' ? 2 : 2
     ));
     const total = volume * priceCanopia;
     return total;
@@ -447,6 +466,11 @@ export class CdrComponent {
     return total;
   }
 
+  getTotalPNIPostAdjustments(): number{
+    let total = this.getTotalProjectNetIncome() + parseFloat(this.settlementForm.value.adjustment_amount);
+    return total;
+  }
+
   getCompareTotal(total: number): string{
     let ngclass = ''
     if(total > this.TotalApprovedByAssembly?.Total_byRP_EstimadoUSD){
@@ -476,6 +500,8 @@ export class CdrComponent {
     this.settlementSelected = settlement;
     this.settlementForm.get('Idsettlement')?.setValue(idSettlement);
     this.settlementForm.get('idrpnumber_main')?.setValue(idrpnumber);
+    this.settlementForm.get('Idtypeadjustment')?.setValue(settlement.Idtypeadjustment);
+    this.settlementForm.get('adjustment_amount')?.setValue(settlement.adjustment_value);
     this.getSettlementDetails(idSettlement, idrpnumber);
     this.getSettlementDeductions(idSettlement, idrpnumber);
     this.getTotalApprovedByAssembly(idrpnumber);
@@ -522,7 +548,7 @@ export class CdrComponent {
               vintage: [detail.vintage],
               Idprepayment: [detail.Idprepayment],
               markert_price: [detail.markert_price],
-              price_canopia: [this.getPriceCanopia(detail.markert_price).toFixed( this.decimalType == 'two' ? 2 : this.decimalType == 'three' ? 3 : this.decimalType == 'four' ? 4 : 2 )],
+              price_canopia: [this.getPriceCanopia(detail.markert_price).toFixed( this.decimalType == 'two' ? 2 : 2 )],
           }));
         }
       }
@@ -551,7 +577,6 @@ export class CdrComponent {
         this.decimalType = '';
         break;
     }
-    console.log(this.decimalType);
     
   }
 
@@ -622,8 +647,11 @@ export class CdrComponent {
       Idsetlecurrency: this.settlementForm.value.Idsetlecurrency || 1,
       PercentageMktPrice: this.settlementSelected?.PercentageMktPrice_avg ? this.settlementSelected?.PercentageMktPrice_avg : this.percentageMktByProject.PercentageMktPrice,
       rp_count: this.settlementSelected?.rp_count ? this.settlementSelected?.rp_count : this.rpCountByproject.rp_count,
+      Idtypeadjustment: this.settlementForm.value.Idtypeadjustment ? this.settlementForm.value.Idtypeadjustment : null,
+      adjustment_value: this.settlementForm.value.adjustment_amount,
       details_json: this.settlementForm.value.details_json,
       deductions_json: this.settlementForm.value.deductions_json,
+      adjustments_json: this.settlementForm.value.adjustments_json,
     }
 
     this.settlementService.setSettlement(data, this.token?.access_token).subscribe((resp: any) => {
@@ -703,7 +731,7 @@ export class CdrComponent {
     this.settlementService.downloadSettlementReport(this.proyectoSelected?.ProjectName ,this.proyectoSelected?.idprojects ,this.RPselected, this.token?.access_token)
   }
 
-  downloadSettlementByID(settlementId: number, idrpnumber: number, folio: string, registryDate: string) {
+  downloadSettlementByID(settlementId: number, idrpnumber: number, folio: string, registryDate: string, adjustment_value:number, ShortDesc_type_adjustment: string){
     let data = {
       folio: folio,
       carId: this.proyectoSelected?.Id_ProyectoCAR,
@@ -711,7 +739,9 @@ export class CdrComponent {
       projectCounter: this.proyectoSelected?.Counterpart,
       projectName: this.proyectoSelected?.ProjectName,
       registryDate: registryDate,
-      rp_count: this.settlementSelected?.rp_count ? this.settlementSelected.rp_count : this.rpCountByproject.rp_count
+      rp_count: this.settlementSelected?.rp_count ? this.settlementSelected.rp_count : this.rpCountByproject.rp_count,
+      adjustment_value: adjustment_value,
+      ShortDesc_type_adjustment: ShortDesc_type_adjustment
     }
     this.settlementService.downloadSettlementByID(settlementId , idrpnumber, folio, data, this.token?.access_token)
   }

@@ -19,8 +19,12 @@ export interface Settlement {
     ACD:                     number;
     Final_Upfront_Deduction: number;
     Project_Net_Income:      number;
+    Project_Net_Income_Adjusted: number; 
+    ShortDesc_type_adjustment?: string;
     status:                  number;
     statusdirection:         number;
+    Idtypeadjustment:        number;
+    adjustment_value:        number;
 }
 
 

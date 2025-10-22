@@ -31,6 +31,7 @@ export class HistoryAnnualPlansComponent {
   activitiesByPlan: ActivitiesByAnnualPlan[] = [];
   ActivitiesWithoutPlan: ActivitiesWithoutAnnualPlan[] = [];
   visible: boolean = false;
+  disablebuttonSave: boolean = false;
 
   showDialog() {
       this.visible = true;
@@ -127,6 +128,9 @@ export class HistoryAnnualPlansComponent {
   }
 
   saveActivitiesByAnnualPlan(){
+    if(this.disablebuttonSave){
+      return;
+    }
 
     if(this.activitiesByPlan.length == 0){
       return this.messageService.add({ severity: 'error', summary: 'None Activities', detail: 'You need select mininum 1 activity to generate Annual Plan'});
@@ -153,6 +157,8 @@ export class HistoryAnnualPlansComponent {
       }
     }
 
+    this.disablebuttonSave = true;
+
     let data = {
       p_Idplananual: this.AnnualPlanSelected.Idplananual,
       p_name: 'Implementation Annual Plan Draft_' + this.proyectoSelected?.ProjectName,
@@ -169,9 +175,11 @@ export class HistoryAnnualPlansComponent {
         this.hideDialog();
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Activity changed successfully!'});
         this.serviceObsProject$.triggerRefresh();
+        this.disablebuttonSave = false;
       } else {
         this.messageService.add({ severity: 'error', summary: 'Server error', detail: 'Some was wrong, try again'});
         this.serviceObsProject$.triggerRefresh();
+        this.disablebuttonSave = false;
       }
     })
 

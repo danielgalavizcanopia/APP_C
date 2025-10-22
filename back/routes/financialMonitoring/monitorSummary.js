@@ -46,6 +46,7 @@ const {
     setAuthotizationRequest,
     getStatusAuthorizations,
     getConfigUsersAndAccounts,
+    getUsersWithAuthorization,
     getAllSubAccounts
 } = require('../../controllers/financialMonitoring/changeRequest/changeRequest');
 
@@ -55,6 +56,7 @@ router.post('/setReviewActualRequest', authMiddleware, setReviewActualRequest);
 router.get('/getActualRequests', authMiddleware, getActualRequests);
 router.get('/getHistoryRequests', authMiddleware, getHistoryRequests);
 router.get('/getStatusAuthorizations', authMiddleware, getStatusAuthorizations);
+router.get('/getUsersWithAuthorization', authMiddleware, getUsersWithAuthorization);
 router.get('/getConfigUsersAndAccounts', authMiddleware, getConfigUsersAndAccounts);
 router.get('/getTransactionsDetailsByID/:id', authMiddleware, getTransactionsDetailsByID);
 router.get('/getHistoryActualRequest/:id', authMiddleware, getHistoryActualRequest);

@@ -40,7 +40,7 @@ async function getSharepointRegisters(Folio_Project){
       let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://graph.microsoft.com/v1.0/sites/canopiacarbon918.sharepoint.com,661f8102-fa5a-4dff-bf85-30247a3da20a, 0676e795-0d20-4f9a-958a-3a5ff2a224b9/lists/${process.env.LISTID}/items?expand=fields(select=id,Title,Created,ProjectName,NombredelColaborador,Detalledegastos,Divisa,RegistroFormatoCompaq,ImporteProrrateoFactura,Total_x0028_DetalleMontoFactura_,Cta_x0028_Ejido_x003a_CAPEX_x0020,Cta_x002e_Contpaq_x0028_Ejido_x0,Concepto_x0028_Ejido_x003a_CAPEX,Mes,ProjectID,IDAct,RP)&$filter=fields/ProjectID eq '${Folio_Project}'&$orderby=fields/Created desc`,
+        url: `https://graph.microsoft.com/v1.0/sites/canopiacarbon918.sharepoint.com,661f8102-fa5a-4dff-bf85-30247a3da20a, 0676e795-0d20-4f9a-958a-3a5ff2a224b9/lists/${process.env.LISTID}/items?expand=fields(select=id,Title,Created,ProjectName,NombredelColaborador,Detalledegastos,Divisa,RegistroFormatoCompaq,ImporteProrrateoFactura,Total_x0028_DetalleMontoFactura_,Cta_x0028_Ejido_x003a_CAPEX_x0020,Cta_x002e_Contpaq_x0028_Ejido_x0,Concepto_x0028_Ejido_x003a_CAPEX,Mes,ProjectID,IDAct,Actividad,RP,idcapexsubaccount,idopexsubaccount)&$filter=fields/ProjectID eq '${Folio_Project}'&$orderby=fields/Created desc`,
         headers: { 
           'Authorization': 'bearer ' + token.access_token
         }

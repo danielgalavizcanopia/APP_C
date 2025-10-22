@@ -30,9 +30,9 @@
                             <span *ngIf="product.status == 6" class="m-2 status-assembly-approved"><strong>Approved</strong></span>
                         </td>
                         <td>
-                            <p-button class="m-1" (click)="redirectToPreview(product)" icon="pi pi-eye"></p-button>
-                            <p-button *ngIf="product.status != 5" class="m-1" (onClick)="onRowSelected(product)" icon="pi pi-pencil"></p-button>
-                            <p-button *ngIf="product.status == 5" class="m-1" severity="danger" (onClick)="confirmDelete(product)" icon="pi pi-trash"></p-button>
+                            <p-button styleClass="m-1 p-button-success p-button-outlined" (click)="redirectToPreview(product)" icon="pi pi-eye"></p-button>
+                            <p-button *ngIf="product.status != 5" styleClass="m-1 p-button-outlined" (onClick)="onRowSelected(product)" icon="pi pi-pencil"></p-button>
+                            <p-button *ngIf="product.status == 5" styleClass="m-1 p-button-danger p-button-outlined" severity="danger" (onClick)="confirmDelete(product)" icon="pi pi-trash"></p-button>
                         </td>
                     </tr>
                 </ng-template>

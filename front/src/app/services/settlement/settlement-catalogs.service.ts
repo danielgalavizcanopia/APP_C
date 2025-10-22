@@ -43,4 +43,13 @@ export class SettlementCatalogsService {
         return this._apiService.sendPostTokenRequest(data, url, token);
     }
 
+    getTypeAdjustments(token: string): Observable<any[]> {
+        return this._apiService.sendGetRequest(this.url + `settlementCatalogs/getTypeAdjustments`, token);
+    }
+
+    setTypeAdjustment(data: any, token: string = ''): Observable<any[]>{
+        const url = this.url + "settlementCatalogs/setTypeAdjustment";
+        return this._apiService.sendPostTokenRequest(data, url, token);
+    }
+
 }

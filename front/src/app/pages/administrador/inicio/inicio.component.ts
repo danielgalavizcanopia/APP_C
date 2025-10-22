@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { Projects } from 'src/app/interfaces/Portafolio/NewProject/Newproject.interface';
 import { CustomerService } from 'src/app/services/customer.service';
@@ -26,8 +27,9 @@ export class InicioComponent {
   proyectoSelected: Projects | null = null;
   isSelectedProject: boolean = false;
    items!: MenuItem[];
+   videoPath='assets/layout/videos/intro.mp4';
 
-  constructor( 
+  constructor(
     readonly serviceObsProject$: ObservableService,
     public _authGuardService: authGuardService
   ) {
@@ -35,6 +37,10 @@ export class InicioComponent {
     this.observaProjectSelected();
 
   }
+
+   openVideo(): void {
+    window.open(this.videoPath, '_blank');
+   }
 
     observaProjectSelected() {
       /*** Este sirve para saber que proyecto ha sido seleccionado y se copia este bloque */

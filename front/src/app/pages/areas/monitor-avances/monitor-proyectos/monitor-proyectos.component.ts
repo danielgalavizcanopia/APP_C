@@ -171,6 +171,7 @@ export class MonitorProyectosComponent {
 
     /** ENDPOINTS QUE LLENAN PARA UN EDIT */
     getReportActDetailById(idActivity: number = 0){
+      this.items.clear();
       this.MonitoringCatalogService.getReportActDetailById(idActivity ,this.token?.access_token).subscribe((response: any) => {
         if(response.valido == 1){
           this.ActivitiesReportedByID = response.result;
@@ -188,6 +189,7 @@ export class MonitorProyectosComponent {
 
     /** ESTE SOLO FUNCIONARÁ CUANDO HAGAS UN CREATE, HABILITARÁ EL DROPDOWN */
     getActivitiesByRP(rpnumber: number){
+      this.items.clear();
       this.MonitoringCatalogService.getActivitiesApproved(this.token?.access_token, rpnumber, this.proyectoSelected?.idprojects).subscribe((response: any) => {
         if(response.valido == 1){
             this.ActivitiesByRP = response.result;
@@ -204,6 +206,7 @@ export class MonitorProyectosComponent {
 
     /** ESTE TRAERÁ TODOS LOS REPORTEOS QUE SE HAN HECHO SOBRE N ACTIVIDAD */
     getReporteoByActivity(idactividad: number){
+      this.items.clear();
       this.MonitoringCatalogService.getReporteoByActivity(idactividad, this.token?.access_token).subscribe((resp: any) => {
         if(resp.valido == 1){
           this.reporteoByActivities = resp.result;
@@ -267,7 +270,6 @@ export class MonitorProyectosComponent {
         let data = {
           reporteo: this.items.getRawValue()
         }
-        
         this.MonitoringCatalogService.setReporteoActivities(data, this.token?.access_token).subscribe((resp: any) => {
           if(resp.valido == 1){
             this.disableButtonSave = true;

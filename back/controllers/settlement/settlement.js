@@ -117,7 +117,7 @@ async function setStatusSettlement(req, res){
 
 async function getTotalApprovedByAssembly(req, res) {
     try {
-        const resultados = await ejecutarStoredProcedure('sp_GetPlanHisTotalbyAssembly', [req.params.id, req.params.idrpnumber]);
+        const resultados = await ejecutarStoredProcedure('sp_GetPlanHisTotalbyAssembly', [req.params.id, req.params.idrpnumber || 0]);
         if (resultados.length > 0) {
             res.status(200).json({valido: 1, result: resultados[0]});
         } else {
@@ -383,9 +383,10 @@ async function getSettlementXLSXByRegister(req, res){
             let finalUprontDeduction = totalDeductionCapex / params.rp_count;
 
             let totalProjectNetIncome = projectGrossIncome - finalUprontDeduction - totalDeductionOpex;
+            let totalPNIAdjustments = totalProjectNetIncome + parseFloat(params.adjustment_value ? params.adjustment_value : 0).toFixed(2);
 
-            sheetResume.getColumn(1).width = 30;
-            sheetResume.getColumn(2).width = 10;
+            sheetResume.getColumn(1).width = 40;
+            sheetResume.getColumn(2).width = 30;
             sheetResume.getColumn(3).width = 40;
             sheetResume.getColumn(4).width = 10;
             sheetResume.getColumn(5).width = 40;
@@ -406,6 +407,7 @@ async function getSettlementXLSXByRegister(req, res){
             sheetResume.getCell('A6').value = 'Project Gross Income';
             sheetResume.getCell('A7').value = 'Final Annual Cost Deduction';
             sheetResume.getCell('A8').value = 'Project Net Income';
+            sheetResume.getCell('A9').value = `PNI post-adjustments (${params.ShortDesc_type_adjustment})`;
 
             sheetResume.getCell('B2').value = 'Total (USD)';
             sheetResume.getCell('B3').value = totalDeductionCapex;
@@ -424,6 +426,9 @@ async function getSettlementXLSXByRegister(req, res){
 
             sheetResume.getCell('B8').value = totalProjectNetIncome;
             sheetResume.getCell('B8').numFmt = '"$"#,##0.00;[Red]\-"$"#,##0.00';
+
+            sheetResume.getCell('B9').value = totalPNIAdjustments;
+            sheetResume.getCell('B9').numFmt = '"$"#,##0.00;[Red]\-"$"#,##0.00';
 
             sheetResume.getCell('C2').value = 'Account';
 

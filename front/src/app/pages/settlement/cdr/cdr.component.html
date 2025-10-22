@@ -55,7 +55,12 @@
                     <td>{{settlement.project_gross_income | currency}}</td>
                     <td>{{settlement.Approved | currency}}</td>
                     <td>{{settlement.ACD | currency}}</td>
-                    <td>{{settlement.Project_Net_Income | currency}}</td>
+                    <td>
+                        <span [pTooltip]="settlement.ShortDesc_type_adjustment ? 'Adjusted by: ' + settlement.ShortDesc_type_adjustment : ''" 
+                            tooltipPosition="top">
+                            {{settlement.Project_Net_Income_Adjusted | currency}}
+                        </span>
+                    </td>
                     <td>
                         <!-- PENDING -->
                         <span class="status-pending"
@@ -83,7 +88,7 @@
                             (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
                         <p-button *ngIf="settlement.status == 2 && settlement.statusdirection == 2"
                             icon="pi pi-cloud-download" styleClass="p-button-rounded p-button-sucess p-button-text"
-                            (onClick)="downloadSettlementByID(settlement.Idsettlement, settlement.idrpnumber, settlement.folio, settlement.DateCreate)"></p-button>
+                            (onClick)="downloadSettlementByID(settlement.Idsettlement, settlement.idrpnumber, settlement.folio, settlement.DateCreate, settlement.adjustment_value, settlement.ShortDesc_type_adjustment)"></p-button>
                         <p-button *ngIf="settlement.status == 2 && settlement.statusdirection == 2" icon="pi pi-eye"
                             styleClass="p-button-rounded p-button-text p-button-secondary"
                             (onClick)="onRowSelected(settlement.idrpnumber, settlement.Idsettlement, settlement)"></p-button>
@@ -120,27 +125,6 @@
                     <div *ngIf="settlementForm.get('idrpnumber_main')?.invalid && formV">
                         <small class="p-error">This field is required</small>
                     </div>
-                </div>
-
-                <div class="col-9 inline-flex" *ngIf="details.length == 0">
-                    <div class="flex align-items-center pr-4">
-                        <p-radioButton name="decimals" value="two" inputId="two"
-                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="two" class="ml-2">Two Decimals <br> <small>.00</small> </label>
-                    </div>
-
-                    <div class="flex align-items-center pr-4">
-                        <p-radioButton name="decimals" value="three" inputId="three"
-                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="three" class="ml-2">Three Decimals <br> <small>.000</small> </label>
-                    </div>
-
-                    <div class="flex align-items-center">
-                        <p-radioButton name="decimals" value="four" inputId="four"
-                            [(ngModel)]="decimalType" [ngModelOptions]="{standalone: true}"></p-radioButton>
-                        <label for="four" class="ml-2">Four Decimals <br> <small>.0000</small> </label>
-                    </div>
-
                 </div>
             </div>
             <div class="flex inline-flex">
@@ -355,33 +339,36 @@
         <!-- Nueva seccion -->
         <div class="mt-2 plus-card p-2">
             <div class="pb-2 pl-2">
-                <small class="font-bold">Adjustment</small>
+                <small class="font-bold">Adjustments</small>
             </div>
-            <div class="grid" formGroupName="newDeduction" *ngIf="!settlementApproved">
+            <div class="grid">
                 <div class="col-4">
                     <span class="p-float-label">
-                        <p-dropdown formControlName="Idtypededuction" [options]="deductionType"
-                            (onChange)="typeAccountSelected($event.value)" placeholder="Type of adjustment"
-                            optionLabel="typeDeduction" optionValue="IdtypeDeduction"
+                        <p-dropdown formControlName="Idtypeadjustment" [options]="adjustmentTypes"
+                            placeholder="Type of Adjustment"
+                            optionLabel="ShortDesc_type_adjustment" 
+                            optionValue="Idtypeadjustment"
                             inputId="float-label"></p-dropdown>
-                        <label for="float-label">Type of adjustment</label>
+                        <label for="float-label">Type of Adjustment</label>
                     </span>
-                    <div *ngIf="newDeduction.get('Idtypededuction')?.invalid && deductionsV">
+                    <div *ngIf="settlementForm.get('Idtypeadjustment')?.invalid && formV">
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
                 <div class="col-3">
                     <span class="p-float-label">
-                        <p-inputNumber formControlName="cost" class="w-full" inputId="minmaxfraction" mode="decimal"
-                            [minFractionDigits]="2" [maxFractionDigits]="2"> </p-inputNumber>
-                        <label htmlFor="username">-$ </label>
+                        <p-inputNumber formControlName="adjustment_amount" class="w-full" inputId="adjustmentAmount" 
+                            mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2">
+                        </p-inputNumber>
+                        <label htmlFor="adjustmentAmount">Amount (USD)</label>
                     </span>
-                    <div *ngIf="newDeduction.get('cost')?.invalid && deductionsV">
+                    <div *ngIf="settlementForm.get('adjustment_amount')?.invalid && formV">
                         <small class="p-error">This field is required</small>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <div class="mt-2">
             <p-divider type="dashed"> <span class="p-tag">Resume</span></p-divider>
@@ -419,6 +406,10 @@
                             <tr>
                                 <td>Project Net Income</td>
                                 <td>{{getTotalProjectNetIncome() | currency}}</td>
+                            </tr>
+                            <tr>
+                                <td>PNI post-adjustments</td>
+                                <td>{{getTotalPNIPostAdjustments() | currency}}</td>
                             </tr>
                         </ng-template>
                     </p-table>

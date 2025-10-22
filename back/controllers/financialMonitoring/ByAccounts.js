@@ -20,10 +20,10 @@ async function getByAccountsReport(req, res){
 
         /** SE HACE LA CONSULTA DE CACHÉ, SI ENCUENTRA ALGO, ENTONCES ES LO QUE REGRESARÁ SIN NECESIDAD DE HACER TODO EL FLUJO */
         const cachedData = await redisClient.get(cacheKey);
-        if (cachedData) {
-          console.log('📦 Data desde Redis');
-          return res.status(200).json({ valido: 1, result: JSON.parse(cachedData) });
-        }
+        // if (cachedData) {
+        //   console.log('📦 Data desde Redis');
+        //   return res.status(200).json({ valido: 1, result: JSON.parse(cachedData) });
+        // }
 
         let Accounts = [];
   
@@ -100,7 +100,14 @@ async function getByAccountsReport(req, res){
         const SharepointFinalRows = SharepointInitialRows.filter(registro => {
           return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
         });
-        
+
+        // let totalprueba = 0
+        // for(let prov of SharepointFinalRows){
+        //   totalprueba += prov.fields?.ImporteProrrateoFactura != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
+        // }
+
+        // console.log("ESTO TIENE ---",totalprueba);
+
         let CapexAccounts = [];
         let OpexAccounts = [];
   
@@ -139,7 +146,6 @@ async function getByAccountsReport(req, res){
                      shareMonto += parseFloat(prov.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
                    }
                 }
-
                 const existingDuplicate = subAccounts.find(x => x.idActividaddata === capexplan?.IdActividaddata && x.idactivitiesprojects === account.idactivitiesprojects && x.idrpnumber === account.idrpnumber && x.idcapexaccount === account.idcapexsubaccount);
                 if(existingDuplicate){
                   capexplan = CapexPlanned.find(x => x.idcapexsubaccount == account.idcapexsubaccount && x.Ca_o_pex == 1 && x.idrpnumber == account.idrpnumber &&  x.idactivitiesprojects == account.idactivitiesprojects && x.idActividaddata != existingDuplicate.idActividaddata)
@@ -151,6 +157,7 @@ async function getByAccountsReport(req, res){
                     Name:  capexplan ? capexplan.Actividad : '',
                     idactivitiesprojects: account.idactivitiesprojects,
                     account: account.capexconcepto,
+                    cuentacompaq: parseInt(account.cuentacompaq),
                     accountWA: account.subcuentacapex,
                     idcapexaccount: account.idcapexsubaccount,
                     idrpnumber: account.idrpnumber,
@@ -186,6 +193,34 @@ async function getByAccountsReport(req, res){
                   } else {
                     // console.log(capexPaid, 'cpxPaid');
                   }
+              }
+            }
+          }
+
+          for(let provisional of SharepointFinalRows){
+            if(capexAccount.idcapexaccounts == parseInt(provisional.fields?.idcapexsubaccount)){
+              let cpxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
+              if(!cpxSubAccount){
+                let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
+                let monto = 0;
+                if(existingSPDuplicates.length > 0){
+                  monto = existingSPDuplicates.reduce((total, item) => {
+                    return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
+                  }, 0);
+                } else {
+                  monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+                }
+                subAccounts.push({
+                  Name: provisional.fields?.Actividad,
+                  idactivitiesprojects: parseInt(provisional.fields?.IDAct),
+                  cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
+                  account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
+                  idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
+                  planned: 0,
+                  paid: 0,
+                  provisional: monto
+                });
+                totalProvisional += monto;
               }
             }
           }
@@ -233,6 +268,7 @@ async function getByAccountsReport(req, res){
                     idActividaddata: opexplan?.IdActividaddata ,
                     Name:  opexplan ? opexplan.Actividad : '',
                     idactivitiesprojects: account.idactivitiesprojects,
+                    cuentacompaq: parseInt(account.cuentacompaq),
                     account: account.opexconcepto,
                     accountWA: account.subcuentaopex,
                     idopexaccount: account.idopexsubaccount,
@@ -257,6 +293,7 @@ async function getByAccountsReport(req, res){
                     subAccounts.push({
                       Name: plannedAccount.Actividad || plannedAccount.NombreActividad,
                       idopexaccount: plannedAccount.idopexsubaccount,
+                      idactivitiesprojects: plannedAccount.idactivitiesprojects,
                       idrpnumber: plannedAccount.idrpnumber,
                       account: plannedAccount.subcuentaopex,
                       planned: plannedAccount.EstimadoUSD,
@@ -265,7 +302,34 @@ async function getByAccountsReport(req, res){
                     });
                     totalPlanned += parseFloat(plannedAccount.EstimadoUSD)
                   } 
-                  
+                }
+              }
+          }
+
+          for(let provisional of SharepointFinalRows){
+            if(opexAccount.idopexaccounts == parseInt(provisional.fields?.idopexsubaccount)){
+              let opxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
+              if(!opxSubAccount){
+                let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
+                let monto = 0;
+                if(existingSPDuplicates.length > 0){
+                  monto = existingSPDuplicates.reduce((total, item) => {
+                    return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
+                  }, 0);
+                } else {
+                  monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+                }
+                subAccounts.push({
+                  Name: provisional.fields?.Actividad,
+                  idactivitiesprojects: parseInt(provisional.fields?.IDAct),
+                  cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
+                  account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
+                  idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
+                  planned: 0,
+                  paid: 0,
+                  provisional: monto
+                });
+                totalProvisional += monto;
               }
             }
           }

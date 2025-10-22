@@ -26,12 +26,13 @@ $gutter: 1rem; //for primeflex grid system
 }
 
 .login-logo{
- 
     background-image: url(./assets/layout/images/login-fondo.png);
     background-position: left;
     background-repeat: no-repeat;
     width: 100%;
     height: 100vh;
+    background-attachment: local;
+    background-size: contain;
 }
 
 .p-password{

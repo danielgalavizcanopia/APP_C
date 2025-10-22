@@ -1,0 +1,159 @@
+<section class="m-5">
+    <p-table #dt1 [value]="adjustmentTypes" [rows]="10" [paginator]="true" styleClass="p-datatable-striped"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="isLoading">
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-between">
+                <p><strong>Adjustment Types</strong></p>
+                <div class="flex justify-content-end">
+                    <button pButton label="Create" class="p-button-outlined" icon="pi pi-plus"
+                        (click)="showDialog()"></button>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th><strong>ID</strong></th>
+                <th><strong>Short Description</strong></th>
+                <th><strong>Description</strong></th>
+                <th><strong>Status</strong></th>
+                <th><strong>Actions</strong></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-record>
+            <tr>
+                <td>{{ record.Idtypeadjustment }}</td>
+                <td>{{ record.ShortDesc_type_adjustment || 'N/A' }}</td>
+                <td>{{ record.LargeDesc_type_adjustment || 'N/A' }}</td>
+                <td>
+                    <span *ngIf="record.status == 1" 
+                        class="badge bg-success">Active</span>
+                    <span *ngIf="record.status == 0" 
+                        class="badge bg-danger">Inactive</span>
+                </td>
+                <td>
+                    <p-button 
+                        class="m-1" 
+                        icon="pi pi-pencil" 
+                        styleClass="p-button-rounded p-button-success p-button-outlined"
+                        pTooltip="Edit"
+                        (click)="editRecord(record)">
+                    </p-button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                    <div class="flex flex-column align-items-center gap-3">
+                        <i class="pi pi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                        <div>
+                            <h4 class="m-0 mb-2">No Adjustment Types Found</h4>
+                            <p class="text-color-secondary m-0">
+                                Get started by creating your first adjustment type.
+                            </p>
+                        </div>
+                        <button pButton label="Create First Record" 
+                                class="p-button-outlined" 
+                                icon="pi pi-plus"
+                                (click)="showDialog()">
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</section>
+
+<!-- Dialog Form -->
+<p-dialog 
+    [header]="isEditMode ? 'Edit Adjustment Type' : 'Create Adjustment Type'" 
+    [(visible)]="visible"
+    [style]="{width: '550px'}"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="content">
+        <form [formGroup]="adjustmentTypeForm" class="p-fluid">
+            <div class="mt-3">
+                <span class="p-float-label w-full">
+                    <input 
+                        pInputText 
+                        id="shortDesc" 
+                        formControlName="ShortDesc_type_adjustment"
+                        maxlength="100"
+                        [class.ng-invalid]="adjustmentTypeForm.get('ShortDesc_type_adjustment')?.invalid && adjustmentTypeForm.get('ShortDesc_type_adjustment')?.touched"
+                    />
+                    <label htmlFor="shortDesc">Short Description *</label>
+                </span>
+                <small 
+                    class="p-error" 
+                    *ngIf="adjustmentTypeForm.get('ShortDesc_type_adjustment')?.invalid && adjustmentTypeForm.get('ShortDesc_type_adjustment')?.touched">
+                    Short description is required
+                </small>
+            </div>
+
+            <div class="mt-4">
+                <span class="p-float-label w-full">
+                    <textarea 
+                        pInputTextarea 
+                        id="largeDesc" 
+                        formControlName="LargeDesc_type_adjustment"
+                        rows="4"
+                        maxlength="500"
+                        [class.ng-invalid]="adjustmentTypeForm.get('LargeDesc_type_adjustment')?.invalid && adjustmentTypeForm.get('LargeDesc_type_adjustment')?.touched"
+                    ></textarea>
+                    <label htmlFor="largeDesc">Description *</label>
+                </span>
+                <small 
+                    class="p-error" 
+                    *ngIf="adjustmentTypeForm.get('LargeDesc_type_adjustment')?.invalid && adjustmentTypeForm.get('LargeDesc_type_adjustment')?.touched">
+                    Description is required
+                </small>
+            </div>
+
+            <!-- <div class="mt-4" *ngIf="isEditMode">
+                <div class="field-checkbox">
+                    <p-checkbox 
+                        formControlName="status" 
+                        [binary]="true" 
+                        inputId="status">
+                    </p-checkbox>
+                    <label for="status" class="ml-2">Active</label>
+                </div>
+            </div> -->
+        </form>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between w-full">
+            <div>
+                <p-button 
+                    *ngIf="isEditMode"
+                    icon="pi pi-trash" 
+                    label="Delete" 
+                    styleClass="p-button-danger"
+                    (click)="confirmDelete($event, currentRecord)">
+                </p-button>
+            </div>
+            <div class="flex gap-2">
+                <p-button 
+                    styleClass="p-button-outlined" 
+                    label="Cancel" 
+                    (click)="cancelDialog()">
+                </p-button>
+                <p-button 
+                    label="Save" 
+                    (click)="saveRecord()"
+                    [disabled]="adjustmentTypeForm.invalid">
+                </p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Messages and Confirmations -->
+<p-toast></p-toast>
+<p-confirmPopup></p-confirmPopup>

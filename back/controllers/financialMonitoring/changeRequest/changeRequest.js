@@ -136,6 +136,17 @@ async function getStatusAuthorizations(req, res){
     }
 }
 
+async function getUsersWithAuthorization(req, res){
+    try {
+        const resultados = await getCatalogs('ct_fm_user_roles');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 async function getConfigUsersAndAccounts(req, res){
     try {
         const resultados = await getCatalogs('ct_subaccount_rel_userpositions');
@@ -206,6 +217,7 @@ module.exports = {
     getStatusAuthorizations,
     setDeletePedingRequests,
     setAuthotizationRequest,
+    getUsersWithAuthorization,
     getConfigUsersAndAccounts,
     getHistoryRequests,
     getAllSubAccounts,

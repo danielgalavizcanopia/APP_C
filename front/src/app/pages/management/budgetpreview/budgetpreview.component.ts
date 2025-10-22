@@ -90,8 +90,8 @@ export class BudgetpreviewComponent {
       if(resp.valido == 1){
         this.annualPlanSelected = resp.result[0];
         this.status = this.annualPlanSelected?.status == 6 ? 4 : this.annualPlanSelected?.status;
-        // if(this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6);
-        if(this.annualPlanSelected?.status == 4 || this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6 && v.Idstatusvalidateplan != 5);
+        if(this.annualPlanSelected?.status == 6) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 6 && v.Idstatusvalidateplan != 5);
+        if(this.annualPlanSelected?.status == 4) this.validacionesSt = this.validacionesSt.filter(v => v.Idstatusvalidateplan != 5);
         
         this.typeHeaderBackup = this.annualPlanSelected?.status === 4 ? "Historical Plan" : this.annualPlanSelected?.status === 6 ? "Approved By Assembly" : "";
       }

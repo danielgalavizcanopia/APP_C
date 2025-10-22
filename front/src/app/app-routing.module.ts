@@ -49,6 +49,7 @@ import { SettlementComponent } from './pages/settlement/settlement.component';
 import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.component';
 import { HistoryActuExpUnRevComponent } from './pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
 import { DashFinancialComponent } from './pages/administrador/inicio/dash-financial/dash-financial.component';
+import { AdjustmentTypeComponent } from './pages/config/Adjustment-Type/adjustment-type.component';
 
 @NgModule({
     imports: [RouterModule.forRoot([
@@ -256,6 +257,11 @@ import { DashFinancialComponent } from './pages/administrador/inicio/dash-financ
                 {
                     path: 'settlement',
                     component: SettlementComponent
+                },
+                //menu de nuevo
+                {
+                    path: 'adjustment-type',
+                    component: AdjustmentTypeComponent
                 }
 
             ],

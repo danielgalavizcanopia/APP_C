@@ -165,8 +165,11 @@ export class MonCatalogService {
       const url = this.url + "MonitorSummary/setDeletePedingRequests";
       return this._apiService.sendPostTokenRequest(data, url, token);
     }
-    
 
+    getUsersWithAuthorization(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getUsersWithAuthorization`, token);
+    }
+        
     downloadDatesExcel(idProyecto: any, rpnumber: number = 0, token: string) {
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`,

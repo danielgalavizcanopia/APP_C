@@ -356,6 +356,11 @@ export class AppMenuComponent implements OnInit, OnDestroy {
               label: 'Activities',
               icon: 'pi pi-fw pi-file-edit',
               routerLink: ["/ActivitiesCatalog"]
+            },
+            {
+              label: 'Adjustment Types',
+              icon: 'pi pi-sliders-h',
+              routerLink: ['/adjustment-type']
             }
           ],
         }

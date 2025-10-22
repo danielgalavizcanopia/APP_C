@@ -52,6 +52,9 @@ export class FinancialTrackerComponent {
     relUsersAndAccounts: any[] = [];
     token: any;
     proyectoSelected: Projects | null = null;
+    authorizedUsers: any[] = [];
+    currentUserId: number = 0;
+    isUserAuthorized: boolean = false;
     
     FinancialTrackerData: FinancialTracker[] = [];
     totalsFinancial: any = {
@@ -82,7 +85,9 @@ export class FinancialTrackerComponent {
       private messageService: MessageService,
     ){
       this.token = this._authGuardService.getToken();
+      this.currentUserId = this.token?.userId;
       this.getConfigUsersAndAccounts();
+      this.getUsersWithAuthorization();
       this.observaProjectSelected();
       this.getRPnumber();
         this.cities = [
@@ -206,7 +211,6 @@ export class FinancialTrackerComponent {
   getConfigUsersAndAccounts() {
     this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Config users and accounts response:', response);
         if (response.valido === 1) {
           this.relUsersAndAccounts = response.result;
         } else {
@@ -214,6 +218,25 @@ export class FinancialTrackerComponent {
           this.loading = false;
         }
       });
+  }
+
+  getUsersWithAuthorization() {
+    this.MonitoringCatalogService.getUsersWithAuthorization(this.token?.access_token)
+      .subscribe((response: any) => {
+        if (response.valido === 1) {
+          this.authorizedUsers = response.result;
+          this.checkUserAuthorization();
+        } else {
+          console.error("Error loading authorized users:", response.message);
+          this.isUserAuthorized = false;
+        }
+      });
+  }
+
+  checkUserAuthorization() {
+    this.isUserAuthorized = this.authorizedUsers.some(
+      user => user.IDUser === this.currentUserId
+    );
   }
 
   enviarRPs() {
