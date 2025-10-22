@@ -27,7 +27,8 @@ const {
 
 const {
     getTransactionTracker,
-    getTransactionTrackerXLSX
+    getTransactionTrackerXLSX,
+    getByTransactionByAllReport,
 } = require('../../controllers/financialMonitoring/ByTransaction');
 
 const {
@@ -47,7 +48,7 @@ const {
     getStatusAuthorizations,
     getConfigUsersAndAccounts,
     getUsersWithAuthorization,
-    getAllSubAccounts
+    getAllSubAccounts,
 } = require('../../controllers/financialMonitoring/changeRequest/changeRequest');
 
 /** CHANGE ACTUAL RESQUEST */
@@ -80,7 +81,7 @@ router.get('/generateXLSXBenefitDTracker/:idprojects/:rpnumber', authMiddleware,
 /** BY TRANSACTION CONTROLLERS */
 router.get('/getTransactionTracker/:idprojects/:rpnumber', authMiddleware, getTransactionTracker);
 router.get('/getTransactionTrackerXLSX/:idprojects/:rpnumber', authMiddleware, getTransactionTrackerXLSX);
-
+router.get('/getByTransactionByAllReport', authMiddleware, getByTransactionByAllReport);
 /** SHAREPOINT ENDPOINTS */
 router.get('/getProvisionalXlsx/:folioProject/:idProject/:rpnumbers', authMiddleware, getProvisionalXlsx);
 

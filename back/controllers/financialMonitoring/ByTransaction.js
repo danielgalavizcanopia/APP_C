@@ -1,10 +1,12 @@
 const { ejecutarStoredProcedure } = require('../../queries/projects');
 const ExcelJS = require('exceljs');
 const dotenv = require("dotenv");
+
 dotenv.config();
 
 /** REDIS IMPORT */
 const { redisClient } = require('../../config/redisConfig');
+const { ejecutarVistaTools } = require('../../queries/executeViews');
 
 async function getTransactionTracker(req, res) {
     try {
@@ -309,10 +311,20 @@ async function getByTransactionByFullReport(idProject, rpnumbers){
         
     }
 }
-
+async function getByTransactionByAllReport(req, res){
+    try {
+        const resultados = await ejecutarVistaTools('vw_reporte_general_transaction');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 module.exports = {
     getTransactionTracker,
     getTransactionTrackerXLSX,
     /** function full final report */
     getByTransactionByFullReport,
+    getByTransactionByAllReport
 };
