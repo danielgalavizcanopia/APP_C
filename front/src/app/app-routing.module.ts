@@ -18,7 +18,7 @@ import { MonitorAvancesComponent } from './pages/areas/monitor-avances/monitor-a
 import { LegalComponent } from './pages/areas/legal/legal.component';
 import { SalvaguardasComponent } from './pages/areas/salvaguardas/salvaguardas.component';
 import { BitacoraProyectosComponent } from './pages/reports/DashboardReports/bitacora-proyectos/bitacora-proyectos.component';
-import { BitacoraFormComponent } from './pages/reports/DashboardReports/bitacora-proyectos/bitacora-form/bitacora-form.component';
+// import { BitacoraFormComponent } from './pages/reports/DashboardReports/bitacora-proyectos/bitacora-form/bitacora-form.component';
 import { ReportingPeriodsComponent } from './pages/reports/reporting-periods/reporting-periods.component';
 import { ReportingPeriodsFormComponent } from './pages/reports/reporting-periods/reporting-periods-form/reporting-periods-form.component';
 import { CarbonEquivalentComponent } from './pages/costs/carbon-equivalent/carbon-equivalent.component';
@@ -50,6 +50,7 @@ import { PrepaDeducComponent } from './pages/config/prepa-deduc/prepa-deduc.comp
 import { HistoryActuExpUnRevComponent } from './pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
 import { DashFinancialComponent } from './pages/administrador/inicio/dash-financial/dash-financial.component';
 import { AdjustmentTypeComponent } from './pages/config/Adjustment-Type/adjustment-type.component';
+import { EvaluatorsSubaccounts } from './pages/config/evaluators-subaccounts/evaluators-subaccounts';
 
 @NgModule({
     imports: [RouterModule.forRoot([
@@ -170,13 +171,13 @@ import { AdjustmentTypeComponent } from './pages/config/Adjustment-Type/adjustme
                     path: 'Project-log',
                     component: BitacoraProyectosComponent
                 },
-                {
-                    path: 'Project-log-create',
-                    component: BitacoraFormComponent
-                },
+                // {
+                //     path: 'Project-log-create',
+                //     component: BitacoraFormComponent
+                // },
                 {
                     path: 'Project-log-edit/:id',
-                    component: BitacoraFormComponent
+                    component: BitacoraProyectosComponent
                 },
                 {
                     path: 'Reporting-periods',
@@ -252,6 +253,10 @@ import { AdjustmentTypeComponent } from './pages/config/Adjustment-Type/adjustme
                 {
                     path: 'prepadeduc',
                     component: PrepaDeducComponent
+                },
+                {
+                    path: 'evaluators-subaccounts',
+                    component: EvaluatorsSubaccounts
                 },
                 //menu de settlement
                 {

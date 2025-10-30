@@ -28,8 +28,11 @@ export class BitacoraService {
         return this._apiService.sendGetRequest(this.url + `Bitacora/getBitacoraById/${idCategoriaEv}/`, token);
     }
 
-    setBitacoraProject(data: any, file: File, token: string=''): Observable<any[]>{
+    setBitacoraProject(data: any, file: File | null, token: string=''): Observable<any[]>{
         const url = this.url + "Bitacora/setBitacora";
+        if (!file) {
+          return this._apiService.sendPostTokenRequest(data, url, token);
+        }
         return this._apiService.sendPostTokenRequestWithFile(data, file, url, token);
     }
 

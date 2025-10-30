@@ -208,6 +208,17 @@ async function getAllSubAccounts(req, res){
     }
 }
 
+async function getActualRoles(req, res){
+    try {
+        const resultados = await ejecutarVistaTools('vw_fm_actual_rol');
+        if(resultados){
+            res.status(200).json({valido: 1, result: resultados});
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 module.exports = {
     getByAccountDetails,
     setReviewActualRequest,
@@ -221,4 +232,5 @@ module.exports = {
     getConfigUsersAndAccounts,
     getHistoryRequests,
     getAllSubAccounts,
+    getActualRoles,
 }

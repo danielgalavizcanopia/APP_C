@@ -80,12 +80,56 @@ export interface SubAccount {
 }
 
 export interface BenefitTracker {
-    id:       number;
-    Name:     string;
-    Approved: number;
-    Planned:  number;
-    Paid:     number;
-    Accounts: Account[];
+    Ledger:        string;
+    totalPlanned:  number;
+    totalPaid:     number;
+    totalApproved: number;
+    beneficiaries: Beneficiary[];
+}
+
+export interface Beneficiary {
+    Type_of_Beneficiary: TypeOfBeneficiary;
+    totalPlanned:        number;
+    totalPaid:           number;
+    suppliers:           Supplier[];
+}
+
+export enum TypeOfBeneficiary {
+    DirectCommunityBenefit = "Direct Community Benefit",
+    ServiceProviders = "Service Providers",
+}
+
+export interface Supplier {
+    Type_of_Supplier: TypeOfSupplier;
+    totalPlanned:     number;
+    totalPaid:        number;
+    items:            Item[];
+}
+
+export enum TypeOfSupplier {
+    Canopia = "Canopia",
+    Car = "CAR",
+    CommunityEmployment = "Community Employment",
+    EquipmentForCommunity = "Equipment for Community",
+    LocalTechnicalServiceProviders = "Local Technical Service Providers",
+    ServiceProductProviders = "Service/product providers",
+    Vvb = "VVB",
+}
+
+export interface Item {
+    Ledger:               string;
+    idsubaccount:         number;
+    concepto_subaccount:  string;
+    Actividad:            null | string;
+    Type_of_Beneficiary:  TypeOfBeneficiary;
+    IdtypeofBeneficiary:  number;
+    Type_of_Supplier:     TypeOfSupplier;
+    IdtypeofSupplier:     number;
+    idprojects:           number;
+    idrpnumber:           number;
+    Amount_USD:           number | null;
+    EstimadoUSD:          number | null;
+    idactivitiesprojects: number;
 }
 
 

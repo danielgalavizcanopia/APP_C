@@ -361,6 +361,11 @@ export class AppMenuComponent implements OnInit, OnDestroy {
               label: 'Adjustment Types',
               icon: 'pi pi-sliders-h',
               routerLink: ['/adjustment-type']
+            },
+            {
+              label: 'Evaluators Subaccounts',
+              icon: 'pi pi-sliders-h',
+              routerLink: ['/evaluators-subaccounts']
             }
           ],
         }

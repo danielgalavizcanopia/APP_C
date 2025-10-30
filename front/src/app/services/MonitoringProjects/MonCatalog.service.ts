@@ -152,8 +152,12 @@ export class MonCatalogService {
       return this._apiService.sendGetRequest(this.url + `MonitorSummary/getStatusAuthorizations`, token);
     }
 
-    getConfigUsersAndAccounts(token: string): Observable<any> {
-      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getConfigUsersAndAccounts`, token);
+    // getConfigUsersAndAccounts(token: string): Observable<any> {
+    //   return this._apiService.sendGetRequest(this.url + `MonitorSummary/getConfigUsersAndAccounts`, token);
+    // }
+
+    getActualRoles(token: string): Observable<any> {
+      return this._apiService.sendGetRequest(this.url + `MonitorSummary/getActualRoles`, token);
     }
 
     setAuthotizationRequest(data: any, token: string): Observable<any[]> {
@@ -303,6 +307,30 @@ export class MonCatalogService {
           const a = document.createElement('a');
           a.href = url;
           a.download = ProjectName + '_Transactions_Report-' + this.DateDownload.toISOString().split('T')[0] + '.xlsx';
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }, (error) => {
+          console.error('Error al descargar el Excel', error);
+        });
+    }
+
+
+    downloadAllProjectsCostsExcel(token: string) {
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        // Temporalmente localhost para probar
+        // const urlTest = 'http://localhost:3004/';
+        
+        this.http.get(this.url +  `MonitorSummary/getByTransactionByAllReportXLSX`, {
+          headers,
+          responseType: 'blob',
+        }).subscribe((blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'ByTransactionReport_' + this.DateDownload.toISOString().split('T')[0] + '.xlsx';
           a.click();
           window.URL.revokeObjectURL(url);
         }, (error) => {

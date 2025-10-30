@@ -121,9 +121,9 @@ export class SupplierTrackerComponent {
 
     if(this.BenefitTrackerData.length > 0) {
       for(let financial of this.BenefitTrackerData) {
-        this.totalsFinancial.totalApproved += financial.Approved;
-        this.totalsFinancial.totalPlanned += financial.Planned;
-        this.totalsFinancial.totalPaid += financial.Paid;
+        this.totalsFinancial.totalApproved += financial.totalApproved;
+        this.totalsFinancial.totalPlanned += financial.totalPlanned;
+        this.totalsFinancial.totalPaid += financial.totalPaid;
       }
     }
   }

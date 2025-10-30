@@ -98,11 +98,15 @@ async function getByAccountsReport(req, res){
         const titulosPermitidos = ["Pago Directo a Proveedor", "Reembolso", "Comprobación"]; /** LOS TIPOS DE TITULO QUE DEBEN DE TENER LOS REGISTROS DENTRO DE SHAREPOINT */
         /** SE HACE UN FILTRADO DE TODO EL RESULTADO, PARA TRAER LOS QUE ENTRAN EN LAS FECHAS DECLARADAS */
         const SharepointFinalRows = SharepointInitialRows.filter(registro => {
-          return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title);
+          return registro.fields.Created >= diaDespues.toISOString() && registro.fields.Created <= fechaActual.toISOString() && titulosPermitidos.includes(registro.fields.Title) && registro.fields?.RegistroFormatoCompaq != "Registrada";
         });
 
         // let totalprueba = 0
         // for(let prov of SharepointFinalRows){
+        //   console.log("Fecha", new Date(prov.fields.Created).getDate(), new Date(prov.fields.Created).getMonth()+1, new Date(prov.fields.Created).getFullYear());
+        //   console.log("Total", prov.fields?.ImporteProrrateoFactura != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_));
+        //   console.log("------------");
+          
         //   totalprueba += prov.fields?.ImporteProrrateoFactura != 0 ? parseFloat(prov.fields?.ImporteProrrateoFactura) : parseFloat(prov.fields?.Total_x0028_DetalleMontoFactura_)
         // }
 
@@ -126,6 +130,8 @@ async function getByAccountsReport(req, res){
   
         let indexcapex = 1;
         let indexopex = 1;
+
+        const RPSelected = req.params.rpnumber.split(',');
   
         /** ARMADO DE ARRAY CAPEX */
         for(let capexAccount of CapexPrincipalAccounts){
@@ -199,28 +205,31 @@ async function getByAccountsReport(req, res){
 
           for(let provisional of SharepointFinalRows){
             if(capexAccount.idcapexaccounts == parseInt(provisional.fields?.idcapexsubaccount)){
-              let cpxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
-              if(!cpxSubAccount){
-                let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
-                let monto = 0;
-                if(existingSPDuplicates.length > 0){
-                  monto = existingSPDuplicates.reduce((total, item) => {
-                    return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
-                  }, 0);
-                } else {
-                  monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+              const rpProv = parseInt(provisional.fields?.RP?.slice(2));
+              if(RPSelected.includes(rpProv.toString())){                
+                let cpxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
+                if(!cpxSubAccount){
+                  let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
+                  let monto = 0;
+                  if(existingSPDuplicates.length > 0){
+                    monto = existingSPDuplicates.reduce((total, item) => {
+                      return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
+                    }, 0);
+                  } else {
+                    monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+                  }
+                  subAccounts.push({
+                    Name: provisional.fields?.Actividad,
+                    idactivitiesprojects: parseInt(provisional.fields?.IDAct),
+                    cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
+                    account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
+                    idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
+                    planned: 0,
+                    paid: 0,
+                    provisional: monto
+                  });
+                  totalProvisional += monto;
                 }
-                subAccounts.push({
-                  Name: provisional.fields?.Actividad,
-                  idactivitiesprojects: parseInt(provisional.fields?.IDAct),
-                  cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
-                  account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
-                  idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
-                  planned: 0,
-                  paid: 0,
-                  provisional: monto
-                });
-                totalProvisional += monto;
               }
             }
           }
@@ -308,29 +317,33 @@ async function getByAccountsReport(req, res){
 
           for(let provisional of SharepointFinalRows){
             if(opexAccount.idopexaccounts == parseInt(provisional.fields?.idopexsubaccount)){
-              let opxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
-              if(!opxSubAccount){
-                let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
-                let monto = 0;
-                if(existingSPDuplicates.length > 0){
-                  monto = existingSPDuplicates.reduce((total, item) => {
-                    return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
-                  }, 0);
-                } else {
-                  monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+              const rpProv = parseInt(provisional.fields?.RP?.slice(2));
+              if(RPSelected.includes(rpProv.toString())){
+                let opxSubAccount = subAccounts.find(x => parseInt(provisional.fields?.IDAct) == parseInt(x.idactivitiesprojects) && parseInt(x.cuentacompaq) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && x.idrpnumber == parseInt(provisional.fields?.RP?.slice(2)));
+                if(!opxSubAccount){
+                  let existingSPDuplicates = SharepointFinalRows.filter(x => parseInt(x.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) == parseInt(provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0) && parseInt(x.fields?.RP?.slice(2)) == parseInt(provisional.fields?.RP?.slice(2)));
+                  let monto = 0;
+                  if(existingSPDuplicates.length > 0){
+                    monto = existingSPDuplicates.reduce((total, item) => {
+                      return total + (parseFloat(item.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(item.fields?.ImporteProrrateoFactura) : parseFloat(item.fields?.Total_x0028_DetalleMontoFactura_));
+                    }, 0);
+                  } else {
+                    monto = parseFloat(provisional.fields?.ImporteProrrateoFactura) != 0 ? parseFloat(provisional.fields?.ImporteProrrateoFactura) : parseFloat(provisional.fields?.Total_x0028_DetalleMontoFactura_);
+                  }
+                  subAccounts.push({
+                    Name: provisional.fields?.Actividad,
+                    idactivitiesprojects: parseInt(provisional.fields?.IDAct),
+                    cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
+                    account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
+                    idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
+                    planned: 0,
+                    paid: 0,
+                    provisional: monto
+                  });
+                  totalProvisional += monto;
                 }
-                subAccounts.push({
-                  Name: provisional.fields?.Actividad,
-                  idactivitiesprojects: parseInt(provisional.fields?.IDAct),
-                  cuentacompaq: provisional.fields?.Cta_x002e_Contpaq_x0028_Ejido_x0,
-                  account: provisional.fields?.Cta_x0028_Ejido_x003a_CAPEX_x0020 + ' ' + provisional.fields?.Concepto_x0028_Ejido_x003a_CAPEX,
-                  idrpnumber: parseInt(provisional.fields?.RP?.slice(2)),
-                  planned: 0,
-                  paid: 0,
-                  provisional: monto
-                });
-                totalProvisional += monto;
               }
+
             }
           }
   

@@ -29,6 +29,7 @@ const {
     getTransactionTracker,
     getTransactionTrackerXLSX,
     getByTransactionByAllReport,
+    getByTransactionByAllReportXLSX 
 } = require('../../controllers/financialMonitoring/ByTransaction');
 
 const {
@@ -49,6 +50,7 @@ const {
     getConfigUsersAndAccounts,
     getUsersWithAuthorization,
     getAllSubAccounts,
+    getActualRoles,
 } = require('../../controllers/financialMonitoring/changeRequest/changeRequest');
 
 /** CHANGE ACTUAL RESQUEST */
@@ -64,6 +66,7 @@ router.get('/getHistoryActualRequest/:id', authMiddleware, getHistoryActualReque
 router.post('/setAuthotizationRequest', authMiddleware, setAuthotizationRequest);
 router.post('/setDeletePedingRequests', authMiddleware, setDeletePedingRequests);
 router.get('/getAllSubAccounts', authMiddleware, getAllSubAccounts);
+router.get('/getActualRoles', authMiddleware, getActualRoles);
 
 
 /** BY ACTIVITIES CONTROLLERS */
@@ -82,6 +85,7 @@ router.get('/generateXLSXBenefitDTracker/:idprojects/:rpnumber', authMiddleware,
 router.get('/getTransactionTracker/:idprojects/:rpnumber', authMiddleware, getTransactionTracker);
 router.get('/getTransactionTrackerXLSX/:idprojects/:rpnumber', authMiddleware, getTransactionTrackerXLSX);
 router.get('/getByTransactionByAllReport', authMiddleware, getByTransactionByAllReport);
+router.get('/getByTransactionByAllReportXLSX', authMiddleware, getByTransactionByAllReportXLSX);
 /** SHAREPOINT ENDPOINTS */
 router.get('/getProvisionalXlsx/:folioProject/:idProject/:rpnumbers', authMiddleware, getProvisionalXlsx);
 

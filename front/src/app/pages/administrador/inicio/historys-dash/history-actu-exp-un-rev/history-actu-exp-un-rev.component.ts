@@ -41,7 +41,6 @@ export class HistoryActuExpUnRevComponent {
     this.MonitoringCatalogService.getHistoryRequests(this.token?.access_token)
       .subscribe(
         (response: any) => {
-          console.log("History requests response:", response);
           if (response && response.valido === 1) {
             this.historyRequest = response.result || [];
           } else {

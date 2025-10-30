@@ -99,6 +99,12 @@ export class ByTransactionComponent {
     exportByTransactionExcel() {
       this.MonitoringCatalogService.downloadTransactionMonitor(this.proyectoSelected?.idprojects ,this.rpSelected.join(','), this.proyectoSelected?.ProjectName, this.token?.access_token)
     }
+
+    exportAllByTransactionExcel() {
+      this.MonitoringCatalogService.downloadAllProjectsCostsExcel(
+        this.token?.access_token
+      )
+    }
     
     enviarRPs() {
       this.evento.emit(this.rpSelected.join(','));

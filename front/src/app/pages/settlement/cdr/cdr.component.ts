@@ -38,7 +38,7 @@ export class CdrComponent {
     this.settlementApproved = false;
     this.statusSelected = '';
     this.settlementForm.get('idrpnumber_main')?.enable();
-    this.decimalType = '';
+    this.decimalType = 'two';
 
   }
 
@@ -574,7 +574,7 @@ export class CdrComponent {
         this.decimalType = 'four';
         break;
       default:
-        this.decimalType = '';
+        this.decimalType = 'two';
         break;
     }
     

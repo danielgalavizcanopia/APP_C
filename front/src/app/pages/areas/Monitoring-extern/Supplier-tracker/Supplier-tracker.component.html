@@ -14,7 +14,7 @@
                 styleClass="p-button-outlined" class="m-1" icon="pi pi-file-excel"></p-button>
         </div>
     </div>
-    <p-table [loading]="loading" [value]="BenefitTrackerData" dataKey="id" [paginator]="true"
+    <p-table [loading]="loading" [value]="BenefitTrackerData" dataKey="Ledger" [paginator]="true"
         [tableStyle]="{ 'min-width': '60rem' }" [rows]="5" [showCurrentPageReport]="true"
         [tableStyle]="{ 'min-width': '50rem' }"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
@@ -30,10 +30,10 @@
         </ng-template>
         <ng-template pTemplate="body" let-product let-expanded="expanded">
             <tr>
-                <td><strong>{{ product.Name }}</strong></td>
-                <td class="text-right"><strong>{{ product.Approved | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{ product.Planned | currency}} USD</strong></td>
-                <td class="text-right"><strong>{{ product.Paid | currency}} USD</strong></td>
+                <td><strong>{{ product.Ledger }}</strong></td>
+                <td class="text-right"><strong>{{ product.totalApproved | currency}} USD</strong></td>
+                <td class="text-right"><strong>{{ product.totalPlanned | currency}} USD</strong></td>
+                <td class="text-right"><strong>{{ product.totalPaid | currency}} USD</strong></td>
                 <td>
                     <button type="button" pButton pRipple [pRowToggler]="product"
                         class="p-button-text p-button-rounded p-button-plain"
@@ -44,10 +44,10 @@
         <ng-template pTemplate="rowexpansion" let-product>
             <tr>
                 <td colspan="6">
-                    <p-table [value]="product.Accounts" dataKey="id">
+                    <p-table [value]="product.beneficiaries" dataKey="Type_of_Beneficiary">
                         <ng-template pTemplate="header">
             <tr>
-                <th width="65%">Name</th>
+                <th width="65%">Type of beneficiary</th>
                 <th width="12.5%" class="text-right">Planned</th>
                 <th width="12.5%" class="text-right">Actual</th>
                 <th width="10%"></th>
@@ -55,7 +55,7 @@
         </ng-template>
         <ng-template pTemplate="body" let-order let-expa="expanded">
             <tr>
-                <td>{{ order.name }}</td>
+                <td>{{ order.Type_of_Beneficiary }}</td>
                 <td class="text-right">{{ order.totalPlanned | currency: 'USD' }}</td>
                 <td class="text-right">{{ order.totalPaid | currency: 'USD' }}</td>
                 <td>
@@ -68,7 +68,7 @@
         <ng-template pTemplate="rowexpansion" let-order>
             <tr>
                 <td colspan="6">
-                    <p-table [value]="order.rows" dataKey="id">
+                    <p-table [value]="order.suppliers" dataKey="Type_of_Supplier">
                         <ng-template pTemplate="header">
             <tr>
                 <th width="65%">Type</th>
@@ -79,7 +79,7 @@
         </ng-template>
         <ng-template pTemplate="body" let-data let-expande="expanded">
             <tr>
-                <td>{{data.name}}</td>
+                <td>{{data.Type_of_Supplier}}</td>
                 <td class="text-right">{{data.totalPlanned | currency: 'USD'}}</td>
                 <td class="text-right">{{data.totalPaid | currency: 'USD'}}</td>
                 <td>
@@ -92,7 +92,7 @@
         <ng-template pTemplate="rowexpansion" let-bnf>
             <tr>
                 <td colspan="6">
-                    <p-table [value]="bnf.rows" dataKey="idrow">
+                    <p-table [value]="bnf.items" dataKey="idrow">
                         <ng-template pTemplate="header">
             <tr>
                 <th width="21.66%">Type</th>
@@ -105,11 +105,11 @@
         </ng-template>
         <ng-template pTemplate="body" let-data let-expanded="expanded">
             <tr>
-                <td>{{data.Type}}</td>
-                <td>{{data.activity}}</td>
-                <td>{{data.concept}}</td>
-                <td class="text-right">{{data.planned | currency: 'USD'}}</td>
-                <td class="text-right">{{data.paid | currency: 'USD'}}</td>
+                <td>{{data.Type_of_Supplier}}</td>
+                <td>{{data.Actividad}}</td>
+                <td>{{data.concepto_subaccount}}</td>
+                <td class="text-right">{{data.EstimadoUSD | currency: 'USD'}}</td>
+                <td class="text-right">{{data.Amount_USD | currency: 'USD'}}</td>
             </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">

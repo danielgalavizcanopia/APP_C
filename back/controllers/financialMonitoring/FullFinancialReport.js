@@ -203,10 +203,10 @@ async function getFullFinancialMonitoringReport(req, res){
             });
             
             sheetBenefit.columns = [
-                { header: 'Accounts', key: 'Name', width: 20 },
-                { header: 'By beneficiary', key: 'name', width: 35 },,
-                { header: 'Type', key: 'Type', width: 35 },
-                { header: 'Account', key: 'concept', width: 60 },
+                { header: 'Account Type (Ledger)', key: 'ledger', width: 20 },
+                { header: 'Beneficiary Type', key: 'beneficiary', width: 30 },
+                { header: 'Supplier Type', key: 'supplier', width: 30 },
+                { header: 'Concept / Description', key: 'concept', width: 50 },
                 { header: 'Approved', key: 'approved', width: 18, style: { numFmt: '"$"#,##0.00' } },
                 { header: 'Planned', key: 'planned', width: 18, style: { numFmt: '"$"#,##0.00' } },
                 { header: 'Paid', key: 'paid', width: 18, style: { numFmt: '"$"#,##0.00' } },
@@ -230,54 +230,59 @@ async function getFullFinancialMonitoringReport(req, res){
                 };
             });
             
-            bybenefit.forEach(item => {
-                const newRow = sheetBenefit.addRow({
-                Name: item.Name,
-                approved: item.Approved,
-                planned: item.Planned,
-                paid: item.Paid,
+            bybenefit.forEach(account => {
+                // 🟢 Nivel 1 - Ledger
+                const ledgerRow = sheetBenefit.addRow({
+                ledger: account.Ledger,
+                approved: account.totalApproved,
+                planned: account.totalPlanned,
+                paid: account.totalPaid,
                 });
-        
-                newRow.getCell('Name').font = { bold: true };
-                newRow.getCell('approved').font = { bold: true };
-                newRow.getCell('planned').font = { bold: true };
-                newRow.getCell('paid').font = { bold: true };
-                if (item.Accounts && item.Accounts.length > 0) {
-                    item.Accounts.forEach(sub => {
-                    const newRow = sheetBenefit.addRow({
-                        name: sub.name,
-                        planned: sub.totalPlanned,
-                        paid: sub.totalPaid,
+                ledgerRow.getCell('ledger').font = { bold: true };
+                ledgerRow.getCell('approved').font = { bold: true };
+                ledgerRow.getCell('planned').font = { bold: true };
+                ledgerRow.getCell('paid').font = { bold: true };
+
+                // 🟡 Nivel 2 - Beneficiario
+                if (account.beneficiaries?.length > 0) {
+                account.beneficiaries.forEach(beneficiary => {
+                    const beneficiaryRow = sheetBenefit.addRow({
+                    beneficiary: beneficiary.Type_of_Beneficiary,
+                    planned: beneficiary.totalPlanned,
+                    paid: beneficiary.totalPaid,
                     });
-        
-                    newRow.getCell('name').font = { bold: true };
-                    newRow.getCell('planned').font = { bold: true };
-                    newRow.getCell('paid').font = { bold: true };
-        
-                    if (sub.rows && sub.rows.length > 0) {
-                        sub.rows.forEach(row => {
-                        const newRow = sheetBenefit.addRow({
-                                name: row.name,
-                                planned: row.totalPlanned,
-                                paid: row.totalPaid,
-                            });
-        
-                            if (row.rows && row.rows.length > 0) {
-                                row.rows.forEach(subrow => {                      
-                                const newRow = sheetBenefit.addRow({
-                                    Type: subrow.Type,
-                                    concept: subrow.concept,
-                                    planned: subrow.planned,
-                                    paid: subrow.paid,
-                                });
-        
-                                })
-            
-                            }
+                    beneficiaryRow.getCell('beneficiary').font = { bold: true };
+                    beneficiaryRow.getCell('planned').font = { bold: true };
+                    beneficiaryRow.getCell('paid').font = { bold: true };
+
+                    // 🟠 Nivel 3 - Proveedor
+                    if (beneficiary.suppliers?.length > 0) {
+                    beneficiary.suppliers.forEach(supplier => {
+                        const supplierRow = sheetBenefit.addRow({
+                        supplier: supplier.Type_of_Supplier,
+                        planned: supplier.totalPlanned,
+                        paid: supplier.totalPaid,
                         });
-                    }
+                        supplierRow.getCell('supplier').font = { bold: true };
+                        supplierRow.getCell('planned').font = { bold: true };
+                        supplierRow.getCell('paid').font = { bold: true };
+
+                        // 🔵 Nivel 4 - Items (detalle)
+                        if (supplier.items?.length > 0) {
+                        supplier.items.forEach(item => {
+                            sheetBenefit.addRow({
+                            concept: item.concepto_subaccount || '', // ajusta según tu campo real
+                            planned: item.EstimadoUSD || 0,
+                            paid: item.Amount_USD || 0,
+                            });
+                        });
+                        }
                     });
+                    }
+                });
                 }
+                // Agregamos una fila en blanco para separar cuentas
+                sheetBenefit.addRow({});
             });
             /** BY TRANSACTION */
             const sheet = workbook.addWorksheet('By Transaction Tracker', {

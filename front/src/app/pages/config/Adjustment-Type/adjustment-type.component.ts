@@ -35,10 +35,8 @@ export class AdjustmentTypeComponent implements OnInit {
     this.token = this._authGuardService.getToken();
     
     if (this.token && this.token.access_token) {
-      console.log('Token valid, loading data...');
       this.loadAdjustmentTypes();
     } else {
-      console.log('No valid token found');
       this.isLoading = false; 
       this.messageService.add({
         severity: 'warn',
@@ -66,7 +64,6 @@ export class AdjustmentTypeComponent implements OnInit {
         
         if (resp.valido === 1) {
           this.adjustmentTypes = resp.result || []; 
-          console.log('Adjustment types loaded:', this.adjustmentTypes.length);
         } else {
           this.adjustmentTypes = []; 
           this.messageService.add({ 

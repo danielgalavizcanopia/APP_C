@@ -112,7 +112,7 @@ import { BudgetTrackerComponent } from '../pages/areas/Monitoring-extern/budget-
 import { DashboardReportsComponent } from '../pages/reports/DashboardReports/DashboardReports.component';
 import { IncidencesComponent } from '../pages/reports/DashboardReports/Incidences/Incidences.component';
 import { BitacoraProyectosComponent } from '../pages/reports/DashboardReports/bitacora-proyectos/bitacora-proyectos.component';
-import { BitacoraFormComponent } from '../pages/reports/DashboardReports/bitacora-proyectos/bitacora-form/bitacora-form.component';
+// import { BitacoraFormComponent } from '../pages/reports/DashboardReports/bitacora-proyectos/bitacora-form/bitacora-form.component';
 import { Dashboard2Component } from '../pages/administrador/dashboard2/dashboard2.component';
 import { ActivityDetailComponent } from '../pages/administrador/dashboard2/ActivityDetail/ActivityDetail.component';
 import { MarketingComponent } from '../pages/commercialisation/marketing/marketing.component';
@@ -125,6 +125,7 @@ import { CdrComponent } from '../pages/settlement/cdr/cdr.component';
 import { SettlementComponent } from '../pages/settlement/settlement.component';
 import { DashFinancialComponent } from '../pages/administrador/inicio/dash-financial/dash-financial.component';
 import { HistoryActuExpUnRevComponent } from '../pages/administrador/inicio/historys-dash/history-actu-exp-un-rev/history-actu-exp-un-rev.component';
+import { EvaluatorsSubaccounts } from '../pages/config/evaluators-subaccounts/evaluators-subaccounts';
 
 
 
@@ -149,7 +150,7 @@ import { HistoryActuExpUnRevComponent } from '../pages/administrador/inicio/hist
         AllMonitorsComponent,
         BudgetTrackerComponent,
         BitacoraProyectosComponent,
-        BitacoraFormComponent,
+        // BitacoraFormComponent,
         DashboardReportsComponent,
         IncidencesComponent,
         Dashboard2Component,
@@ -163,7 +164,7 @@ import { HistoryActuExpUnRevComponent } from '../pages/administrador/inicio/hist
         CdrComponent,
         CaOpSetComponent,
         DashFinancialComponent,
-
+        EvaluatorsSubaccounts
     ],
     imports: [
         ConfirmDialogModule,

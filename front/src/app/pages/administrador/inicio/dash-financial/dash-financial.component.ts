@@ -55,7 +55,8 @@ export class DashFinancialComponent {
 
   ngOnInit() {
     this.getStatusAuthorizations();
-    this.getConfigUsersAndAccounts();
+    // this.getConfigUsersAndAccounts();
+    this.getActualRoles(); 
 
     this.items = [
       {
@@ -68,7 +69,6 @@ export class DashFinancialComponent {
   getActualRequests() {
     this.MonitoringCatalogService.getActualRequests(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Actual requests response:', response);
         if (response.valido === 1) {
           this.actualRequests = this.filterRequestsByUserRole(response.result);
           this.sortRequestsByEditability();
@@ -84,7 +84,6 @@ filterRequestsByUserRole(requests: any[]): any[] {
   const currentUserId = this.token?.userId;
   
   if (!currentUserId) {
-    console.log('No user ID found, showing no requests');
     return [];
   }
 
@@ -93,20 +92,13 @@ filterRequestsByUserRole(requests: any[]): any[] {
       return true;
     }
 
-    const config = this.relUsersAndAccounts.find(ua => 
-      (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
-      (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
+    const hasRole = this.relUsersAndAccounts.some(role => 
+      role.idsubaccount === request.idsubaccount &&
+      role.ledger_type === request.LedgerType &&
+      role.IDUser === currentUserId
     );
 
-    if (!config) {
-      return false; 
-    }
-
-    const isManager = config.IDUser === currentUserId;
-    const isTechnicalDirector = config.IdUsertechnicaldirector === currentUserId;
-    const isFinancialEvaluator = config.IdUserFinancialEvaluator === currentUserId;
-
-    return isManager || isTechnicalDirector || isFinancialEvaluator;
+    return hasRole;
   });
 
   return filteredRequests;
@@ -115,7 +107,6 @@ filterRequestsByUserRole(requests: any[]): any[] {
   getStatusAuthorizations() {
     this.MonitoringCatalogService.getStatusAuthorizations(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Status authorizations response:', response);
         if (response.valido === 1) {
           this.StatusAuthorizations = response.result;
         } else {
@@ -131,19 +122,31 @@ filterRequestsByUserRole(requests: any[]): any[] {
     });
   }
 
-  getConfigUsersAndAccounts() {
-    this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
+  // getConfigUsersAndAccounts() {
+  //   this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
+  //     .subscribe((response: any) => {
+  //       if (response.valido === 1) {
+  //         this.relUsersAndAccounts = response.result;
+  //         this.getActualRequests();
+  //       } else {
+  //         console.error("Error getting config:", response.message);
+  //         this.loading = false;
+  //       }
+  //     });
+  // }
+
+  getActualRoles() {
+    this.MonitoringCatalogService.getActualRoles(this.token?.access_token)
       .subscribe((response: any) => {
-        console.log('Config users and accounts response:', response);
         if (response.valido === 1) {
           this.relUsersAndAccounts = response.result;
           this.getActualRequests();
         } else {
-          console.error("Error getting config:", response.message);
+          console.error("Error getting actual roles:", response.message);
           this.loading = false;
         }
       });
-  }
+  }  
 
   sortRequestsByEditability() {
     if (this.actualRequests.length > 0 && this.relUsersAndAccounts.length > 0) {
@@ -165,49 +168,31 @@ filterRequestsByUserRole(requests: any[]): any[] {
       return ['Manager', 'TechnicalDirector', 'FinancialEvaluator'];
     }
     
-    const config = this.relUsersAndAccounts.find(ua => {
-      const matchCapex = request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount;
-      const matchOpex = request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount;
-      return matchCapex || matchOpex;
-    });
+    const rolesForSubAccount = this.relUsersAndAccounts.filter(role => 
+      role.idsubaccount === request.idsubaccount &&
+      role.ledger_type === request.LedgerType
+    );
     
-    if (!config) {
+    if (rolesForSubAccount.length === 0) {
       return ['Manager', 'TechnicalDirector', 'FinancialEvaluator'];
     }
     
-    const roles: string[] = [];
+    const uniqueRoles = [...new Set(rolesForSubAccount.map(r => r.role_name))];
     
-    if (config.IDUser && config.IDUser > 0) {
-      roles.push('Manager');
-    }
-    
-    if (config.IdUsertechnicaldirector && config.IdUsertechnicaldirector > 0) {
-      roles.push('TechnicalDirector');
-    }
-    
-    if (config.IdUserFinancialEvaluator && config.IdUserFinancialEvaluator > 0) {
-      roles.push('FinancialEvaluator');
-    }
-    
-    return roles.length > 0 ? roles : ['Manager', 'FinancialEvaluator'];
+    return uniqueRoles.length > 0 ? uniqueRoles : ['Manager', 'FinancialEvaluator'];
   }
 
   getCurrentUserRole(request: any): string | null {
     const currentUserId = this.token?.userId;
     if (!currentUserId) return null;
     
-    const config = this.relUsersAndAccounts.find(ua => 
-      (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
-      (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
+    const userRole = this.relUsersAndAccounts.find(role => 
+      role.idsubaccount === request.idsubaccount &&
+      role.ledger_type === request.LedgerType &&
+      role.IDUser === currentUserId
     );
     
-    if (!config) return null;
-    
-    if (config.IDUser === currentUserId) return 'Manager';
-    if (config.IdUsertechnicaldirector === currentUserId) return 'TechnicalDirector';
-    if (config.IdUserFinancialEvaluator === currentUserId) return 'FinancialEvaluator';
-    
-    return null;
+    return userRole ? userRole.role_name : null;
   }
 
   havePreviousRolesVoted(request: any, currentRole: string): boolean {
@@ -250,7 +235,92 @@ filterRequestsByUserRole(requests: any[]): any[] {
     
     return null;
   }
-
+  
+// getStatusCircles(request: any): any[] {
+//   const circles: any[] = [];
+  
+//   const allRequiredRoles = this.getAllRolesForSubAccount(request);
+//   const currentRound = request.current_round || 1;
+  
+//   // Verificar si todos votaron rechazado
+//   const allVotedRejected = request.CurrentStatusDescription === 'Pending' && 
+//     allRequiredRoles.every(role => {
+//       const roleVote = request[role];
+//       return roleVote === 3 || roleVote === 'Rejected';
+//     });
+  
+//   if (request.CurrentStatusDescription === 'Approved') {
+//     allRequiredRoles.forEach((role: string) => {
+//       circles.push({
+//         tooltip: `${role} - Approved`,
+//         statusClass: 'status-approved',
+//         order: this.VOTING_ORDER[role] || 999
+//       });
+//     });
+//   } 
+//   else if (request.CurrentStatusDescription === 'Rechazed' || allVotedRejected) {
+//     allRequiredRoles.forEach((role: string) => {
+//       const roleVote = request[role];
+      
+//       if (roleVote === 1 || roleVote === 2 || roleVote === 'Approved') {
+//         circles.push({
+//           tooltip: `${role} - Approved`,
+//           statusClass: 'status-approved',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       } else if (roleVote === 3 || roleVote === 'Rejected') {
+//         circles.push({
+//           tooltip: `${role} - Rejected`,
+//           statusClass: 'status-negate',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       } else {
+//         circles.push({
+//           tooltip: `${role} - Pending`,
+//           statusClass: 'status-pending',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       }
+//     });
+//   } 
+//   else {
+//     const nextRole = this.getNextRoleToVote(request);
+    
+//     allRequiredRoles.forEach((role: string) => {
+//       const roleVote = request[role];
+      
+//       if (roleVote === 1 || roleVote === 2 || roleVote === 'Approved') {
+//         circles.push({
+//           tooltip: `${role} - Approved`,
+//           statusClass: 'status-approved',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       } else if (roleVote === 3 || roleVote === 'Rejected') {
+//         circles.push({
+//           tooltip: `${role} - Rejected`,
+//           statusClass: 'status-negate',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       } else if (role === nextRole && currentRound === 1) {
+//         circles.push({
+//           tooltip: `${role} - Next to Vote`,
+//           statusClass: 'status-pending',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       } else {
+//         const pendingLabel = currentRound > 1 ? 'Can Vote' : 'Pending';
+//         circles.push({
+//           tooltip: `${role} - ${pendingLabel}`,
+//           statusClass: 'status-pending',
+//           order: this.VOTING_ORDER[role] || 999
+//         });
+//       }
+//     });
+//   }
+  
+//   circles.sort((a, b) => a.order - b.order);
+//   return circles;
+// }
   getStatusCircles(request: any): any[] {
     const circles: any[] = [];
     
@@ -333,79 +403,115 @@ filterRequestsByUserRole(requests: any[]): any[] {
     return circles;
   }
 
-  isUserAuthorizedToEvaluate(request: any): boolean {
-    if (request.CurrentStatusDescription === 'Approved' || 
-        request.CurrentStatusDescription === 'Rechazed') {
-      return false;
-    }
-    
-    const currentUserId = this.token?.userId;
-    if (!currentUserId) {
-      return false;
-    }
-    
-    const config = this.relUsersAndAccounts.find(ua => 
-      (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
-      (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
-    );
-    
-    if (!config) {
-      return false;
-    }
-    
-    const userRole = this.getCurrentUserRole(request);
-    if (!userRole) {
-      return false;
-    }
+isUserAuthorizedToEvaluate(request: any): boolean {
+  const currentUserId = this.token?.userId;
+  if (!currentUserId) return false;
 
-    if (request.CurrentStatusDescription === 'Pending') {
-      const allRequiredRoles = this.getAllRolesForSubAccount(request);
-      const allVotedRejected = allRequiredRoles.every(role => {
-        const roleVote = request[role];
-        return roleVote === 'Rejected';
-      });
-      
-      if (allVotedRejected) {
-        return false;
-      }
-    }
+  const userRole = this.getCurrentUserRole(request);
+  if (!userRole) return false;
 
-    const currentRound = (request as any).current_round || 1;
-    
-    if (currentRound === 1) {
-      const nextRole = this.getNextRoleToVote(request);
-      
-      if (nextRole !== userRole) {
-        return false;
-      }
-      
-      const previousVoted = this.havePreviousRolesVoted(request, userRole);
-      return previousVoted && request.CurrentStatusDescription === 'Pending';
-    }
-    
-    return request.CurrentStatusDescription === 'Pending';
+  if (request.current_round >= 2) {
+    return true;
   }
 
+  const nextRoleToVote = this.getNextRoleToVote(request);
+  return userRole === nextRoleToVote;
+}
+
+  // isUserAuthorizedToEvaluate(request: any): boolean {
+  //   if (request.CurrentStatusDescription === 'Approved' || 
+  //       request.CurrentStatusDescription === 'Rechazed') {
+  //     return false;
+  //   }
+    
+  //   const currentUserId = this.token?.userId;
+  //   if (!currentUserId) {
+  //     return false;
+  //   }
+    
+  //   const config = this.relUsersAndAccounts.find(ua => 
+  //     (request.LedgerType === 'Capex' && ua.idcapexsubaccount === request.idsubaccount) ||
+  //     (request.LedgerType === 'Opex' && ua.idopexsubaccount === request.idsubaccount)
+  //   );
+    
+  //   if (!config) {
+  //     return false;
+  //   }
+    
+  //   const userRole = this.getCurrentUserRole(request);
+  //   if (!userRole) {
+  //     return false;
+  //   }
+
+  //   if (request.CurrentStatusDescription === 'Pending') {
+  //     const allRequiredRoles = this.getAllRolesForSubAccount(request);
+  //     const allVotedRejected = allRequiredRoles.every(role => {
+  //       const roleVote = request[role];
+  //       return roleVote === 'Rejected';
+  //     });
+      
+  //     if (allVotedRejected) {
+  //       return false;
+  //     }
+  //   }
+
+  //   const currentRound = (request as any).current_round || 1;
+    
+  //   if (currentRound === 1) {
+  //     const nextRole = this.getNextRoleToVote(request);
+      
+  //     if (nextRole !== userRole) {
+  //       return false;
+  //     }
+      
+  //     const previousVoted = this.havePreviousRolesVoted(request, userRole);
+  //     return previousVoted && request.CurrentStatusDescription === 'Pending';
+  //   }
+    
+  //   return request.CurrentStatusDescription === 'Pending';
+  // }
 
 
-  showDialog(request?: any) {
-    this.selectedRequest = request;
-    this.canUserEdit = this.isUserAuthorizedToEvaluate(request);
-    
-    if (request && request.CurrentStatusDescription === 'Pending') {
-      const allRequiredRoles = this.getAllRolesForSubAccount(request);
-      this.allVotesRejected = allRequiredRoles.every(role => request[role] === 'Rejected');
-    } else {
-      this.allVotesRejected = false;
-    }
-    
-    this.visible = true;
+
+  showDialog(request: any) {
     this.loadingModalData = true;
+    this.visible = true;
+    this.selectedRequest = request;
     
-    if (request) {
-      this.loadTransactionDetails(request.Idactualreviewrequest);
-      this.loadgetHistoryActualRequest(request.Idactualreviewrequest);
+    const currentUserId = this.token?.userId;
+    const userRole = this.getCurrentUserRole(request);
+    const nextRoleToVote = this.getNextRoleToVote(request);
+    const allRequiredRoles = this.getAllRolesForSubAccount(request);
+
+    const allVotesPresent = allRequiredRoles.every(role => {
+      const vote = request[role];
+      return vote !== null && vote !== undefined && vote !== '';
+    });
+
+    const allVotesRejected = allRequiredRoles.every(role => {
+      const vote = request[role];
+      return vote === 3 || vote === 'Rejected';
+    });
+
+    this.allVotesRejected = allVotesPresent && 
+                            allVotesRejected && 
+                            request.CurrentStatusDescription === 'Pending';
+
+
+    if (!userRole) {
+      this.canUserEdit = false;
+    } else if (this.allVotesRejected) {
+      this.canUserEdit = false;
+    } else if (request.current_round >= 2) {
+      this.canUserEdit = true;
+    } else if (userRole === nextRoleToVote) {
+      this.canUserEdit = true;
+    } else {
+      this.canUserEdit = false;
     }
+
+    this.loadgetHistoryActualRequest(request.Idactualreviewrequest);
+    this.loadTransactionDetails(request.Idactualreviewrequest);
   }
 
   hideDialog() {
@@ -434,13 +540,13 @@ filterRequestsByUserRole(requests: any[]): any[] {
     }
     
     this.canUserEdit = true;
-    this.allVotesRejected = false; 
+    this.allVotesRejected = false;
     
     this.messageService.add({ 
       severity: 'info', 
-      summary: 'Resend Mode', 
-      detail: 'You can now submit a new vote for this request.'
-    });
+      summary: 'Resend Mode Activated', 
+      detail: 'You can now submit a new vote for this request. The round will be updated after you vote.'
+      });
   }
 
   loadgetHistoryActualRequest(idActualReviewRequest: number) {
@@ -512,13 +618,19 @@ filterRequestsByUserRole(requests: any[]): any[] {
         detail: 'You are not authorized to evaluate this request.'
       });
     }
+    const allRequiredRoles = this.getAllRolesForSubAccount(this.selectedRequest);
+    const allCurrentlyRejected = allRequiredRoles.every(role => {
+      const vote = (this.selectedRequest as any)[role];
+      return vote === 3 || vote === 'Rejected';
+    });
 
-    const catchUsersValidateByAccount = this.relUsersAndAccounts.find(ua => 
-      ua.idcapexsubaccount === this.requestInfo?.Newidcapexsubaccount || 
-      ua.idopexsubaccount === this.requestInfo?.Newidopexsubaccount
+    const rolesForNewSubaccount = this.relUsersAndAccounts.filter(role => 
+      (role.idsubaccount === this.requestInfo?.Newidcapexsubaccount || 
+       role.idsubaccount === this.requestInfo?.Newidopexsubaccount) &&
+      role.ledger_type === this.selectedRequest.LedgerType
     );
     
-    if (!catchUsersValidateByAccount) {
+    if (rolesForNewSubaccount.length === 0) {
       return this.messageService.add({ 
         severity: 'error', 
         summary: 'Error', 
@@ -529,8 +641,12 @@ filterRequestsByUserRole(requests: any[]): any[] {
     this.disabledButton = true;
 
     const selectedRequestAny = this.selectedRequest as any;
-    let typeOfAutho = selectedRequestAny.Idruleset || 
-                      (catchUsersValidateByAccount.IdUsertechnicaldirector > 0 ? 2 : 1);
+    
+    const hasTechnicalDirector = rolesForNewSubaccount.some(role => 
+      role.role_name === 'TechnicalDirector'
+    );
+    
+    let typeOfAutho = selectedRequestAny.Idruleset || (hasTechnicalDirector ? 2 : 1);
 
     let data = {
       Idactualreviewrequest: this.selectedRequest?.Idactualreviewrequest,
@@ -540,12 +656,9 @@ filterRequestsByUserRole(requests: any[]): any[] {
       typeOfAutho: typeOfAutho,
     };
     
-
-    
     this.MonitoringCatalogService.setAuthotizationRequest(data, this.token?.access_token)
       .subscribe(
         (response: any) => {
-          
           if (response.valido === 1) {
             const resultMessage = response.result?.[0]?.result;
             
@@ -579,7 +692,6 @@ filterRequestsByUserRole(requests: any[]): any[] {
           }
         },
         (error: any) => {
-          
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 

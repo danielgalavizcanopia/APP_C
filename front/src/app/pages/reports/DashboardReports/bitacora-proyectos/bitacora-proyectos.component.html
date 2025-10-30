@@ -123,15 +123,17 @@
             <td>{{ truncateText(customer.agreements, 80) }}</td>
             <td>
                 <div class="flex justify-content-end">
+                    <!-- <button pButton pRipple icon="pi pi-pencil" class="p-button-success mr-2"
+                        [routerLink]="['/Project-log-edit', customer.idbitacora]"></button> -->
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-success mr-2"
-                        [routerLink]="['/Project-log-edit', customer.idbitacora]"></button>
+                        (click)="onRowSelected(customer.idbitacora)"></button>
                 </div>
             </td>
         </tr>
     </ng-template>
     <ng-template pTemplate="rowexpansion" let-rowLog>
         <tr>
-            <td colspan="7">
+            <td colspan="9">
                 <div class="p-3">
                     <p-table [value]="rowLog.evidencias" dataKey="idevidencia">
                         <ng-template pTemplate="header">
@@ -164,3 +166,254 @@
     </tr>
 </ng-template>
 </p-table>
+
+<p-dialog header="Project Log" [(visible)]="formModalVisible" [modal]="true" [draggable]="false"
+    [style]="{width: '100vw'}" [resizable]="false" [maximizable]="true">
+    <!--
+    <p-sidebar appendTo="body" [(visible)]="sidebarVisible" position="right">
+        <h3>Project Logs - form</h3>
+        <p>
+            This view allows you to create and edit logs with evidences.<br>
+            <li>Fill in the main log fields</li>
+            <li>Add new evidences using the form</li>
+            <li>Edit existing evidences by clicking the edit button</li>
+            <li>Validate evidences with the checkbox</li>
+            Click "Save Log" when finished.
+        </p>
+    </p-sidebar>
+-->
+    <section [formGroup]="BitacoraForm">
+
+        <p><strong>User: </strong> <small>{{token?.email}}</small></p>
+
+        <!--    
+        <p class="ml-5"><strong>Status Process: </strong>
+                    <span *ngIf="evidences.length > 0 || loadedEvidences.length > 0" class="m-2 status-finished">
+                        <strong>With Evidences</strong>
+                    </span>
+                    <span *ngIf="evidences.length == 0 && loadedEvidences.length == 0" class="m-2 status-pending">
+                        <strong>Without Evidences</strong>
+                    </span>
+                </p>
+-->
+
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-calendar styleClass="w-full" formControlName="fecha_evento" dateFormat="yy-mm-dd"
+                        [showIcon]="true"></p-calendar>
+                    <label htmlFor="username">Event date</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <input type="text" pInputText formControlName="blogTitle" maxlength="75">
+                    <label htmlFor="username">Log title</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-4">
+                <span class="p-float-label">
+                    <p-dropdown [options]="HitosProcess" formControlName="IDHitoProceso" appendTo="body"
+                        (onChange)="getCategoriaEvidencia($event.value)" placeholder="Milestones"
+                        optionLabel="ConcatenatedDescription" optionValue="IdhitoProceso" [filter]="true"
+                        filterBy="ConcatenatedDescription"></p-dropdown>
+                    <label for="float-label">Milestones</label>
+                </span>
+            </div>
+
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="Descripcion_evento" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label for="float-input">Description</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="DecisionsRequired" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label htmlFor="username">Decisions required</label>
+                </span>
+            </div>
+            <div class="col-12 md:col-12">
+                <span class="p-float-label">
+                    <textarea id="float-input" formControlName="agreements" rows="5" cols="30"
+                        pInputTextarea></textarea>
+                    <label for="float-input">Agreements</label>
+                </span>
+            </div>
+        </div>
+
+        <div class="mt-2 plus-card p-2">
+            <div class="pb-4 pl-2">
+                <small class="font-bold">Add New Evidences</small>
+            </div>
+
+            <div class="grid" formGroupName="newEvidence">
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="CategoriaEvidencia" formControlName="IDCategoriaEvidencia"
+                            (onChange)="getTipoEvidencia($event.value)" placeholder="Category"
+                            optionLabel="NombreCategoríaLargo" optionValue="Id_CategoriaEvidencia"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">Category</label>
+                    </span>
+                    <div *ngIf="newEvidence.get('IDCategoriaEvidencia')?.invalid && evidencesV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="TipoEvidencia" formControlName="IDTipoEvidencia"
+                            placeholder="Type Evidence" optionLabel="DescripcionEvidencia" optionValue="IDTipoEvidencia"
+                            inputId="float-label"></p-dropdown>
+                        <label for="float-label">Type Evidence</label>
+                    </span>
+                    <div *ngIf="newEvidence.get('IDTipoEvidencia')?.invalid && evidencesV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <span class="p-float-label">
+                        <input type="text" formControlName="link_evidencia" pInputText maxlength="255" />
+                        <label htmlFor="username">Link evidence</label>
+                    </span>
+                    <div *ngIf="newEvidence.get('link_evidencia')?.invalid && evidencesV">
+                        <small class="p-error">This field is required</small>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-12">
+                    <span class="p-float-label">
+                        <textarea id="float-input" formControlName="Observaciones" rows="3" cols="30" maxlength="255"
+                            pInputTextarea></textarea>
+                        <label for="float-input">Notes (Optional)</label>
+                    </span>
+                </div>
+                <div class="col-12 text-center">
+                    <!-- ✅ Mostrar botón "Add" solo cuando NO estés editando -->
+                    <p-button 
+                        *ngIf="!evidenceSelected" 
+                        label="Add Evidence" 
+                        (onClick)="addEvidence()"
+                        icon="pi pi-plus"
+                        styleClass="p-button-success">
+                    </p-button>
+                    
+                    <!-- ✅ Mostrar botones de edición solo cuando estés editando -->
+                    <div *ngIf="evidenceSelected && idBitacora" class="inline-flex gap-2">
+                        <p-button 
+                            label="Cancel" 
+                            (onClick)="cancelEvidenceEdit()" 
+                            styleClass="p-button-outlined"
+                            icon="pi pi-times">
+                        </p-button>
+                        <p-button 
+                            label="Update Evidence" 
+                            (onClick)="updateBitacora()" 
+                            icon="pi pi-save"
+                            styleClass="p-button-success">
+                        </p-button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3" *ngIf="evidences.length > 0">
+                <p-table [value]="evidences.value" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="text-sm" style="width: 20%">Category</th>
+                            <th class="text-sm" style="width: 20%">Type</th>
+                            <th class="text-sm" style="width: 30%">Link</th>
+                            <th class="text-sm" style="width: 25%">Notes</th>
+                            <th class="text-sm" style="width: 5%"></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-evidence let-i="rowIndex">
+                        <tr>
+                            <td>{{getCategoryName(relEvidences.at(i).value.IDCategoriaEvidencia)}}</td>
+                            <td>{{getTypeName(relEvidences.at(i).value.IDTipoEvidencia)}}</td>
+                            <td>
+                                <p-button [label]="evidence.link_evidencia" styleClass="p-button-link"
+                                    (onClick)="openLinkEvidence(evidence.link_evidencia)"></p-button>
+                            </td>
+                            <td>{{evidence.Observaciones || '-'}}</td>
+                            <td>
+                                <p-button icon="pi pi-trash" (onClick)="removeEvidence(i)"
+                                    styleClass="p-button-text p-button-danger" pTooltip="Delete evidence"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <div class="mt-2 plus-card p-2" *ngIf="idBitacora && loadedEvidences.length > 0">
+            <div class="pb-4 pl-2">
+                <small class="font-bold">Existing Evidences</small>
+            </div>
+            <p-table #dt1 [value]="loadedEvidences" [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-sm"
+                stateStorage="session" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Link</th>
+                        <th>User Validate</th>
+                        <th>Notes</th>
+                        <th>Validate</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData>
+                    <tr [class.selected-row]="isEvidenceSelected(rowData)">
+                        <td>
+                            <p-button [label]="rowData.link_evidencia" styleClass="p-button-link"
+                                (onClick)="openLinkEvidence(rowData.link_evidencia)"></p-button>
+                        </td>
+                        <td>{{ rowData.Name || 'Unvalidated evidence' }}</td>
+                        <td>{{ rowData.Observaciones }}</td>
+                        <td>
+                            <p-checkbox name="userValidate" [binary]="true" [(ngModel)]="rowData.IDUserValidate"
+                                [ngModelOptions]="{standalone: true}"
+                                [ngModel]="isValidateNumber(rowData.IDUserValidate)"
+                                (onChange)="validateEvidence(rowData.idevidencia, $event)"
+                                label="Validate Evidence"></p-checkbox>
+                        </td>
+                        <td>
+                            <div class="flex justify-content-end">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-success"
+                                    (click)="onEvidenceSelected(rowData)" pTooltip="Edit evidence"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5">
+                            <p>Without Evidences</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </section>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-between flex-wrap">
+            <div>
+                <!--
+                <p-button styleClass="p-button-outlined" pTooltip="Info" tooltipPosition="left"
+                    (click)="sidebarVisible = true" icon="pi pi-info-circle"></p-button>
+                    -->
+            </div>
+            <div>
+                <p-button label="Cancel" styleClass="p-button-outlined mr-2" icon="pi pi-times"
+                    (onClick)="hideFormModal()"></p-button>
+                <p-button label="Save Log" [disabled]="validateSaveButton" icon="pi pi-save"
+                    (onClick)="confirm1()"></p-button>
+            </div>
+        </div>
+
+
+    </ng-template>
+</p-dialog>
+<p-confirmDialog key="confirmCenter" position="center"></p-confirmDialog>

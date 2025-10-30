@@ -1,4 +1,4 @@
-const { ejecutarStoredProcedure } = require('../../queries/projects')
+const { ejecutarStoredProcedure, ejecutarStoredProcedurev2 } = require('../../queries/projects')
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
@@ -50,9 +50,11 @@ async function setBitacora(req, res) {
     let IDUser = await catchUserLogged(req);
 
     const filePath = req.file ? path.posix.join('media/bitacora', path.basename(req.file.path)) : null;
-    const body = JSON.parse(req.body.body)
+    const body = req.body;
+    const relEvidences = JSON.stringify(body.rel_evidences_Json || '[]')
+    const evidences = JSON.stringify(body.evidences_Json || [])
     try {
-        const resultados = await ejecutarStoredProcedure('sp_SETbitacora_rel_evi_and_FK', [
+        const resultados = await ejecutarStoredProcedurev2('sp_PLog_upsert_full',[
             body.idbitacora,
             body.idprojects,
             body.fecha_evento,
@@ -60,22 +62,20 @@ async function setBitacora(req, res) {
             body.agreements,
             body.DecisionsRequired,
             IDUser.IDUser,
-            body.IDCategoriaEvidencia,
-            body.IDTipoEvidencia,
             body.IDHitoProceso,
             body.blogTitle,
-            body.link_evidencia,
-            filePath,
-            IDUser.IDUser,
-            1,
-            body.Observaciones
+
+            relEvidences,
+            evidences,
         ]);
-        if (resultados.length > 0) {
+        if(resultados.length > 0){
             res.status(200).json({valido: 1, result: resultados[0][0]});
         } else {
             res.status(404).json({ message: "No data found for the given project ID." });
         }
     } catch (error) {
+        console.log(error);
+        
         res.status(500).json({ message: "An error occurred while processing your request." });
     }
 }

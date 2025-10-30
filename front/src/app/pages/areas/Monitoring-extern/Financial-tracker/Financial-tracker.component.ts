@@ -86,7 +86,8 @@ export class FinancialTrackerComponent {
     ){
       this.token = this._authGuardService.getToken();
       this.currentUserId = this.token?.userId;
-      this.getConfigUsersAndAccounts();
+      // this.getConfigUsersAndAccounts();
+      this.getActualRoles();
       this.getUsersWithAuthorization();
       this.observaProjectSelected();
       this.getRPnumber();
@@ -208,13 +209,25 @@ export class FinancialTrackerComponent {
     this.MonitoringCatalogService.downloadProvisionalReport(this.proyectoSelected?.Folio_project, this.proyectoSelected?.ProjectName, this.proyectoSelected?.idprojects, this.rpSelected.join(','), this.token?.access_token)
   }
 
-  getConfigUsersAndAccounts() {
-    this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
+  // getConfigUsersAndAccounts() {
+  //   this.MonitoringCatalogService.getConfigUsersAndAccounts(this.token?.access_token)
+  //     .subscribe((response: any) => {
+  //       if (response.valido === 1) {
+  //         this.relUsersAndAccounts = response.result;
+  //       } else {
+  //         console.error("Error getting config:", response.message);
+  //         this.loading = false;
+  //       }
+  //     });
+  // }
+
+  getActualRoles() {
+    this.MonitoringCatalogService.getActualRoles(this.token?.access_token)
       .subscribe((response: any) => {
         if (response.valido === 1) {
           this.relUsersAndAccounts = response.result;
         } else {
-          console.error("Error getting config:", response.message);
+          console.error("Error getting actual roles:", response.message);
           this.loading = false;
         }
       });
@@ -647,12 +660,12 @@ export class FinancialTrackerComponent {
         }
       });
 
-      const catchUsersValidateByAccount = this.relUsersAndAccounts.find(ua => 
-        (ledgerType === "Capex" && ua.idcapexsubaccount === newSubAccountId) || 
-        (ledgerType === "Opex" && ua.idopexsubaccount === newSubAccountId)
-      );
-
-      const typeOfValidation = catchUsersValidateByAccount?.IdUsertechnicaldirector > 0 ? 2 : 1;
+        const hasTechnicalDirector = this.relUsersAndAccounts.some(role => 
+          role.idsubaccount === newSubAccountId &&
+          role.ledger_type === ledgerType &&
+          role.role_name === 'TechnicalDirector'
+        );
+        const typeOfValidation = hasTechnicalDirector ? 2 : 1;
 
       const requestBody = {
         idprojects: this.proyectoSelected?.idprojects,
