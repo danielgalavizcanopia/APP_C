@@ -1,4 +1,4 @@
-const { ejecutarStoredProcedure } = require('../../../queries/catalogs');
+const { ejecutarStoredProcedure, getCatalogs } = require('../../../queries/catalogs');
 
 function getHitoProcess(req, res){
     return new Promise(async (resolve, reject) => {
@@ -61,13 +61,15 @@ function setCategories(req, res){
 function getEvidences(req, res){
     return new Promise(async (resolve, reject) => {
         try {
-            const resultados = await ejecutarStoredProcedure('sp_getEvidences',[]);
+            const resultados = await getCatalogs('ct_tipo_evidencia');
             if(resultados.length > 0){
-                res.status(201).json({valido: 1, result: resultados[0]});
+                res.status(201).json({valido: 1, result: resultados});
             } else {
                 res.status(500).json({valido: 0, message: "Was an error, please, try again"});
             }
         } catch (error) {
+            console.log(error);
+            
         }
     });
 }

@@ -54,7 +54,7 @@ async function setBitacora(req, res) {
     const relEvidences = JSON.stringify(body.rel_evidences_Json || '[]')
     const evidences = JSON.stringify(body.evidences_Json || [])
     try {
-        const resultados = await ejecutarStoredProcedurev2('sp_PLog_upsert_full',[
+        const resultados = await ejecutarStoredProcedurev2('sp_set_Project_Log',[
             body.idbitacora,
             body.idprojects,
             body.fecha_evento,
